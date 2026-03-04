@@ -205,7 +205,7 @@ function parseActionFromMessage(message: string): { action: string; params: Reco
   return null
 }
 
-function buildSystemPrompt(userName?: string, userId?: string): string {
+function buildSystemPrompt(userName?: string): string {
   // Get current user's employee data
   const users = dataStore.getUsers()
   const currentUser = users.find(u => u.name === userName) || users[0]
