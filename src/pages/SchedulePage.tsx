@@ -27,51 +27,70 @@ export default function SchedulePage() {
   const [showOpenShifts, setShowOpenShifts] = useState(true)
   const [showTimeOff, setShowTimeOff] = useState(true)
   const exportRef = useRef<HTMLDivElement>(null)
+  
+  // Extract fetchData so it can be called manually
+  const fetchData = async () => {
+    setLoading(true)
+    try {
+      const [assignRes, typesRes, empRes, locRes, deptRes, leaveRes] = await Promise.all([
+        apiGateway.getShiftAssignments(),
+        apiGateway.getShiftTypes(),
+        apiGateway.getAllEmployees(),
+        apiGateway.getLocations(),
+        apiGateway.getDepartments(),
+        apiGateway.getLeaveRequests(),
+      ])
+      console.log('[SchedulePage] Fetched data:', {
+        assignments: assignRes.data?.length,
+        employees: empRes.data?.length,
+        assignmentsList: assignRes.data,
+        employeesList: empRes.data?.map((e: Employee) => ({ id: e.id, name: e.name }))
+      })
+      if (assignRes.success) setAssignments(assignRes.data)
+      if (typesRes.success) setShiftTypes(typesRes.data)
+      if (empRes.success) setEmployees(empRes.data)
+      if (locRes.success) setLocations(locRes.data)
+      if (deptRes.success) setDepartments(deptRes.data)
+      if (leaveRes.success) setLeaveRequests(leaveRes.data)
+    } catch (error) {
+      console.error('Failed to fetch schedule data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true)
-      try {
-        const [assignRes, typesRes, empRes, locRes, deptRes, leaveRes] = await Promise.all([
-          apiGateway.getShiftAssignments(),
-          apiGateway.getShiftTypes(),
-          apiGateway.getAllEmployees(),
-          apiGateway.getLocations(),
-          apiGateway.getDepartments(),
-          apiGateway.getLeaveRequests(),
-        ])
-        if (assignRes.success) setAssignments(assignRes.data)
-        if (typesRes.success) setShiftTypes(typesRes.data)
-        if (empRes.success) setEmployees(empRes.data)
-        if (locRes.success) setLocations(locRes.data)
-        if (deptRes.success) setDepartments(deptRes.data)
-        if (leaveRes.success) setLeaveRequests(leaveRes.data)
-      } catch (error) {
-        console.error('Failed to fetch schedule data:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
     fetchData()
     
     // Refetch when page becomes visible (e.g., user navigates back from another tab)
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
+        console.log('[SchedulePage] Visibility changed to visible, refetching...')
         fetchData()
       }
     }
     
     // Refetch when window gains focus (user switches tabs within app)
     const handleFocus = () => {
+      console.log('[SchedulePage] Window focused, refetching...')
       fetchData()
     }
     
     document.addEventListener('visibilitychange', handleVisibilityChange)
     window.addEventListener('focus', handleFocus)
     
+    // Also set up a polling interval to catch any missed updates (every 30 seconds)
+    const pollInterval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        console.log('[SchedulePage] Polling for updates...')
+        fetchData()
+      }
+    }, 30000)
+    
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       window.removeEventListener('focus', handleFocus)
+      clearInterval(pollInterval)
     }
   }, [])
 
@@ -100,6 +119,7 @@ export default function SchedulePage() {
       days.push(new Date(current))
       current.setDate(current.getDate() + 1)
     }
+    console.log('[SchedulePage] Days in range:', days.map(d => d.toISOString().split('T')[0]))
     return days
   }, [getDateRange])
 
@@ -117,10 +137,12 @@ export default function SchedulePage() {
         e.email.toLowerCase().includes(q)
       )
     }
-    return result.sort((a, b) => {
+    const sorted = result.sort((a, b) => {
       const roleOrder = { admin: 0, supervisor: 1, employee: 2 }
       return roleOrder[a.role] - roleOrder[b.role]
     })
+    console.log('[SchedulePage] Filtered employees:', sorted.length, 'of', employees.length, 'total')
+    return sorted
   }, [employees, selectedGroup, searchQuery])
 
   const getShiftType = (id: string) => shiftTypes.find(s => s.id === id)
@@ -129,7 +151,11 @@ export default function SchedulePage() {
 
   const getEmployeeShiftsForDay = (employeeId: string, date: Date) => {
     const dateStr = date.toISOString().split('T')[0]
-    return assignments.filter(a => a.employeeId === employeeId && a.date === dateStr)
+    const shifts = assignments.filter(a => a.employeeId === employeeId && a.date === dateStr)
+    if (shifts.length > 0) {
+      console.log('[SchedulePage] Found shifts for', employeeId, 'on', dateStr, ':', shifts)
+    }
+    return shifts
   }
 
   const getEmployeeLeaveForDay = (employeeId: string, date: Date) => {
@@ -246,6 +272,12 @@ export default function SchedulePage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <button onClick={() => fetchData()} className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Refresh
+          </button>
           <button onClick={exportToCSV} className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

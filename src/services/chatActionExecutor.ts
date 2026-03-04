@@ -286,14 +286,15 @@ export function createSwapRequest(
   }
 }
 
-// Create a shift assignment
+// Create or update a shift assignment
 export function createShiftAssignment(
   employeeName: string,
   shiftType: string,
   date: string,
-  locationName?: string
+  locationName?: string,
+  forceOverride: boolean = true // Default to allowing override
 ): ActionResult {
-  console.log('[ChatAction] createShiftAssignment called:', { employeeName, shiftType, date, locationName })
+  console.log('[ChatAction] createShiftAssignment called:', { employeeName, shiftType, date, locationName, forceOverride })
   
   const employee = findEmployeeByName(employeeName)
   if (!employee) {
@@ -306,12 +307,22 @@ export function createShiftAssignment(
   const parsedDate = parseDate(date)
   console.log('[ChatAction] Parsed date:', parsedDate)
   
-  // Check availability
-  const availability = checkEmployeeAvailability(employee.id, parsedDate)
-  if (!availability.available) {
+  // Check for existing shift on this date
+  const existingAssignments = dataStore.getShiftAssignmentsByEmployee(employee.id)
+  const existingShift = existingAssignments.find(a => a.date === parsedDate)
+  
+  // Check for leave (can't override leave)
+  const leaveRequests = dataStore.getLeaveRequestsByEmployee(employee.id)
+  const onLeave = leaveRequests.find(l => 
+    l.status === 'approved' && 
+    parsedDate >= l.startDate && 
+    parsedDate <= l.endDate
+  )
+  
+  if (onLeave) {
     return {
       success: false,
-      message: `${employee.name} is not available on ${parsedDate}. They have: ${availability.existingShift}`
+      message: `${employee.name} is on ${onLeave.leaveType} leave on ${parsedDate}. Cannot assign shift.`
     }
   }
   
@@ -342,7 +353,38 @@ export function createShiftAssignment(
   
   console.log('[ChatAction] Using location:', location.name, location.id)
   
-  // Create assignment
+  // If there's an existing shift, update it instead of creating new
+  if (existingShift) {
+    console.log('[ChatAction] Found existing shift, updating:', existingShift)
+    const oldShiftType = dataStore.getShiftTypeById(existingShift.shiftTypeId)
+    
+    const updatedAssignment = dataStore.updateShiftAssignment(existingShift.id, {
+      shiftTypeId: shift.id,
+      locationId: location.id,
+      status: 'scheduled',
+    })
+    
+    console.log('[ChatAction] Updated shift assignment:', updatedAssignment)
+    
+    dataStore.createAuditEntry({
+      userId: 'user-1',
+      userName: 'AI Assistant',
+      action: 'update',
+      entityType: 'shift-assignment',
+      entityId: existingShift.id,
+      entityName: `Shift for ${employee.name}`,
+      beforeValue: { shift: oldShiftType?.name },
+      afterValue: { date: parsedDate, shift: shift.name, location: location.name },
+    })
+    
+    return {
+      success: true,
+      message: `Shift updated: ${employee.name}'s shift on ${parsedDate} changed from ${oldShiftType?.name || 'Unknown'} to ${shift.name} (${shift.startTime}-${shift.endTime}) at ${location.name}.`,
+      data: { id: existingShift.id, updated: true }
+    }
+  }
+  
+  // Create new assignment
   const assignment = dataStore.createShiftAssignment({
     employeeId: employee.id,
     shiftTypeId: shift.id,

@@ -362,24 +362,16 @@ class GroqService {
           break
           
         case 'create_shift':
-          console.log('[GroqService] Creating shift with params:', parsedAction.params)
-          // First check availability
-          const availCheck = checkAvailability(parsedAction.params.employee, parsedAction.params.date)
-          console.log('[GroqService] Availability check result:', availCheck)
-          if (availCheck.message.includes('NOT available')) {
-            actionResult = availCheck
-            actionContext = `AVAILABILITY CHECK: ${availCheck.message}. Cannot create shift.`
-          } else {
-            actionResult = createShiftAssignment(
-              parsedAction.params.employee,
-              parsedAction.params.shiftType,
-              parsedAction.params.date
-            )
-            console.log('[GroqService] Shift creation result:', actionResult)
-            actionContext = actionResult.success 
-              ? `ACTION EXECUTED: ${actionResult.message}` 
-              : `ACTION FAILED: ${actionResult.message}`
-          }
+          console.log('[GroqService] Creating/updating shift with params:', parsedAction.params)
+          actionResult = createShiftAssignment(
+            parsedAction.params.employee,
+            parsedAction.params.shiftType,
+            parsedAction.params.date
+          )
+          console.log('[GroqService] Shift creation/update result:', actionResult)
+          actionContext = actionResult.success 
+            ? `ACTION EXECUTED: ${actionResult.message}` 
+            : `ACTION FAILED: ${actionResult.message}`
           break
           
         case 'check_availability':
@@ -480,16 +472,11 @@ class GroqService {
           break
           
         case 'create_shift':
-          const availCheck = checkAvailability(parsedAction.params.employee, parsedAction.params.date)
-          if (availCheck.message.includes('NOT available')) {
-            actionResult = availCheck
-          } else {
-            actionResult = createShiftAssignment(
-              parsedAction.params.employee,
-              parsedAction.params.shiftType,
-              parsedAction.params.date
-            )
-          }
+          actionResult = createShiftAssignment(
+            parsedAction.params.employee,
+            parsedAction.params.shiftType,
+            parsedAction.params.date
+          )
           break
           
         case 'check_availability':

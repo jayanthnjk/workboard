@@ -376,6 +376,7 @@ class DataStore {
 
   // Shift Assignments
   getShiftAssignments(): ShiftAssignment[] {
+    console.log('[DataStore] getShiftAssignments called, returning', this.data.shiftAssignments.length, 'assignments')
     return [...this.data.shiftAssignments]
   }
 
@@ -404,6 +405,8 @@ class DataStore {
     }
     this.data.shiftAssignments.push(newAssignment)
     this.saveToStorage()
+    console.log('[DataStore] Created shift assignment:', newAssignment)
+    console.log('[DataStore] Total shift assignments:', this.data.shiftAssignments.length)
     return newAssignment
   }
 
@@ -609,4 +612,17 @@ class DataStore {
 }
 
 export const dataStore = new DataStore()
+
+// Add debug helper to window for testing
+if (typeof window !== 'undefined') {
+  (window as any).debugDataStore = {
+    getEmployees: () => dataStore.getEmployees(),
+    getShiftAssignments: () => dataStore.getShiftAssignments(),
+    getAll: () => {
+      const stored = localStorage.getItem('workboard_data')
+      return stored ? JSON.parse(stored) : null
+    }
+  }
+}
+
 export default dataStore

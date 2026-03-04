@@ -6,10 +6,43 @@ import { voiceAssistant } from '@/services/voiceAssistant'
 import { useAuth } from '@/context/AuthContext'
 import type { ChatMessage } from '@/types'
 
+const CHAT_STORAGE_KEY = 'workboard_chat_messages'
+
+// Load messages from localStorage
+const loadMessages = (): ChatMessage[] => {
+  try {
+    const stored = localStorage.getItem(CHAT_STORAGE_KEY)
+    if (stored) {
+      return JSON.parse(stored)
+    }
+  } catch (e) {
+    console.error('Failed to load chat messages:', e)
+  }
+  return []
+}
+
+// Save messages to localStorage
+const saveMessages = (messages: ChatMessage[]) => {
+  try {
+    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages))
+  } catch (e) {
+    console.error('Failed to save chat messages:', e)
+  }
+}
+
+// Clear messages from localStorage
+const clearMessages = () => {
+  try {
+    localStorage.removeItem(CHAT_STORAGE_KEY)
+  } catch (e) {
+    console.error('Failed to clear chat messages:', e)
+  }
+}
+
 export default function HomePage() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [messages, setMessages] = useState<ChatMessage[]>(() => loadMessages())
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isListening, setIsListening] = useState(false)
@@ -19,6 +52,11 @@ export default function HomePage() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    saveMessages(messages)
+  }, [messages])
 
   useEffect(() => {
     inputRef.current?.focus()
@@ -374,6 +412,7 @@ export default function HomePage() {
           <button
             onClick={() => {
               setMessages([])
+              clearMessages()
               groqService.clearHistory()
             }}
             className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
