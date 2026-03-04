@@ -18,7 +18,39 @@ const AuditPage = () => {
   })
   const [selectedEntry, setSelectedEntry] = useState<AuditEntry | null>(null)
 
-  useEffect(() => { loadData() }, [page])
+  useEffect(() => { 
+    loadData() 
+    
+    // Refetch when page becomes visible (e.g., user navigates back from another tab)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        loadData()
+      }
+    }
+    
+    // Refetch when window gains focus (user switches tabs within app)
+    const handleFocus = () => {
+      loadData()
+    }
+    
+    // Listen for data changes from dataStore
+    const handleDataChange = (event: CustomEvent) => {
+      console.log('[AuditPage] Data changed event received:', event.detail)
+      if (event.detail.type === 'audit-entry') {
+        loadData()
+      }
+    }
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('focus', handleFocus)
+    window.addEventListener('workboard-data-changed', handleDataChange as EventListener)
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('focus', handleFocus)
+      window.removeEventListener('workboard-data-changed', handleDataChange as EventListener)
+    }
+  }, [page])
 
   const loadData = async () => {
     setLoading(true)

@@ -142,6 +142,12 @@ function parseActionFromMessage(message: string): { action: string; params: Reco
     const shiftMatch = message.match(/(morning|afternoon|evening|night)/i)
     const timeMatch = message.match(/at\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/i)
     
+    // If no shift type specified, return null to let AI ask for clarification
+    if (!shiftMatch && !timeMatch) {
+      console.log('[GroqService] No shift type specified, will let AI ask for clarification')
+      return null
+    }
+    
     let shiftType = shiftMatch?.[1] || 'morning'
     if (!shiftMatch && timeMatch) {
       let hour = parseInt(timeMatch[1])
@@ -306,14 +312,19 @@ Would you like to:
 2. Second action option
 3. Third action option
 
-IMPORTANT: Only include the "Would you like to:" section when there are clear next steps the user might want to take. Don't add it for simple informational responses.
+IMPORTANT RULES:
+- Only include the "Would you like to:" section when there are clear next steps the user might want to take. Don't add it for simple informational responses.
+- When user asks to create/assign a shift WITHOUT specifying the shift type (morning/afternoon/night), you MUST ask them which shift type they want. List the available shift types from the SHIFT TYPES section above.
+- When creating shifts, always confirm the employee name, date, and shift type before proceeding.
 
 You can help with:
 - Viewing schedules and shifts
 - Requesting time off
 - Swapping shifts with colleagues
 - Checking who's working
-- Leave balance inquiries`
+- Leave balance inquiries
+- Creating employees
+- Assigning shifts`
 }
 
 class GroqService {

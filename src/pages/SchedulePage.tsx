@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import { useLocation } from 'react-router-dom'
 import { apiGateway } from '@/services/apiGateway'
 import { useAuth } from '@/context/AuthContext'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
@@ -10,6 +11,7 @@ type ViewMode = 'day' | 'week' | 'month'
 
 export default function SchedulePage() {
   const { role } = useAuth()
+  const location = useLocation()
   const [viewMode, setViewMode] = useState<ViewMode>('week')
   const [currentDate, setCurrentDate] = useState(new Date())
   const [assignments, setAssignments] = useState<ShiftAssignment[]>([])
@@ -26,10 +28,12 @@ export default function SchedulePage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [showOpenShifts, setShowOpenShifts] = useState(true)
   const [showTimeOff, setShowTimeOff] = useState(true)
+  const [refreshKey, setRefreshKey] = useState(0) // Force re-render trigger
   const exportRef = useRef<HTMLDivElement>(null)
   
   // Extract fetchData so it can be called manually
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
+    console.log('[SchedulePage] fetchData called')
     setLoading(true)
     try {
       const [assignRes, typesRes, empRes, locRes, deptRes, leaveRes] = await Promise.all([
@@ -43,21 +47,26 @@ export default function SchedulePage() {
       console.log('[SchedulePage] Fetched data:', {
         assignments: assignRes.data?.length,
         employees: empRes.data?.length,
-        assignmentsList: assignRes.data,
-        employeesList: empRes.data?.map((e: Employee) => ({ id: e.id, name: e.name }))
+        assignmentsList: assignRes.data?.slice(0, 10), // Show first 10 for debugging
+        employeesList: empRes.data?.map((e: Employee) => ({ id: e.id, name: e.name })).slice(0, 10)
       })
-      if (assignRes.success) setAssignments(assignRes.data)
+      if (assignRes.success) {
+        console.log('[SchedulePage] Setting assignments:', assignRes.data?.length, 'items')
+        setAssignments(assignRes.data)
+      }
       if (typesRes.success) setShiftTypes(typesRes.data)
       if (empRes.success) setEmployees(empRes.data)
       if (locRes.success) setLocations(locRes.data)
       if (deptRes.success) setDepartments(deptRes.data)
       if (leaveRes.success) setLeaveRequests(leaveRes.data)
+      // Force re-render by incrementing refresh key
+      setRefreshKey(prev => prev + 1)
     } catch (error) {
       console.error('Failed to fetch schedule data:', error)
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     fetchData()
@@ -76,8 +85,30 @@ export default function SchedulePage() {
       fetchData()
     }
     
+    // Listen for data changes from dataStore
+    const handleDataChange = (event: CustomEvent) => {
+      console.log('[SchedulePage] Data changed event received:', event.detail)
+      if (event.detail.type === 'shift-assignment' || event.detail.type === 'employee') {
+        // Small delay to ensure dataStore has fully saved
+        setTimeout(() => {
+          console.log('[SchedulePage] Refetching data after change event...')
+          fetchData()
+        }, 100)
+      }
+    }
+    
+    // Listen for localStorage changes (for cross-tab sync)
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'workboard_data') {
+        console.log('[SchedulePage] localStorage changed, refetching...')
+        fetchData()
+      }
+    }
+    
     document.addEventListener('visibilitychange', handleVisibilityChange)
     window.addEventListener('focus', handleFocus)
+    window.addEventListener('workboard-data-changed', handleDataChange as EventListener)
+    window.addEventListener('storage', handleStorageChange)
     
     // Also set up a polling interval to catch any missed updates (every 30 seconds)
     const pollInterval = setInterval(() => {
@@ -90,9 +121,19 @@ export default function SchedulePage() {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       window.removeEventListener('focus', handleFocus)
+      window.removeEventListener('workboard-data-changed', handleDataChange as EventListener)
+      window.removeEventListener('storage', handleStorageChange)
       clearInterval(pollInterval)
     }
-  }, [])
+  }, [fetchData])
+  
+  // Refetch when navigating to this page (route change)
+  useEffect(() => {
+    if (location.pathname === '/schedule') {
+      console.log('[SchedulePage] Route changed to /schedule, refetching...')
+      fetchData()
+    }
+  }, [location.pathname, fetchData])
 
   const getDateRange = useMemo(() => {
     const start = new Date(currentDate)
@@ -119,9 +160,11 @@ export default function SchedulePage() {
       days.push(new Date(current))
       current.setDate(current.getDate() + 1)
     }
-    console.log('[SchedulePage] Days in range:', days.map(d => d.toISOString().split('T')[0]))
+    const dateStrings = days.map(d => d.toISOString().split('T')[0])
+    console.log('[SchedulePage] Days in range:', dateStrings)
+    console.log('[SchedulePage] Current assignments dates:', assignments.map(a => a.date).filter((v, i, a) => a.indexOf(v) === i))
     return days
-  }, [getDateRange])
+  }, [getDateRange, assignments])
 
   // Filter employees by group and search
   const filteredEmployees = useMemo(() => {
@@ -152,8 +195,9 @@ export default function SchedulePage() {
   const getEmployeeShiftsForDay = (employeeId: string, date: Date) => {
     const dateStr = date.toISOString().split('T')[0]
     const shifts = assignments.filter(a => a.employeeId === employeeId && a.date === dateStr)
+    // Debug logging for troubleshooting - only log when shifts are found or for specific debugging
     if (shifts.length > 0) {
-      console.log('[SchedulePage] Found shifts for', employeeId, 'on', dateStr, ':', shifts)
+      console.log('[SchedulePage] Found shifts for', employeeId, 'on', dateStr, ':', shifts.map(s => ({ id: s.id, shiftTypeId: s.shiftTypeId, status: s.status })))
     }
     return shifts
   }
@@ -404,7 +448,7 @@ export default function SchedulePage() {
       </div>
 
       {/* Schedule Grid */}
-      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden" key={`schedule-grid-${refreshKey}`}>
         {/* Sticky Header Row */}
         <div className="sticky top-0 z-10 grid bg-slate-50 dark:bg-slate-900" style={{ gridTemplateColumns: '200px repeat(7, 1fr) 70px' }}>
           <div className="p-3 border-b border-r border-slate-200 dark:border-slate-700">

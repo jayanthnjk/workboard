@@ -108,28 +108,41 @@ function checkEmployeeAvailability(employeeId: string, date: string): { availabl
 
 // Parse date from natural language (improved)
 function parseDate(dateStr: string): string {
-  if (!dateStr) return new Date().toISOString().split('T')[0]
+  if (!dateStr) {
+    const today = new Date().toISOString().split('T')[0]
+    console.log('[ChatAction] parseDate: no date provided, using today:', today)
+    return today
+  }
   
   const today = new Date()
   const lower = dateStr.toLowerCase().trim()
   
+  console.log('[ChatAction] parseDate: parsing "' + dateStr + '"')
+  
   if (lower === 'today' || lower.includes('today')) {
-    return today.toISOString().split('T')[0]
+    const result = today.toISOString().split('T')[0]
+    console.log('[ChatAction] parseDate: matched "today", returning:', result)
+    return result
   }
   if (lower === 'tomorrow' || lower.includes('tomorrow')) {
     const tomorrow = new Date(today)
     tomorrow.setDate(tomorrow.getDate() + 1)
-    return tomorrow.toISOString().split('T')[0]
+    const result = tomorrow.toISOString().split('T')[0]
+    console.log('[ChatAction] parseDate: matched "tomorrow", returning:', result)
+    return result
   }
   if (lower.includes('next week')) {
     const nextWeek = new Date(today)
     nextWeek.setDate(nextWeek.getDate() + 7)
-    return nextWeek.toISOString().split('T')[0]
+    const result = nextWeek.toISOString().split('T')[0]
+    console.log('[ChatAction] parseDate: matched "next week", returning:', result)
+    return result
   }
   
   // Try to parse YYYY-MM-DD format
   const isoMatch = dateStr.match(/(\d{4}-\d{2}-\d{2})/)
   if (isoMatch) {
+    console.log('[ChatAction] parseDate: matched ISO format, returning:', isoMatch[1])
     return isoMatch[1]
   }
   
@@ -154,17 +167,23 @@ function parseDate(dateStr: string): string {
       if (date < today) {
         date.setFullYear(year + 1)
       }
-      return date.toISOString().split('T')[0]
+      const result = date.toISOString().split('T')[0]
+      console.log('[ChatAction] parseDate: matched month format, returning:', result)
+      return result
     }
   }
   
   // Try generic date parse
   const parsed = new Date(dateStr)
   if (!isNaN(parsed.getTime())) {
-    return parsed.toISOString().split('T')[0]
+    const result = parsed.toISOString().split('T')[0]
+    console.log('[ChatAction] parseDate: generic parse succeeded, returning:', result)
+    return result
   }
   
-  return today.toISOString().split('T')[0]
+  const result = today.toISOString().split('T')[0]
+  console.log('[ChatAction] parseDate: no match, defaulting to today:', result)
+  return result
 }
 
 
@@ -176,33 +195,50 @@ export function createLeaveRequest(
   endDate: string,
   reason: string
 ): ActionResult {
+  console.log('[ChatAction] createLeaveRequest called:', { employeeName, leaveType, startDate, endDate, reason })
+  
   const employee = findEmployeeByName(employeeName)
   if (!employee) {
+    console.log('[ChatAction] Employee not found for leave request:', employeeName)
     return { success: false, message: `Could not find employee "${employeeName}"` }
   }
   
-  // Check availability for the date range
+  console.log('[ChatAction] Found employee for leave request:', employee.name, employee.id)
+  
+  // Parse dates
   const start = parseDate(startDate)
   const end = parseDate(endDate || startDate)
   
-  const availability = checkEmployeeAvailability(employee.id, start)
-  if (!availability.available) {
-    return { 
-      success: false, 
-      message: `${employee.name} is not available on ${start}. They have: ${availability.existingShift}`
-    }
+  console.log('[ChatAction] Leave request dates:', { start, end })
+  
+  // Note: We allow leave requests even if employee has existing shifts
+  // The shifts will be marked as affected and can be reassigned
+  const existingAssignments = dataStore.getShiftAssignmentsByEmployee(employee.id)
+  const affectedShifts = existingAssignments
+    .filter(a => a.date >= start && a.date <= end)
+    .map(a => a.id)
+  
+  if (affectedShifts.length > 0) {
+    console.log('[ChatAction] Leave request will affect', affectedShifts.length, 'existing shifts')
   }
+  
+  // Validate leave type
+  const validLeaveTypes = ['annual', 'sick', 'personal', 'unpaid']
+  const normalizedLeaveType = leaveType.toLowerCase()
+  const finalLeaveType = validLeaveTypes.includes(normalizedLeaveType) ? normalizedLeaveType : 'annual'
   
   // Create the leave request
   const leaveRequest = dataStore.createLeaveRequest({
     employeeId: employee.id,
-    leaveType: leaveType.toLowerCase() as 'annual' | 'sick' | 'personal' | 'unpaid',
+    leaveType: finalLeaveType as 'annual' | 'sick' | 'personal' | 'unpaid',
     startDate: start,
     endDate: end,
     reason: reason || 'Requested via AI assistant',
     status: 'pending',
-    affectedShifts: [],
+    affectedShifts,
   })
+  
+  console.log('[ChatAction] Created leave request:', leaveRequest)
   
   // Create audit entry
   dataStore.createAuditEntry({
@@ -212,12 +248,16 @@ export function createLeaveRequest(
     entityType: 'leave-request',
     entityId: leaveRequest.id,
     entityName: `Leave Request for ${employee.name}`,
-    afterValue: { leaveType, startDate: start, endDate: end },
+    afterValue: { leaveType: finalLeaveType, startDate: start, endDate: end },
   })
+  
+  const affectedMsg = affectedShifts.length > 0 
+    ? ` Note: ${affectedShifts.length} existing shift(s) will need to be reassigned.`
+    : ''
   
   return {
     success: true,
-    message: `Leave request created for ${employee.name} (${leaveType}) from ${start} to ${end}. Status: Pending approval.`,
+    message: `Leave request created for ${employee.name} (${finalLeaveType}) from ${start} to ${end}. Status: Pending approval.${affectedMsg}`,
     data: { id: leaveRequest.id, employeeName: employee.name }
   }
 }
@@ -229,45 +269,60 @@ export function createSwapRequest(
   shiftDate: string,
   reason: string
 ): ActionResult {
+  console.log('[ChatAction] createSwapRequest called:', { requesterName, targetName, shiftDate, reason })
+  
   const requester = findEmployeeByName(requesterName)
   const target = findEmployeeByName(targetName)
   
   if (!requester) {
+    console.log('[ChatAction] Requester not found:', requesterName)
     return { success: false, message: `Could not find employee "${requesterName}"` }
   }
   if (!target) {
+    console.log('[ChatAction] Target not found:', targetName)
     return { success: false, message: `Could not find employee "${targetName}"` }
   }
   
+  console.log('[ChatAction] Found requester:', requester.name, 'and target:', target.name)
+  
   const date = parseDate(shiftDate)
+  console.log('[ChatAction] Swap date:', date)
   
   // Find requester's shift on that date
   const requesterShifts = dataStore.getShiftAssignmentsByEmployee(requester.id)
   const requesterShift = requesterShifts.find(s => s.date === date)
   
+  console.log('[ChatAction] Requester shifts:', requesterShifts.map(s => ({ id: s.id, date: s.date })))
+  
   if (!requesterShift) {
-    return { success: false, message: `${requester.name} has no shift on ${date}` }
+    // If requester has no shift, we can still create a swap request for coverage
+    console.log('[ChatAction] Requester has no shift on', date, '- creating coverage request')
   }
   
   // Find target's shift on that date
   const targetShifts = dataStore.getShiftAssignmentsByEmployee(target.id)
   const targetShift = targetShifts.find(s => s.date === date)
   
-  if (!targetShift) {
-    return { success: false, message: `${target.name} has no shift on ${date} to swap with` }
+  console.log('[ChatAction] Target shifts:', targetShifts.map(s => ({ id: s.id, date: s.date })))
+  
+  // For a swap, at least one person needs a shift
+  if (!requesterShift && !targetShift) {
+    return { success: false, message: `Neither ${requester.name} nor ${target.name} has a shift on ${date}` }
   }
   
   // Create swap request
   const swapRequest = dataStore.createSwapRequest({
     requesterId: requester.id,
     targetId: target.id,
-    requesterShiftId: requesterShift.id,
-    targetShiftId: targetShift.id,
+    requesterShiftId: requesterShift?.id || '',
+    targetShiftId: targetShift?.id || '',
     reason: reason || 'Requested via AI assistant',
     status: 'pending',
     requesterAccepted: true,
     targetAccepted: false,
   })
+  
+  console.log('[ChatAction] Created swap request:', swapRequest)
   
   dataStore.createAuditEntry({
     userId: 'user-1',
@@ -279,9 +334,15 @@ export function createSwapRequest(
     afterValue: { date, requester: requester.name, target: target.name },
   })
   
+  const swapType = requesterShift && targetShift 
+    ? 'swap shifts' 
+    : requesterShift 
+      ? `give shift to ${target.name}` 
+      : `take shift from ${target.name}`
+  
   return {
     success: true,
-    message: `Swap request created: ${requester.name} wants to swap shift with ${target.name} on ${date}. Waiting for ${target.name}'s confirmation.`,
+    message: `Swap request created: ${requester.name} wants to ${swapType} on ${date}. Waiting for ${target.name}'s confirmation.`,
     data: { id: swapRequest.id }
   }
 }
@@ -305,11 +366,13 @@ export function createShiftAssignment(
   console.log('[ChatAction] Found employee:', employee.name, employee.id)
   
   const parsedDate = parseDate(date)
-  console.log('[ChatAction] Parsed date:', parsedDate)
+  console.log('[ChatAction] Parsed date:', parsedDate, '(original:', date, ')')
   
   // Check for existing shift on this date
   const existingAssignments = dataStore.getShiftAssignmentsByEmployee(employee.id)
+  console.log('[ChatAction] Existing assignments for employee:', existingAssignments.map(a => ({ id: a.id, date: a.date })))
   const existingShift = existingAssignments.find(a => a.date === parsedDate)
+  console.log('[ChatAction] Existing shift on', parsedDate, ':', existingShift)
   
   // Check for leave (can't override leave)
   const leaveRequests = dataStore.getLeaveRequestsByEmployee(employee.id)
@@ -355,7 +418,7 @@ export function createShiftAssignment(
   
   // If there's an existing shift, update it instead of creating new
   if (existingShift) {
-    console.log('[ChatAction] Found existing shift, updating:', existingShift)
+    console.log('[ChatAction] Found existing shift, updating:', existingShift.id)
     const oldShiftType = dataStore.getShiftTypeById(existingShift.shiftTypeId)
     
     const updatedAssignment = dataStore.updateShiftAssignment(existingShift.id, {
@@ -364,7 +427,7 @@ export function createShiftAssignment(
       status: 'scheduled',
     })
     
-    console.log('[ChatAction] Updated shift assignment:', updatedAssignment)
+    console.log('[ChatAction] Updated shift assignment result:', updatedAssignment)
     
     dataStore.createAuditEntry({
       userId: 'user-1',
@@ -385,6 +448,7 @@ export function createShiftAssignment(
   }
   
   // Create new assignment
+  console.log('[ChatAction] Creating new shift assignment')
   const assignment = dataStore.createShiftAssignment({
     employeeId: employee.id,
     shiftTypeId: shift.id,

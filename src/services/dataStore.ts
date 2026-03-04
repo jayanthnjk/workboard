@@ -220,6 +220,13 @@ class DataStore {
     }
     this.data.employees.push(newEmp)
     this.saveToStorage()
+    console.log('[DataStore] Created employee:', newEmp)
+    
+    // Dispatch custom event to notify components of data change
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('workboard-data-changed', { detail: { type: 'employee', action: 'create', id: newEmp.id } }))
+    }
+    
     return newEmp
   }
 
@@ -407,12 +414,22 @@ class DataStore {
     this.saveToStorage()
     console.log('[DataStore] Created shift assignment:', newAssignment)
     console.log('[DataStore] Total shift assignments:', this.data.shiftAssignments.length)
+    
+    // Dispatch custom event to notify components of data change
+    if (typeof window !== 'undefined') {
+      console.log('[DataStore] Dispatching workboard-data-changed event for shift-assignment create')
+      window.dispatchEvent(new CustomEvent('workboard-data-changed', { detail: { type: 'shift-assignment', action: 'create', id: newAssignment.id } }))
+    }
+    
     return newAssignment
   }
 
   updateShiftAssignment(id: string, updates: Partial<ShiftAssignment>): ShiftAssignment | undefined {
     const index = this.data.shiftAssignments.findIndex(a => a.id === id)
-    if (index === -1) return undefined
+    if (index === -1) {
+      console.log('[DataStore] updateShiftAssignment: assignment not found:', id)
+      return undefined
+    }
     
     this.data.shiftAssignments[index] = {
       ...this.data.shiftAssignments[index],
@@ -420,6 +437,14 @@ class DataStore {
       updatedAt: new Date().toISOString(),
     }
     this.saveToStorage()
+    console.log('[DataStore] Updated shift assignment:', this.data.shiftAssignments[index])
+    
+    // Dispatch custom event to notify components of data change
+    if (typeof window !== 'undefined') {
+      console.log('[DataStore] Dispatching workboard-data-changed event for shift-assignment update')
+      window.dispatchEvent(new CustomEvent('workboard-data-changed', { detail: { type: 'shift-assignment', action: 'update', id } }))
+    }
+    
     return this.data.shiftAssignments[index]
   }
 
@@ -454,6 +479,13 @@ class DataStore {
     }
     this.data.leaveRequests.push(newRequest)
     this.saveToStorage()
+    console.log('[DataStore] Created leave request:', newRequest)
+    
+    // Dispatch custom event to notify components of data change
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('workboard-data-changed', { detail: { type: 'leave-request', action: 'create', id: newRequest.id } }))
+    }
+    
     return newRequest
   }
 
@@ -488,6 +520,13 @@ class DataStore {
     }
     this.data.swapRequests.push(newRequest)
     this.saveToStorage()
+    console.log('[DataStore] Created swap request:', newRequest)
+    
+    // Dispatch custom event to notify components of data change
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('workboard-data-changed', { detail: { type: 'swap-request', action: 'create', id: newRequest.id } }))
+    }
+    
     return newRequest
   }
 
@@ -591,6 +630,13 @@ class DataStore {
     }
     this.data.auditEntries.unshift(newEntry)
     this.saveToStorage()
+    console.log('[DataStore] Created audit entry:', newEntry)
+    
+    // Dispatch custom event to notify components of data change
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('workboard-data-changed', { detail: { type: 'audit-entry', action: 'create', id: newEntry.id } }))
+    }
+    
     return newEntry
   }
 

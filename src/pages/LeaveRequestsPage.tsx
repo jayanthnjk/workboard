@@ -45,12 +45,22 @@ const LeaveRequestsPage = () => {
       loadData()
     }
     
+    // Listen for data changes from dataStore
+    const handleDataChange = (event: CustomEvent) => {
+      console.log('[LeaveRequestsPage] Data changed event received:', event.detail)
+      if (event.detail.type === 'leave-request') {
+        loadData()
+      }
+    }
+    
     document.addEventListener('visibilitychange', handleVisibilityChange)
     window.addEventListener('focus', handleFocus)
+    window.addEventListener('workboard-data-changed', handleDataChange as EventListener)
     
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       window.removeEventListener('focus', handleFocus)
+      window.removeEventListener('workboard-data-changed', handleDataChange as EventListener)
     }
   }, [])
 
