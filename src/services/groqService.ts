@@ -22,7 +22,7 @@ export interface GroqResponse {
   actionResult?: ActionResult
 }
 
-const GROQ_API_KEY = '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'
+const GROQ_API_KEY = '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'
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 
 // Parse action from user message (improved)
@@ -417,6 +417,7 @@ class GroqService {
     ]
 
     try {
+      console.log('[GroqService] Making API request to Groq...')
       const response = await fetch(GROQ_API_URL, {
         method: 'POST',
         headers: {
@@ -424,16 +425,19 @@ class GroqService {
           'Authorization': `Bearer ${this.apiKey}`,
         },
         body: JSON.stringify({
-          model: 'llama-3.1-8b-instant',
+          model: 'llama-3.3-70b-versatile',
           messages,
           temperature: 0.7,
-          max_tokens: 1024,
+          max_tokens: 2048,
           stream: false,
         }),
       })
 
+      console.log('[GroqService] Response status:', response.status)
+      
       if (!response.ok) {
         const error = await response.text()
+        console.error('[GroqService] API Error:', response.status, error)
         throw new Error(`Groq API error: ${response.status} - ${error}`)
       }
 
@@ -522,6 +526,7 @@ class GroqService {
       { role: 'user', content: userMessage },
     ]
 
+    console.log('[GroqService] Making streaming API request to Groq...')
     const response = await fetch(GROQ_API_URL, {
       method: 'POST',
       headers: {
@@ -529,16 +534,20 @@ class GroqService {
         'Authorization': `Bearer ${this.apiKey}`,
       },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
+        model: 'llama-3.3-70b-versatile',
         messages,
         temperature: 0.7,
-        max_tokens: 1024,
+        max_tokens: 2048,
         stream: true,
       }),
     })
 
+    console.log('[GroqService] Streaming response status:', response.status)
+    
     if (!response.ok || !response.body) {
-      throw new Error(`Groq API error: ${response.status}`)
+      const errorText = await response.text().catch(() => 'Unknown error')
+      console.error('[GroqService] Streaming API Error:', response.status, errorText)
+      throw new Error(`Groq API error: ${response.status} - ${errorText}`)
     }
 
     const reader = response.body.getReader()

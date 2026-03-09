@@ -128,24 +128,56 @@ export default function HomePage() {
     } catch (error) {
       console.error('Chat error:', error)
       setIsStreaming(false)
-      setUseLlm(false) // Disable LLM on error
-      // Fallback to mock on error
-      try {
-        const response = await mockLLMService.getResponse(userInput)
-        setMessages(prev => [...prev, {
-          id: `assistant-${Date.now()}`,
-          role: 'assistant',
-          content: response.text,
-          timestamp: new Date().toISOString(),
-          action: response.action,
-        }])
-      } catch {
+      
+      // Show error message to user with details
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      console.error('Full error details:', errorMessage)
+      
+      // Check if it's an API key or model issue
+      if (errorMessage.includes('401') || errorMessage.includes('403')) {
         setMessages(prev => [...prev, {
           id: `error-${Date.now()}`,
           role: 'assistant',
-          content: 'Sorry, I encountered an error. Please try again.',
+          content: `⚠️ API authentication failed. The Groq API key may be invalid or expired. Falling back to mock mode.\n\nError: ${errorMessage}`,
           timestamp: new Date().toISOString(),
         }])
+        setUseLlm(false)
+      } else if (errorMessage.includes('404') || errorMessage.includes('model')) {
+        setMessages(prev => [...prev, {
+          id: `error-${Date.now()}`,
+          role: 'assistant',
+          content: `⚠️ Model not found. The requested model may not be available. Falling back to mock mode.\n\nError: ${errorMessage}`,
+          timestamp: new Date().toISOString(),
+        }])
+        setUseLlm(false)
+      } else if (errorMessage.includes('429')) {
+        setMessages(prev => [...prev, {
+          id: `error-${Date.now()}`,
+          role: 'assistant',
+          content: `⚠️ Rate limit exceeded. Please wait a moment and try again.\n\nError: ${errorMessage}`,
+          timestamp: new Date().toISOString(),
+        }])
+        // Don't disable LLM for rate limits - just temporary
+      } else {
+        setUseLlm(false) // Disable LLM on other errors
+        // Fallback to mock on error
+        try {
+          const response = await mockLLMService.getResponse(userInput)
+          setMessages(prev => [...prev, {
+            id: `assistant-${Date.now()}`,
+            role: 'assistant',
+            content: response.text,
+            timestamp: new Date().toISOString(),
+            action: response.action,
+          }])
+        } catch {
+          setMessages(prev => [...prev, {
+            id: `error-${Date.now()}`,
+            role: 'assistant',
+            content: 'Sorry, I encountered an error. Please try again.',
+            timestamp: new Date().toISOString(),
+          }])
+        }
       }
     } finally {
       setIsLoading(false)
@@ -399,29 +431,38 @@ export default function HomePage() {
               <p className="text-sm font-medium text-neutral-900 dark:text-white">Assistant</p>
               <p className="text-xs text-neutral-500">
                 {messages.length} message{messages.length !== 1 ? 's' : ''}
-                <span className={`ml-2 px-1.5 py-0.5 rounded text-[10px] font-medium ${
-                  useLlm 
-                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                    : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                }`}>
-                  {useLlm ? '⚡ Groq Llama' : '🔧 Mock'}
-                </span>
               </p>
             </div>
           </div>
-          <button
-            onClick={() => {
-              setMessages([])
-              clearMessages()
-              groqService.clearHistory()
-            }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            New chat
-          </button>
+          <div className="flex items-center gap-2">
+            {/* LLM Toggle Button */}
+            <button
+              onClick={() => setUseLlm(!useLlm)}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                useLlm 
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50' 
+                  : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50'
+              }`}
+              title={useLlm ? 'Click to switch to Mock mode' : 'Click to switch to LLM mode'}
+            >
+              {useLlm ? '⚡ Llama 3.3 70B' : '🔧 Mock'}
+            </button>
+            
+            <button
+              onClick={() => {
+                setMessages([])
+                clearMessages()
+                groqService.clearHistory()
+                setUseLlm(true) // Re-enable LLM on new chat
+              }}
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              New chat
+            </button>
+          </div>
         </div>
       )}
 
