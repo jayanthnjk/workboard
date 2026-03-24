@@ -1,0 +1,103 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          50: '#e6f2ff',
+          100: '#b3d9ff',
+          200: '#80bfff',
+          300: '#4da6ff',
+          400: '#1a8cff',
+          500: '#0078D4',
+          600: '#0066b8',
+          700: '#00549c',
+          800: '#004280',
+          900: '#003064',
+        },
+        success: {
+          50: '#e6f7e6',
+          100: '#b3e6b3',
+          200: '#80d580',
+          300: '#4dc44d',
+          400: '#1ab31a',
+          500: '#107c10',
+          600: '#0e6b0e',
+          700: '#0c5a0c',
+          800: '#0a490a',
+          900: '#083808',
+        },
+        warning: {
+          50: '#fff8e6',
+          100: '#ffebb3',
+          200: '#ffde80',
+          300: '#ffd14d',
+          400: '#ffc41a',
+          500: '#ffaa00',
+          600: '#e69900',
+          700: '#cc8800',
+          800: '#b37700',
+          900: '#996600',
+        },
+        error: {
+          50: '#fde7e7',
+          100: '#f9b8b8',
+          200: '#f58989',
+          300: '#f15a5a',
+          400: '#ed2b2b',
+          500: '#d13438',
+          600: '#b82d30',
+          700: '#9f2628',
+          800: '#861f20',
+          900: '#6d1818',
+        },
+        neutral: {
+          50: '#fafafa',
+          100: '#f5f5f5',
+          200: '#e5e5e5',
+          300: '#d4d4d4',
+          400: '#a3a3a3',
+          500: '#737373',
+          600: '#525252',
+          700: '#404040',
+          800: '#262626',
+          900: '#171717',
+        },
+      },
+      fontFamily: {
+        sans: ['Segoe UI', 'system-ui', '-apple-system', 'sans-serif'],
+      },
+      spacing: {
+        '18': '4.5rem',
+        '88': '22rem',
+        '128': '32rem',
+      },
+      boxShadow: {
+        'card': '0 2px 4px rgba(0, 0, 0, 0.1)',
+        'dropdown': '0 4px 12px rgba(0, 0, 0, 0.15)',
+        'modal': '0 8px 32px rgba(0, 0, 0, 0.2)',
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.2s ease-in-out',
+        'slide-in': 'slideIn 0.3s ease-out',
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideIn: {
+          '0%': { transform: 'translateY(-10px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+      },
+    },
+  },
+  plugins: [],
+}
