@@ -344,14 +344,9 @@ export default function ShiftSchedulePage() {
     <div className="space-y-4">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[var(--color-primary)] flex items-center justify-center">
-            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-          </div>
-          <div>
-            <h1 className="page-title">Schedule</h1>
-            <p className="page-subtitle">Manage team schedules and shifts</p>
-          </div>
+        <div>
+          <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">Schedule</h1>
+          <p className="text-xs text-[var(--color-text-light)] mt-0.5">Manage team schedules and shifts</p>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={() => window.location.reload()} className="btn btn-secondary text-xs gap-1.5">

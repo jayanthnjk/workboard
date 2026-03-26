@@ -691,37 +691,44 @@ export const recruitAPCs: RecruitAPC[] = recruitAPCIds.map((id, i) => ({
 // =============================================================================
 
 export const guardLocations: GuardLocation[] = [
-  { id: 'gl-1', name: 'Commissioner Office Guard (COP)', code: 'COP', type: 'government-office', lat: 12.8714, lng: 74.8425, requiredPersonnel: 4, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  // Government offices
+  { id: 'gl-1', name: 'Commissioner Office Guard (COP)', code: 'COP', type: 'government-office', lat: 12.8714, lng: 74.8425, requiredPersonnel: 6, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
   { id: 'gl-2', name: 'District Treasury Guard', code: 'DTG', type: 'government-office', lat: 12.8698, lng: 74.8430, requiredPersonnel: 3, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'gl-3', name: 'District Session Judge Bunglow Guard', code: 'DSJB', type: 'government-office', lat: 12.8745, lng: 74.8410, requiredPersonnel: 2, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'gl-4', name: 'Canara Bank Currency Chest', code: 'CB-CC', type: 'bank-currency-chest', lat: 12.8660, lng: 74.8435, requiredPersonnel: 2, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'gl-5', name: 'Karnataka Bank Currency Chest', code: 'KB-CC', type: 'bank-currency-chest', lat: 12.8680, lng: 74.8460, requiredPersonnel: 2, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'gl-6', name: 'Axis Bank Currency Chest', code: 'AB-CC', type: 'bank-currency-chest', lat: 12.8750, lng: 74.8500, requiredPersonnel: 2, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'gl-7', name: 'ICICI Bank Currency Chest', code: 'ICICI-CC', type: 'bank-currency-chest', lat: 12.8800, lng: 74.8450, requiredPersonnel: 2, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'gl-8', name: 'Corporation/Union Bank Currency Chest', code: 'CUB-CC', type: 'bank-currency-chest', lat: 12.8620, lng: 74.8380, requiredPersonnel: 2, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'gl-9', name: 'Syndicate Bank Currency Chest', code: 'SB-CC', type: 'bank-currency-chest', lat: 12.8580, lng: 74.8350, requiredPersonnel: 2, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'gl-10', name: 'Vijaya/Bank of Baroda Currency Chest', code: 'VBB-CC', type: 'bank-currency-chest', lat: 12.8730, lng: 74.8520, requiredPersonnel: 2, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'gl-11', name: 'FSL Guard Mangaluru', code: 'FSL', type: 'government-office', lat: 12.8900, lng: 74.8550, requiredPersonnel: 2, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'gl-12', name: 'Wireless Monitoring Station Guard', code: 'WMS', type: 'government-office', lat: 12.8850, lng: 74.8300, requiredPersonnel: 2, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'gl-13', name: 'Wenlock Hospital Cell Guard', code: 'WHC', type: 'hospital', lat: 12.8670, lng: 74.8420, requiredPersonnel: 2, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'gl-14', name: 'NCC Pandeshwara', code: 'NCC-P', type: 'ncc', lat: 12.8640, lng: 74.8370, requiredPersonnel: 2, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'gl-15', name: 'NCC Aravinda', code: 'NCC-A', type: 'ncc', lat: 12.8950, lng: 74.8480, requiredPersonnel: 2, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'gl-16', name: 'NCC Yekkuru', code: 'NCC-Y', type: 'ncc', lat: 12.8550, lng: 74.8280, requiredPersonnel: 2, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'gl-17', name: 'VVPAT/EVM Guard', code: 'EVM', type: 'government-office', lat: 12.8780, lng: 74.8380, requiredPersonnel: 4, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'gl-18', name: 'CAR Armoury Guard', code: 'CAR-ARM', type: 'government-office', lat: 12.8720, lng: 74.8350, requiredPersonnel: 3, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'gl-19', name: 'II ADSJ Court Mangaluru', code: 'ADSJ-II', type: 'court', lat: 12.8690, lng: 74.8440, requiredPersonnel: 2, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'gl-20', name: 'VI ADSJ Court Mangaluru', code: 'ADSJ-VI', type: 'court', lat: 12.8695, lng: 74.8445, requiredPersonnel: 2, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'gl-21', name: 'I ADDL SR CJ & CJM Court Mangaluru', code: 'CJM-I', type: 'court', lat: 12.8700, lng: 74.8450, requiredPersonnel: 2, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'gl-22', name: 'DCP CAR Office Guard', code: 'DCP-CAR', type: 'government-office', lat: 12.8710, lng: 74.8360, requiredPersonnel: 2, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'gl-3', name: 'District Session Judge Bunglow Guard', code: 'DSJB', type: 'government-office', lat: 12.8745, lng: 74.8410, requiredPersonnel: 3, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'gl-4', name: 'Justice Residential Guard (Hat Hill)', code: 'JRG', type: 'government-office', lat: 12.8760, lng: 74.8400, requiredPersonnel: 3, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'gl-5', name: 'Police Commissioner Bunglow', code: 'PCB', type: 'government-office', lat: 12.8730, lng: 74.8440, requiredPersonnel: 5, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'gl-6', name: 'DC Bunglow', code: 'DCB', type: 'government-office', lat: 12.8700, lng: 74.8460, requiredPersonnel: 3, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'gl-7', name: 'FSL Guard Mangaluru', code: 'FSL', type: 'government-office', lat: 12.8900, lng: 74.8550, requiredPersonnel: 1, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'gl-8', name: 'Wireless Monitoring Station Guard', code: 'WMS', type: 'government-office', lat: 12.8850, lng: 74.8300, requiredPersonnel: 3, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  // Hospital
+  { id: 'gl-9', name: 'Wenlock Hospital Cell Guard', code: 'WHC', type: 'hospital', lat: 12.8670, lng: 74.8420, requiredPersonnel: 5, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  // NCC
+  { id: 'gl-10', name: 'NCC Pandeshwara', code: 'NCC-P', type: 'ncc', lat: 12.8640, lng: 74.8370, requiredPersonnel: 3, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'gl-11', name: 'NCC Aravinda (Shivabhagh)', code: 'NCC-A', type: 'ncc', lat: 12.8950, lng: 74.8480, requiredPersonnel: 3, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'gl-12', name: 'NCC Yekkuru', code: 'NCC-Y', type: 'ncc', lat: 12.8550, lng: 74.8280, requiredPersonnel: 3, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  // Bank currency chests
+  { id: 'gl-13', name: 'Corporation/Union Bank Currency Chest Guard', code: 'CUB-CC', type: 'bank-currency-chest', lat: 12.8620, lng: 74.8380, requiredPersonnel: 5, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'gl-14', name: 'Syndicate/Canara Bank Currency Chest Guard', code: 'SCB-CC', type: 'bank-currency-chest', lat: 12.8580, lng: 74.8350, requiredPersonnel: 5, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'gl-15', name: 'Vijaya Bank/Bank of Baroda Currency Chest Guard', code: 'VBB-CC', type: 'bank-currency-chest', lat: 12.8730, lng: 74.8520, requiredPersonnel: 5, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'gl-16', name: 'Canara Bank Currency Chest Guard', code: 'CB-CC', type: 'bank-currency-chest', lat: 12.8660, lng: 74.8435, requiredPersonnel: 5, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'gl-17', name: 'Karnataka Bank Currency Chest Guard', code: 'KB-CC', type: 'bank-currency-chest', lat: 12.8680, lng: 74.8460, requiredPersonnel: 5, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'gl-18', name: 'Axis Bank Currency Chest Guard', code: 'AB-CC', type: 'bank-currency-chest', lat: 12.8750, lng: 74.8500, requiredPersonnel: 5, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'gl-19', name: 'ICICI Bank Currency Chest Guard', code: 'ICICI-CC', type: 'bank-currency-chest', lat: 12.8800, lng: 74.8450, requiredPersonnel: 5, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  // EVM/VVPAT
+  { id: 'gl-20', name: 'VVPAT/EVM Guard (Old DC Office)', code: 'EVM-DC', type: 'government-office', lat: 12.8780, lng: 74.8380, requiredPersonnel: 2, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'gl-21', name: 'VVPAT and EVM Guard Padil', code: 'EVM-PAD', type: 'government-office', lat: 12.8820, lng: 74.8340, requiredPersonnel: 3, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  // CAR Armoury
+  { id: 'gl-22', name: 'CAR Armoury Guard', code: 'CAR-ARM', type: 'government-office', lat: 12.8720, lng: 74.8350, requiredPersonnel: 4, isActive: true, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
 ]
 
 // Platoon-to-location assignments: maps each platoon to its assigned guard location IDs
+// Based on PDF 2 guard duty roster — distributed across 22 locations (85 total personnel)
 export const platoonLocationAssignments: Record<string, string[]> = {
-  P1: ['gl-1', 'gl-2', 'gl-3', 'gl-18', 'gl-22'],           // COP, District Treasury, DSJB, CAR Armoury, DCP CAR
-  P2: ['gl-4', 'gl-5', 'gl-6', 'gl-7', 'gl-17'],             // Canara Bank, Karnataka Bank, Axis Bank, ICICI Bank, EVM
-  P3: ['gl-8', 'gl-9', 'gl-10', 'gl-11'],                     // Corp/Union Bank, Syndicate Bank, Vijaya/BoB, FSL
-  P4: ['gl-12', 'gl-13', 'gl-19', 'gl-20', 'gl-21'],         // Wireless Station, Wenlock Hospital, Courts
-  P5: ['gl-14', 'gl-15', 'gl-16'],                             // NCC Pandeshwara, NCC Aravinda, NCC Yekkuru
+  P1: ['gl-1', 'gl-2', 'gl-3', 'gl-4', 'gl-22'],             // COP, Treasury, DSJB, Hat Hill, CAR Armoury
+  P2: ['gl-5', 'gl-6', 'gl-7', 'gl-8', 'gl-9'],              // PC Bunglow, DC Bunglow, FSL, Wireless, Wenlock
+  P3: ['gl-10', 'gl-11', 'gl-12', 'gl-13', 'gl-14'],         // NCC x3, Corp/Union Bank, Syndicate/Canara Bank
+  P4: ['gl-15', 'gl-16', 'gl-17', 'gl-18', 'gl-19'],         // Vijaya/BOB, Canara, Karnataka, Axis, ICICI
+  P5: ['gl-20', 'gl-21'],                                      // EVM DC Office, EVM Padil
 }
 
 
@@ -880,34 +887,47 @@ export const gunmanAssignments: GunmanAssignment[] = [
 export const rotationCycle: RotationCycle = {
   id: 'rc-1',
   cycleDays: 15,
-  startDate: '2026-02-01',
-  endDate: '2026-02-15',
+  startDate: '2026-02-16',
+  endDate: '2026-04-30',
   rotationSequence: ['guard-i', 'guard-ii', 'check-point', 'prison-vip-escort', 'striking-force'],
   isActive: true,
   createdAt: '2024-01-01T00:00:00Z',
   updatedAt: '2024-01-01T00:00:00Z',
 }
 
-// Initial platoon rotations for Feb 2026
+// Initial platoon rotations — matches Section C Platoon Chart PDF
+// Rotation order from PDF: each cycle the platoons shift duty assignments
 export const platoonRotations: PlatoonRotation[] = [
-  // Cycle 1: Feb 1-15, 2026
-  { id: 'pr-1-1', platoonId: 'P1', dutyType: 'guard-i', startDate: '2026-02-01', endDate: '2026-02-15', cycleNumber: 1, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'pr-1-2', platoonId: 'P2', dutyType: 'guard-ii', startDate: '2026-02-01', endDate: '2026-02-15', cycleNumber: 1, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'pr-1-3', platoonId: 'P3', dutyType: 'check-point', startDate: '2026-02-01', endDate: '2026-02-15', cycleNumber: 1, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'pr-1-4', platoonId: 'P4', dutyType: 'prison-vip-escort', startDate: '2026-02-01', endDate: '2026-02-15', cycleNumber: 1, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'pr-1-5', platoonId: 'P5', dutyType: 'striking-force', startDate: '2026-02-01', endDate: '2026-02-15', cycleNumber: 1, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  // Cycle 2: Feb 16 - Mar 2, 2026 (rotated)
-  { id: 'pr-2-1', platoonId: 'P1', dutyType: 'striking-force', startDate: '2026-02-16', endDate: '2026-03-02', cycleNumber: 2, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'pr-2-2', platoonId: 'P2', dutyType: 'guard-i', startDate: '2026-02-16', endDate: '2026-03-02', cycleNumber: 2, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'pr-2-3', platoonId: 'P3', dutyType: 'guard-ii', startDate: '2026-02-16', endDate: '2026-03-02', cycleNumber: 2, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'pr-2-4', platoonId: 'P4', dutyType: 'check-point', startDate: '2026-02-16', endDate: '2026-03-02', cycleNumber: 2, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'pr-2-5', platoonId: 'P5', dutyType: 'prison-vip-escort', startDate: '2026-02-16', endDate: '2026-03-02', cycleNumber: 2, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  // Cycle 3: Mar 3-17, 2026
-  { id: 'pr-3-1', platoonId: 'P1', dutyType: 'prison-vip-escort', startDate: '2026-03-03', endDate: '2026-03-17', cycleNumber: 3, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'pr-3-2', platoonId: 'P2', dutyType: 'striking-force', startDate: '2026-03-03', endDate: '2026-03-17', cycleNumber: 3, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'pr-3-3', platoonId: 'P3', dutyType: 'guard-i', startDate: '2026-03-03', endDate: '2026-03-17', cycleNumber: 3, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'pr-3-4', platoonId: 'P4', dutyType: 'guard-ii', startDate: '2026-03-03', endDate: '2026-03-17', cycleNumber: 3, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'pr-3-5', platoonId: 'P5', dutyType: 'check-point', startDate: '2026-03-03', endDate: '2026-03-17', cycleNumber: 3, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  // Cycle 1: 16-02-2026 TO 28-02-2026
+  { id: 'pr-1-1', platoonId: 'P1', dutyType: 'guard-i',          startDate: '2026-02-16', endDate: '2026-02-28', cycleNumber: 1, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'pr-1-2', platoonId: 'P2', dutyType: 'guard-ii',         startDate: '2026-02-16', endDate: '2026-02-28', cycleNumber: 1, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'pr-1-3', platoonId: 'P3', dutyType: 'check-point',      startDate: '2026-02-16', endDate: '2026-02-28', cycleNumber: 1, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'pr-1-4', platoonId: 'P4', dutyType: 'prison-vip-escort', startDate: '2026-02-16', endDate: '2026-02-28', cycleNumber: 1, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'pr-1-5', platoonId: 'P5', dutyType: 'striking-force',   startDate: '2026-02-16', endDate: '2026-02-28', cycleNumber: 1, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  // Cycle 2: 01-03-2026 TO 15-03-2026
+  { id: 'pr-2-1', platoonId: 'P3', dutyType: 'guard-i',          startDate: '2026-03-01', endDate: '2026-03-15', cycleNumber: 2, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'pr-2-2', platoonId: 'P4', dutyType: 'guard-ii',         startDate: '2026-03-01', endDate: '2026-03-15', cycleNumber: 2, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'pr-2-3', platoonId: 'P5', dutyType: 'check-point',      startDate: '2026-03-01', endDate: '2026-03-15', cycleNumber: 2, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'pr-2-4', platoonId: 'P1', dutyType: 'prison-vip-escort', startDate: '2026-03-01', endDate: '2026-03-15', cycleNumber: 2, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'pr-2-5', platoonId: 'P2', dutyType: 'striking-force',   startDate: '2026-03-01', endDate: '2026-03-15', cycleNumber: 2, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  // Cycle 3: 16-03-2026 TO 31-03-2026 (current as of 17-03-2026)
+  { id: 'pr-3-1', platoonId: 'P5', dutyType: 'guard-i',          startDate: '2026-03-16', endDate: '2026-03-31', cycleNumber: 3, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'pr-3-2', platoonId: 'P1', dutyType: 'guard-ii',         startDate: '2026-03-16', endDate: '2026-03-31', cycleNumber: 3, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'pr-3-3', platoonId: 'P2', dutyType: 'check-point',      startDate: '2026-03-16', endDate: '2026-03-31', cycleNumber: 3, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'pr-3-4', platoonId: 'P3', dutyType: 'prison-vip-escort', startDate: '2026-03-16', endDate: '2026-03-31', cycleNumber: 3, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'pr-3-5', platoonId: 'P4', dutyType: 'striking-force',   startDate: '2026-03-16', endDate: '2026-03-31', cycleNumber: 3, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  // Cycle 4: 01-04-2026 TO 15-04-2026
+  { id: 'pr-4-1', platoonId: 'P4', dutyType: 'guard-i',          startDate: '2026-04-01', endDate: '2026-04-15', cycleNumber: 4, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'pr-4-2', platoonId: 'P5', dutyType: 'guard-ii',         startDate: '2026-04-01', endDate: '2026-04-15', cycleNumber: 4, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'pr-4-3', platoonId: 'P1', dutyType: 'check-point',      startDate: '2026-04-01', endDate: '2026-04-15', cycleNumber: 4, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'pr-4-4', platoonId: 'P2', dutyType: 'prison-vip-escort', startDate: '2026-04-01', endDate: '2026-04-15', cycleNumber: 4, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'pr-4-5', platoonId: 'P3', dutyType: 'striking-force',   startDate: '2026-04-01', endDate: '2026-04-15', cycleNumber: 4, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  // Cycle 5: 16-04-2026 TO 30-04-2026
+  { id: 'pr-5-1', platoonId: 'P2', dutyType: 'guard-i',          startDate: '2026-04-16', endDate: '2026-04-30', cycleNumber: 5, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'pr-5-2', platoonId: 'P3', dutyType: 'guard-ii',         startDate: '2026-04-16', endDate: '2026-04-30', cycleNumber: 5, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'pr-5-3', platoonId: 'P4', dutyType: 'check-point',      startDate: '2026-04-16', endDate: '2026-04-30', cycleNumber: 5, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'pr-5-4', platoonId: 'P5', dutyType: 'prison-vip-escort', startDate: '2026-04-16', endDate: '2026-04-30', cycleNumber: 5, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'pr-5-5', platoonId: 'P1', dutyType: 'striking-force',   startDate: '2026-04-16', endDate: '2026-04-30', cycleNumber: 5, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
 ]
 
 
@@ -1277,56 +1297,49 @@ for (let day = 0; day < 30; day++) {
   }
 }
 
-// Leave Requests
+// Leave Requests — from Form 168 Leave Statement dated 17-03-2026
+// 16 EL (Earned Leave), 16 CL (Casual Leave) = 32 total on leave
 export const leaveRequests: LeaveRequest[] = [
-  {
-    id: 'leave-1',
-    employeeId: 'emp-5',
-    leaveType: 'annual',
-    startDate: '2026-02-20',
-    endDate: '2026-02-25',
-    reason: 'Personal leave',
-    status: 'pending',
-    affectedShifts: [],
-    createdAt: '2026-02-10T00:00:00Z',
-    updatedAt: '2026-02-10T00:00:00Z',
-  },
-  {
-    id: 'leave-2',
-    employeeId: 'emp-1',
-    leaveType: 'annual',
-    startDate: '2026-03-23',
-    endDate: '2026-03-24',
-    reason: 'Family function',
-    status: 'pending',
-    affectedShifts: [],
-    createdAt: '2026-03-15T00:00:00Z',
-    updatedAt: '2026-03-15T00:00:00Z',
-  },
-  {
-    id: 'leave-3',
-    employeeId: 'emp-3',
-    leaveType: 'sick',
-    startDate: '2026-03-25',
-    endDate: '2026-03-26',
-    reason: 'Medical appointment',
-    status: 'approved',
-    affectedShifts: [],
-    createdAt: '2026-03-20T00:00:00Z',
-    updatedAt: '2026-03-20T00:00:00Z',
-  },
-  {
-    id: 'leave-4',
-    employeeId: 'emp-7',
-    leaveType: 'personal',
-    startDate: '2026-03-27',
-    endDate: '2026-03-28',
-    reason: 'Personal work',
-    status: 'approved',
-    affectedShifts: [],
-    createdAt: '2026-03-18T00:00:00Z',
-    updatedAt: '2026-03-18T00:00:00Z',
-  },
+  // EL (Earned Leave) entries
+  { id: 'leave-1', employeeId: 'emp-1', leaveType: 'annual', startDate: '2026-02-16', endDate: '2026-03-17', reason: '30 days EL — APC-2642', status: 'approved', affectedShifts: [], createdAt: '2026-02-10T00:00:00Z', updatedAt: '2026-02-10T00:00:00Z' },
+  { id: 'leave-2', employeeId: 'emp-2', leaveType: 'annual', startDate: '2026-03-04', endDate: '2026-03-18', reason: '15 days EL — AHC-2597', status: 'approved', affectedShifts: [], createdAt: '2026-02-28T00:00:00Z', updatedAt: '2026-02-28T00:00:00Z' },
+  { id: 'leave-3', employeeId: 'emp-3', leaveType: 'annual', startDate: '2026-03-07', endDate: '2026-03-18', reason: '12 days EL — ARSI Sri Sudheer K', status: 'approved', affectedShifts: [], createdAt: '2026-03-01T00:00:00Z', updatedAt: '2026-03-01T00:00:00Z' },
+  { id: 'leave-4', employeeId: 'emp-4', leaveType: 'annual', startDate: '2026-03-07', endDate: '2026-03-18', reason: '12 days EL — APC-0298', status: 'approved', affectedShifts: [], createdAt: '2026-03-01T00:00:00Z', updatedAt: '2026-03-01T00:00:00Z' },
+  { id: 'leave-5', employeeId: 'emp-5', leaveType: 'annual', startDate: '2026-03-09', endDate: '2026-04-07', reason: '30 days EL — APC-2716', status: 'approved', affectedShifts: [], createdAt: '2026-03-03T00:00:00Z', updatedAt: '2026-03-03T00:00:00Z' },
+  { id: 'leave-6', employeeId: 'emp-6', leaveType: 'annual', startDate: '2026-03-09', endDate: '2026-04-07', reason: '30 days EL — APC-0138', status: 'approved', affectedShifts: [], createdAt: '2026-03-03T00:00:00Z', updatedAt: '2026-03-03T00:00:00Z' },
+  { id: 'leave-7', employeeId: 'emp-7', leaveType: 'annual', startDate: '2026-03-09', endDate: '2026-03-23', reason: '15 days PL — AHC-2652', status: 'approved', affectedShifts: [], createdAt: '2026-03-03T00:00:00Z', updatedAt: '2026-03-03T00:00:00Z' },
+  { id: 'leave-8', employeeId: 'emp-8', leaveType: 'annual', startDate: '2026-03-10', endDate: '2026-03-24', reason: '15 days EL — APC-2689', status: 'approved', affectedShifts: [], createdAt: '2026-03-04T00:00:00Z', updatedAt: '2026-03-04T00:00:00Z' },
+  { id: 'leave-9', employeeId: 'emp-9', leaveType: 'annual', startDate: '2026-03-10', endDate: '2026-04-08', reason: '30 days EL — APC-0236', status: 'approved', affectedShifts: [], createdAt: '2026-03-04T00:00:00Z', updatedAt: '2026-03-04T00:00:00Z' },
+  { id: 'leave-10', employeeId: 'emp-10', leaveType: 'annual', startDate: '2026-03-10', endDate: '2026-03-27', reason: '18 days EL — APC-2738', status: 'approved', affectedShifts: [], createdAt: '2026-03-04T00:00:00Z', updatedAt: '2026-03-04T00:00:00Z' },
+  { id: 'leave-11', employeeId: 'emp-11', leaveType: 'annual', startDate: '2026-03-11', endDate: '2026-03-25', reason: '15 days EL — APC-2814', status: 'approved', affectedShifts: [], createdAt: '2026-03-05T00:00:00Z', updatedAt: '2026-03-05T00:00:00Z' },
+  { id: 'leave-12', employeeId: 'emp-12', leaveType: 'annual', startDate: '2026-03-12', endDate: '2026-03-26', reason: '15 days EL — APC-0170', status: 'approved', affectedShifts: [], createdAt: '2026-03-06T00:00:00Z', updatedAt: '2026-03-06T00:00:00Z' },
+  { id: 'leave-13', employeeId: 'emp-13', leaveType: 'annual', startDate: '2026-03-12', endDate: '2026-03-18', reason: '07 days EL — APC-0377', status: 'approved', affectedShifts: [], createdAt: '2026-03-06T00:00:00Z', updatedAt: '2026-03-06T00:00:00Z' },
+  { id: 'leave-14', employeeId: 'emp-14', leaveType: 'annual', startDate: '2026-03-13', endDate: '2026-03-24', reason: '12 days EL — APC-2654', status: 'approved', affectedShifts: [], createdAt: '2026-03-07T00:00:00Z', updatedAt: '2026-03-07T00:00:00Z' },
+  { id: 'leave-15', employeeId: 'emp-15', leaveType: 'annual', startDate: '2026-03-16', endDate: '2026-03-27', reason: '12 days EL — APC-024', status: 'approved', affectedShifts: [], createdAt: '2026-03-10T00:00:00Z', updatedAt: '2026-03-10T00:00:00Z' },
+  { id: 'leave-16', employeeId: 'emp-16', leaveType: 'annual', startDate: '2026-03-17', endDate: '2026-03-24', reason: '08 days EL — APC-0232', status: 'approved', affectedShifts: [], createdAt: '2026-03-11T00:00:00Z', updatedAt: '2026-03-11T00:00:00Z' },
+  // CL (Casual Leave) entries
+  { id: 'leave-17', employeeId: 'emp-17', leaveType: 'personal', startDate: '2026-03-12', endDate: '2026-03-17', reason: '06 days CL — APC-044', status: 'approved', affectedShifts: [], createdAt: '2026-03-06T00:00:00Z', updatedAt: '2026-03-06T00:00:00Z' },
+  { id: 'leave-18', employeeId: 'emp-18', leaveType: 'personal', startDate: '2026-03-12', endDate: '2026-03-17', reason: '06 days CL — APC-2717', status: 'approved', affectedShifts: [], createdAt: '2026-03-06T00:00:00Z', updatedAt: '2026-03-06T00:00:00Z' },
+  { id: 'leave-19', employeeId: 'emp-19', leaveType: 'personal', startDate: '2026-03-13', endDate: '2026-03-18', reason: '06 days CL — AHC-2718', status: 'approved', affectedShifts: [], createdAt: '2026-03-07T00:00:00Z', updatedAt: '2026-03-07T00:00:00Z' },
+  { id: 'leave-20', employeeId: 'emp-20', leaveType: 'personal', startDate: '2026-03-14', endDate: '2026-03-19', reason: '06 days CL — APC-2641', status: 'approved', affectedShifts: [], createdAt: '2026-03-08T00:00:00Z', updatedAt: '2026-03-08T00:00:00Z' },
+  { id: 'leave-21', employeeId: 'emp-21', leaveType: 'personal', startDate: '2026-03-14', endDate: '2026-03-17', reason: '04 days CL — APC-0121', status: 'approved', affectedShifts: [], createdAt: '2026-03-08T00:00:00Z', updatedAt: '2026-03-08T00:00:00Z' },
+  { id: 'leave-22', employeeId: 'emp-22', leaveType: 'personal', startDate: '2026-03-15', endDate: '2026-03-19', reason: '05 days CL — AHC-2796', status: 'approved', affectedShifts: [], createdAt: '2026-03-09T00:00:00Z', updatedAt: '2026-03-09T00:00:00Z' },
+  { id: 'leave-23', employeeId: 'emp-23', leaveType: 'personal', startDate: '2026-03-16', endDate: '2026-03-20', reason: '04 days CL — RPI Sri M D Jumanal (with permission days)', status: 'approved', affectedShifts: [], createdAt: '2026-03-10T00:00:00Z', updatedAt: '2026-03-10T00:00:00Z' },
+  { id: 'leave-24', employeeId: 'emp-24', leaveType: 'personal', startDate: '2026-03-10', endDate: '2026-03-18', reason: '06 days CL — RSI Sri Mahantesh (with permission & RH)', status: 'approved', affectedShifts: [], createdAt: '2026-03-04T00:00:00Z', updatedAt: '2026-03-04T00:00:00Z' },
+  { id: 'leave-25', employeeId: 'emp-25', leaveType: 'personal', startDate: '2026-03-16', endDate: '2026-03-17', reason: '02 days CL — AHC-2713', status: 'approved', affectedShifts: [], createdAt: '2026-03-10T00:00:00Z', updatedAt: '2026-03-10T00:00:00Z' },
+  { id: 'leave-26', employeeId: 'emp-26', leaveType: 'personal', startDate: '2026-03-16', endDate: '2026-03-18', reason: '03 days CL — APC-0246', status: 'approved', affectedShifts: [], createdAt: '2026-03-10T00:00:00Z', updatedAt: '2026-03-10T00:00:00Z' },
+  { id: 'leave-27', employeeId: 'emp-27', leaveType: 'personal', startDate: '2026-03-16', endDate: '2026-03-17', reason: '02 days CL — APC-0295', status: 'approved', affectedShifts: [], createdAt: '2026-03-10T00:00:00Z', updatedAt: '2026-03-10T00:00:00Z' },
+  { id: 'leave-28', employeeId: 'emp-28', leaveType: 'personal', startDate: '2026-03-16', endDate: '2026-03-18', reason: '03 days CL — APC-0229', status: 'approved', affectedShifts: [], createdAt: '2026-03-10T00:00:00Z', updatedAt: '2026-03-10T00:00:00Z' },
+  { id: 'leave-29', employeeId: 'emp-29', leaveType: 'personal', startDate: '2026-03-16', endDate: '2026-03-17', reason: '02 days CL — APC-2668', status: 'approved', affectedShifts: [], createdAt: '2026-03-10T00:00:00Z', updatedAt: '2026-03-10T00:00:00Z' },
+  { id: 'leave-30', employeeId: 'emp-30', leaveType: 'personal', startDate: '2026-03-13', endDate: '2026-03-18', reason: '06 days CL — APC-0262', status: 'approved', affectedShifts: [], createdAt: '2026-03-07T00:00:00Z', updatedAt: '2026-03-07T00:00:00Z' },
+  { id: 'leave-31', employeeId: 'emp-31', leaveType: 'personal', startDate: '2026-03-17', endDate: '2026-03-18', reason: '02 days CL — APC-2701', status: 'approved', affectedShifts: [], createdAt: '2026-03-11T00:00:00Z', updatedAt: '2026-03-11T00:00:00Z' },
+  { id: 'leave-32', employeeId: 'emp-32', leaveType: 'personal', startDate: '2026-03-17', endDate: '2026-03-17', reason: '01 day CL — APC-0247', status: 'approved', affectedShifts: [], createdAt: '2026-03-11T00:00:00Z', updatedAt: '2026-03-11T00:00:00Z' },
+  // Sick leave
+  { id: 'leave-33', employeeId: 'emp-33', leaveType: 'sick', startDate: '2026-03-17', endDate: '2026-03-17', reason: 'Sick — APC-0104 Mallanna', status: 'approved', affectedShifts: [], createdAt: '2026-03-17T00:00:00Z', updatedAt: '2026-03-17T00:00:00Z' },
+  // Pending new requests
+  { id: 'leave-34', employeeId: 'emp-34', leaveType: 'annual', startDate: '2026-03-25', endDate: '2026-04-05', reason: 'Family function', status: 'pending', affectedShifts: [], createdAt: '2026-03-20T00:00:00Z', updatedAt: '2026-03-20T00:00:00Z' },
+  { id: 'leave-35', employeeId: 'emp-35', leaveType: 'personal', startDate: '2026-03-28', endDate: '2026-03-30', reason: 'Personal work', status: 'pending', affectedShifts: [], createdAt: '2026-03-22T00:00:00Z', updatedAt: '2026-03-22T00:00:00Z' },
+  { id: 'leave-36', employeeId: 'emp-36', leaveType: 'annual', startDate: '2026-04-01', endDate: '2026-04-10', reason: 'Annual leave', status: 'pending', affectedShifts: [], createdAt: '2026-03-23T00:00:00Z', updatedAt: '2026-03-23T00:00:00Z' },
 ]
 
 // Swap Requests

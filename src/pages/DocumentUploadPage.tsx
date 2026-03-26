@@ -79,7 +79,10 @@ const DocumentUploadPage = () => {
 
   return (
     <div className="p-4 sm:p-6 space-y-6">
-      <h1 className="page-title">Document Upload & Parsing</h1>
+      <div>
+        <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">Document Upload</h1>
+        <p className="text-xs text-[var(--color-text-light)] mt-0.5">Upload and parse duty documents</p>
+      </div>
 
       <div className="card p-6">
         <h2 className="text-lg font-semibold text-[var(--color-text-dark)] mb-4">Upload Document</h2>

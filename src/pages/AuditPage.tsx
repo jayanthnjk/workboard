@@ -80,8 +80,8 @@ export default function AuditPage() {
       {/* Page Header */}
       <div className="page-header">
         <div>
-          <h1 className="page-title">{t('audit_title')}</h1>
-          <p className="page-subtitle">{t('audit_subtitle')}</p>
+          <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">{t('audit_title')}</h1>
+          <p className="text-xs text-[var(--color-text-light)] mt-0.5">{t('audit_subtitle')}</p>
         </div>
         <button className="btn btn-primary">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>

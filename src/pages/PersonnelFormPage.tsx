@@ -108,7 +108,7 @@ export default function PersonnelFormPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       {/* Page Header */}
       <div className="flex items-center gap-4">
         <button onClick={() => navigate('/employees')} className="p-2 hover:bg-[var(--color-bg-main)] rounded-lg text-[var(--color-text-medium)]">

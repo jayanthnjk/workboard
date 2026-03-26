@@ -31,11 +31,11 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       {/* Page Header */}
       <div>
-        <h1 className="page-title">{t('settings_title')}</h1>
-        <p className="page-subtitle">{t('settings_subtitle')}</p>
+        <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">{t('settings_title')}</h1>
+        <p className="text-xs text-[var(--color-text-light)] mt-0.5">{t('settings_subtitle')}</p>
       </div>
 
       {/* Profile Section */}

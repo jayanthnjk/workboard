@@ -113,7 +113,10 @@ const ShiftPatternsPage = () => {
   return (
     <div className="p-4 sm:p-6 space-y-6">
       <div className="page-header">
-        <h1 className="page-title">Shift Patterns</h1>
+        <div>
+          <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">Shift Patterns</h1>
+          <p className="text-xs text-[var(--color-text-light)] mt-0.5">Configure rotation patterns</p>
+        </div>
         <button onClick={openCreateModal} className="btn btn-primary">
           Add Pattern
         </button>

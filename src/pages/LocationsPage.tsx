@@ -83,8 +83,8 @@ export default function LocationsPage() {
       {/* Header Row — title + tab switcher + stats inline */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="page-title">{t('locations')}</h1>
-          <p className="text-xs text-[var(--color-text-light)]">Mangaluru City Division — {stats.active} active of {stats.total} locations · {stats.totalPersonnel} personnel</p>
+          <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">{t('locations')}</h1>
+          <p className="text-xs text-[var(--color-text-light)] mt-0.5">Mangaluru City Division — {stats.active} active of {stats.total} locations · {stats.totalPersonnel} personnel</p>
         </div>
         <div className="flex items-center gap-3">
           {/* Tab Switcher */}

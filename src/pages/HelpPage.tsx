@@ -21,8 +21,8 @@ export function HelpPage() {
     <div className="space-y-6">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Help & Support</h1>
-          <p className="page-subtitle">Find answers and get assistance</p>
+          <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">Help & Support</h1>
+          <p className="text-xs text-[var(--color-text-light)] mt-0.5">Find answers and get assistance</p>
         </div>
       </div>
 

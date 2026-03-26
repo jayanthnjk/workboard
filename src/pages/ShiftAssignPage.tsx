@@ -67,7 +67,7 @@ export default function ShiftAssignPage() {
   if (loading) return <div className="flex items-center justify-center h-64"><LoadingSpinner /></div>
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6 max-w-3xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-4">
         <button onClick={() => navigate('/shift-schedule')} className="p-2 hover:bg-[var(--color-bg-card)] rounded-lg text-[var(--color-text-medium)]">
@@ -95,25 +95,25 @@ export default function ShiftAssignPage() {
 
       {/* Form */}
       <div className="card p-6 space-y-5">
-        {/* Employee */}
-        <div>
-          <label className="label">Team Member</label>
-          <select value={selectedEmployee} onChange={e => setSelectedEmployee(e.target.value)} className="input">
-            <option value="">Select employee...</option>
-            {employees.map(e => <option key={e.id} value={e.id}>{e.name} ({e.employeeId})</option>)}
-          </select>
-        </div>
-
-        {/* Date */}
-        <div>
-          <label className="label">Date</label>
-          <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="input" />
+        {/* Row: Employee + Date */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label className="label">Team Member</label>
+            <select value={selectedEmployee} onChange={e => setSelectedEmployee(e.target.value)} className="input">
+              <option value="">Select employee...</option>
+              {employees.map(e => <option key={e.id} value={e.id}>{e.name} ({e.employeeId})</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="label">Date</label>
+            <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} className="input" />
+          </div>
         </div>
 
         {/* Shift Type */}
         <div>
           <label className="label">Shift Type</label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {shiftTypes.filter(s => s.isActive).map(st => (
               <button key={st.id} onClick={() => setSelectedShift(st.id)}
                 className={`text-left px-4 py-3 rounded-lg border transition-all ${selectedShift === st.id ? 'border-[var(--color-primary)] bg-[var(--color-primary)]/5 ring-1 ring-[var(--color-primary)]/30' : 'border-[var(--color-border)] hover:border-[var(--color-primary)]/50'}`}>
@@ -129,19 +129,19 @@ export default function ShiftAssignPage() {
           </div>
         </div>
 
-        {/* Location */}
-        <div>
-          <label className="label">Location</label>
-          <select value={selectedLocation} onChange={e => setSelectedLocation(e.target.value)} className="input">
-            <option value="">Select location...</option>
-            {locations.filter(l => l.isActive).map(l => <option key={l.id} value={l.id}>{l.name} — {l.city}</option>)}
-          </select>
-        </div>
-
-        {/* Notes */}
-        <div>
-          <label className="label">Notes (optional)</label>
-          <textarea value={notes} onChange={e => setNotes(e.target.value)} className="input" rows={2} placeholder="Any additional notes..." />
+        {/* Row: Location + Notes */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label className="label">Location</label>
+            <select value={selectedLocation} onChange={e => setSelectedLocation(e.target.value)} className="input">
+              <option value="">Select location...</option>
+              {locations.filter(l => l.isActive).map(l => <option key={l.id} value={l.id}>{l.name} — {l.city}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="label">Notes (optional)</label>
+            <textarea value={notes} onChange={e => setNotes(e.target.value)} className="input" rows={2} placeholder="Any additional notes..." />
+          </div>
         </div>
 
         {/* Summary */}

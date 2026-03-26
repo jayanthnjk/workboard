@@ -209,8 +209,8 @@ export default function ShiftTypesPage() {
     <div className="space-y-6">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Shift Types</h1>
-          <p className="page-subtitle">Configure shift definitions</p>
+          <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">Shift Types</h1>
+          <p className="text-xs text-[var(--color-text-light)] mt-0.5">Configure shift definitions</p>
         </div>
         <button onClick={() => handleOpenModal()} className="btn btn-primary">Add Shift Type</button>
       </div>

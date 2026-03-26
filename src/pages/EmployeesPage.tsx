@@ -99,8 +99,8 @@ export default function EmployeesPage() {
       {/* Page Header */}
       <div className="page-header">
         <div>
-          <h1 className="page-title">{t('personnel')}</h1>
-          <p className="page-subtitle">{t('manage_team')}</p>
+          <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">{t('personnel')}</h1>
+          <p className="text-xs text-[var(--color-text-light)] mt-0.5">{t('manage_team')}</p>
         </div>
         {permissions.canAddPersonnel && (
           <button onClick={() => navigate('/employees/add')} className="btn btn-primary">

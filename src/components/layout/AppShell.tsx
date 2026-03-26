@@ -40,7 +40,7 @@ export function AppShell() {
       />
 
       {/* Main Content - offset for fixed header + sidebar */}
-      <main className={`pt-[68px] px-2 sm:px-3 pb-3 transition-all duration-300 ${sidebarCollapsed ? 'md:pl-[76px]' : 'md:pl-[236px]'}`}>
+      <main className={`pt-[72px] px-3 sm:px-4 pb-3 transition-all duration-300 ${sidebarCollapsed ? 'md:pl-[84px]' : 'md:pl-[244px]'} md:pr-4`}>
         <Outlet />
       </main>
     </div>
