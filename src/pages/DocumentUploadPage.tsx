@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { LoadingSpinner } from '@/components/common'
+import { useLanguage } from '@/context/LanguageContext'
 import type { ParseResult, ExtractedRule } from '@/types'
 
 // Mocked document parsing results
@@ -34,6 +35,7 @@ const mockParseResults: Record<string, ParseResult> = {
 }
 
 const DocumentUploadPage = () => {
+  const { t } = useLanguage()
   const [uploading, setUploading] = useState(false)
   const [parseResult, setParseResult] = useState<ParseResult | null>(null)
   const [uploadHistory, setUploadHistory] = useState<ParseResult[]>([])
@@ -67,7 +69,7 @@ const DocumentUploadPage = () => {
   }
 
   const createRotationRules = () => {
-    alert(`Creating ${selectedRules.size} rotation rules from selected extractions`)
+    alert(t('create_rotation_rules_btn').replace('{0}', String(selectedRules.size)))
     setSelectedRules(new Set())
   }
 
@@ -80,14 +82,14 @@ const DocumentUploadPage = () => {
   return (
     <div className="p-4 sm:p-6 space-y-6">
       <div>
-        <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">Document Upload</h1>
-        <p className="text-xs text-[var(--color-text-light)] mt-0.5">Upload and parse duty documents</p>
+        <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">{t('document_upload')}</h1>
+        <p className="text-xs text-[var(--color-text-light)] mt-0.5">{t('upload_parse_docs')}</p>
       </div>
 
       <div className="card p-6">
-        <h2 className="text-lg font-semibold text-[var(--color-text-dark)] mb-4">Upload Document</h2>
+        <h2 className="text-lg font-semibold text-[var(--color-text-dark)] mb-4">{t('upload_document')}</h2>
         <p className="text-sm text-[var(--color-text-medium)] mb-4">
-          Upload policy documents, schedules, or rule files. Supported formats: PDF, DOCX, TXT, images.
+          {t('upload_doc_desc')}
         </p>
         <div className="border-2 border-dashed border-[var(--color-border)] rounded-lg p-8 text-center">
           <input
@@ -102,15 +104,15 @@ const DocumentUploadPage = () => {
             {uploading ? (
               <div className="flex flex-col items-center">
                 <LoadingSpinner />
-                <span className="mt-2 text-sm text-[var(--color-text-medium)]">Parsing document...</span>
+                <span className="mt-2 text-sm text-[var(--color-text-medium)]">{t('parsing_document')}</span>
               </div>
             ) : (
               <div className="flex flex-col items-center">
                 <svg className="w-12 h-12 text-[var(--color-text-light)] mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
-                <span className="text-sm text-[var(--color-text-medium)]">Click to upload or drag and drop</span>
-                <span className="text-xs text-[var(--color-text-light)] mt-1">PDF, DOCX, TXT, or images up to 10MB</span>
+                <span className="text-sm text-[var(--color-text-medium)]">{t('click_upload_drag')}</span>
+                <span className="text-xs text-[var(--color-text-light)] mt-1">{t('file_types_hint')}</span>
               </div>
             )}
           </label>
@@ -125,7 +127,7 @@ const DocumentUploadPage = () => {
               <p className="text-sm text-[var(--color-text-medium)]">{parseResult.summary}</p>
             </div>
             <div className="sm:text-right">
-              <div className="text-sm text-[var(--color-text-medium)]">Overall Confidence</div>
+              <div className="text-sm text-[var(--color-text-medium)]">{t('overall_confidence')}</div>
               <div className={`text-2xl font-bold ${getConfidenceColor(parseResult.overallConfidence)}`}>
                 {Math.round(parseResult.overallConfidence * 100)}%
               </div>
@@ -140,7 +142,7 @@ const DocumentUploadPage = () => {
             </div>
           )}
 
-          <h3 className="font-medium text-[var(--color-text-dark)] mb-2">Extracted Rules</h3>
+          <h3 className="font-medium text-[var(--color-text-dark)] mb-2">{t('extracted_rules')}</h3>
           <div className="space-y-2">
             {parseResult.rules.map((rule: ExtractedRule) => (
               <div key={rule.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 border border-[var(--color-border)] rounded">
@@ -153,7 +155,7 @@ const DocumentUploadPage = () => {
                 <div className="flex-1">
                   <div className="font-medium text-[var(--color-text-dark)]">{rule.description}</div>
                   <div className="text-sm text-[var(--color-text-medium)]">
-                    Type: {rule.type} | Value: {rule.value} | Source: {rule.source}
+                    {t('type')}: {rule.type} | {rule.value} | {rule.source}
                   </div>
                 </div>
                 <div className={`text-sm font-medium ${getConfidenceColor(rule.confidence)}`}>
@@ -165,7 +167,7 @@ const DocumentUploadPage = () => {
 
           {selectedRules.size > 0 && (
             <button onClick={createRotationRules} className="mt-4 btn btn-primary">
-              Create {selectedRules.size} Rotation Rule(s)
+              {t('create_rotation_rules_btn').replace('{0}', String(selectedRules.size))}
             </button>
           )}
         </div>
@@ -173,13 +175,13 @@ const DocumentUploadPage = () => {
 
       {uploadHistory.length > 0 && (
         <div className="card p-6">
-          <h2 className="text-lg font-semibold text-[var(--color-text-dark)] mb-4">Upload History</h2>
+          <h2 className="text-lg font-semibold text-[var(--color-text-dark)] mb-4">{t('upload_history')}</h2>
           <div className="space-y-2">
             {uploadHistory.map(result => (
               <div key={result.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 p-3 border border-[var(--color-border)] rounded">
                 <div>
                   <div className="font-medium text-[var(--color-text-dark)]">{result.fileName}</div>
-                  <div className="text-sm text-[var(--color-text-medium)]">{result.rules.length} rules extracted</div>
+                  <div className="text-sm text-[var(--color-text-medium)]">{t('rules_extracted').replace('{0}', String(result.rules.length))}</div>
                 </div>
                 <div className="text-sm text-[var(--color-text-medium)]">
                   {new Date(result.parsedAt).toLocaleString()}

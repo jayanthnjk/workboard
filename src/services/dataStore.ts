@@ -113,7 +113,26 @@ class DataStore {
       shiftAssignments: seedData.shiftAssignments,
       leaveRequests: seedData.leaveRequests,
       swapRequests: seedData.swapRequests,
-      adhocRequests: [],
+      adhocRequests: [
+        { id: 'adhoc-1', createdBy: 'user-1', assignedTo: 'AHC-127', shiftTypeId: 'Emergency CP', date: '2026-02-18', locationId: 'Majestic Interchange', reason: 'Unscheduled protest gathering near bus terminal requiring immediate checkpoint deployment', status: 'pending', createdAt: '2026-02-18T09:30:00Z', updatedAt: '2026-02-18T09:30:00Z' },
+        { id: 'adhoc-2', createdBy: 'user-1', assignedTo: 'APC-2539', shiftTypeId: 'Riot Control', date: '2026-02-17', locationId: 'Vidhana Soudha North Gate', reason: 'VVIP movement and high-security alert for state assembly session', status: 'pending', createdAt: '2026-02-17T14:15:00Z', updatedAt: '2026-02-17T14:15:00Z' },
+        { id: 'adhoc-3', createdBy: 'user-2', assignedTo: 'AHC-290', shiftTypeId: 'Hospital Guard', date: '2026-02-17', locationId: 'Victoria Hospital Ward 4', reason: 'Guard duty for high-profile patient under judicial custody', status: 'pending', createdAt: '2026-02-17T11:00:00Z', updatedAt: '2026-02-17T11:00:00Z' },
+        { id: 'adhoc-4', createdBy: 'user-1', assignedTo: 'APC-2689', shiftTypeId: 'VIP Escort', date: '2026-02-16', locationId: 'Mangaluru Airport', reason: 'Minister arrival escort from airport to circuit house', status: 'accepted', createdAt: '2026-02-16T08:00:00Z', updatedAt: '2026-02-16T10:00:00Z' },
+        { id: 'adhoc-5', createdBy: 'user-2', assignedTo: 'ARSI-Dinesh', shiftTypeId: 'Cash Escort', date: '2026-02-16', locationId: 'Canara Bank Bijai', reason: 'Emergency cash transfer escort due to ATM refill schedule change', status: 'accepted', createdAt: '2026-02-16T07:30:00Z', updatedAt: '2026-02-16T09:00:00Z' },
+        { id: 'adhoc-6', createdBy: 'user-1', assignedTo: 'AHC-2650', shiftTypeId: 'Court Duty', date: '2026-02-15', locationId: 'II ADSJ Court Mangaluru', reason: 'Additional security for high-profile hearing', status: 'completed', createdAt: '2026-02-15T06:00:00Z', updatedAt: '2026-02-15T18:00:00Z' },
+        { id: 'adhoc-7', createdBy: 'user-2', assignedTo: 'APC-2739', shiftTypeId: 'Exam Guard', date: '2026-02-15', locationId: 'Canara PU College Kodialbail', reason: 'PUC evaluation centre guard duty during answer paper transport', status: 'completed', createdAt: '2026-02-15T05:30:00Z', updatedAt: '2026-02-15T17:00:00Z' },
+        { id: 'adhoc-8', createdBy: 'user-1', assignedTo: 'AHC-2796', shiftTypeId: 'Striking Force', date: '2026-02-14', locationId: 'CC Room', reason: 'Reinforcement for CC Room SF-I due to personnel shortage', status: 'pending', createdAt: '2026-02-14T12:00:00Z', updatedAt: '2026-02-14T12:00:00Z' },
+        { id: 'adhoc-9', createdBy: 'user-2', assignedTo: 'APC-2552', shiftTypeId: 'Check Point', date: '2026-02-14', locationId: 'NH-75 Toll Plaza', reason: 'Vehicle checking drive for stolen vehicle recovery operation', status: 'declined', declineReason: 'Personnel already on leave', createdAt: '2026-02-14T10:00:00Z', updatedAt: '2026-02-14T11:30:00Z' },
+        { id: 'adhoc-10', createdBy: 'user-1', assignedTo: 'AHC-109', shiftTypeId: 'Prison Escort', date: '2026-02-13', locationId: 'District Jail to Court', reason: 'Prisoner escort for remand hearing at sessions court', status: 'completed', createdAt: '2026-02-13T07:00:00Z', updatedAt: '2026-02-13T16:00:00Z' },
+        { id: 'adhoc-11', createdBy: 'user-2', assignedTo: 'APC-2717', shiftTypeId: 'Emergency CP', date: '2026-02-13', locationId: 'Kadri Temple Road', reason: 'Festival crowd management and traffic diversion duty', status: 'pending', createdAt: '2026-02-13T15:00:00Z', updatedAt: '2026-02-13T15:00:00Z' },
+        { id: 'adhoc-12', createdBy: 'user-1', assignedTo: 'AHC-189', shiftTypeId: 'VIP Escort', date: '2026-02-12', locationId: 'Town Hall', reason: 'Dignitary visit for Republic Day follow-up event', status: 'pending', createdAt: '2026-02-12T09:00:00Z', updatedAt: '2026-02-12T09:00:00Z' },
+        { id: 'adhoc-13', createdBy: 'user-2', assignedTo: 'APC-2661', shiftTypeId: 'Guard Duty', date: '2026-02-12', locationId: 'District Treasury', reason: 'Additional guard for salary disbursement day', status: 'accepted', createdAt: '2026-02-12T06:00:00Z', updatedAt: '2026-02-12T08:00:00Z' },
+        { id: 'adhoc-14', createdBy: 'user-1', assignedTo: 'AHC-204', shiftTypeId: 'Riot Control', date: '2026-02-11', locationId: 'Hampankatta Circle', reason: 'Bandh call enforcement and preventive deployment', status: 'completed', createdAt: '2026-02-11T05:00:00Z', updatedAt: '2026-02-11T20:00:00Z' },
+        { id: 'adhoc-15', createdBy: 'user-2', assignedTo: 'APC-2656', shiftTypeId: 'Hospital Guard', date: '2026-02-11', locationId: 'Wenlock Hospital', reason: 'Accident victim under police case requiring ward security', status: 'pending', createdAt: '2026-02-11T22:00:00Z', updatedAt: '2026-02-11T22:00:00Z' },
+        { id: 'adhoc-16', createdBy: 'user-1', assignedTo: 'AHC-2522', shiftTypeId: 'Cash Escort', date: '2026-02-10', locationId: 'ICICI Bank to Axis Bank', reason: 'Inter-bank currency chest transfer requiring armed escort', status: 'pending', createdAt: '2026-02-10T08:00:00Z', updatedAt: '2026-02-10T08:00:00Z' },
+        { id: 'adhoc-17', createdBy: 'user-2', assignedTo: 'APC-2728', shiftTypeId: 'Striking Force', date: '2026-02-10', locationId: 'CAR Stand By', reason: 'Stand-by reinforcement for law and order situation', status: 'declined', declineReason: 'Insufficient personnel available', createdAt: '2026-02-10T14:00:00Z', updatedAt: '2026-02-10T16:00:00Z' },
+        { id: 'adhoc-18', createdBy: 'user-1', assignedTo: 'AHC-2541', shiftTypeId: 'Emergency CP', date: '2026-02-09', locationId: 'Surathkal Toll', reason: 'Accident site traffic management and diversion', status: 'completed', createdAt: '2026-02-09T19:00:00Z', updatedAt: '2026-02-09T23:00:00Z' },
+      ],
       notifications: seedData.notifications,
       auditEntries: seedData.auditEntries,
       leaveBalances: seedData.leaveBalances,
@@ -853,6 +872,14 @@ class DataStore {
     }
     this.saveToStorage()
     return this.data.guardLocations[index]
+  }
+
+  deleteGuardLocation(id: string): boolean {
+    const index = this.data.guardLocations.findIndex(l => l.id === id)
+    if (index === -1) return false
+    this.data.guardLocations.splice(index, 1)
+    this.saveToStorage()
+    return true
   }
 
   // =============================================================================

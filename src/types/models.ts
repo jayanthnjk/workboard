@@ -532,14 +532,8 @@ export interface RotationScheduleEntry {
 // Requirements: 8.1, 8.2, 8.4
 // -----------------------------------------------------------------------------
 
-// Guard location categories
-export type GuardLocationType =
-  | 'government-office'
-  | 'bank-currency-chest'
-  | 'court'
-  | 'hospital'
-  | 'ncc'
-  | 'other'
+// Guard location categories (common presets; custom strings also allowed)
+export type GuardLocationType = string
 
 // Guard location interface
 export interface GuardLocation {

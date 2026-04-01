@@ -1,12 +1,5 @@
 import { useState } from 'react'
-
-const faqs = [
-  { q: 'How do I request leave?', a: 'Navigate to Leave Requests from the sidebar, click "New Request", fill in the details and submit.' },
-  { q: 'How do I swap shifts with a colleague?', a: 'Go to Swap Requests, create a new swap request by selecting the shift you want to swap and the colleague you want to swap with.' },
-  { q: 'How can I view my schedule?', a: 'Click on Schedule in the sidebar to view your assigned shifts in calendar or list view.' },
-  { q: 'Who can approve my leave requests?', a: 'Leave requests are approved by supervisors and administrators based on your department hierarchy.' },
-  { q: 'How do I update my profile information?', a: 'Go to My Profile from the header dropdown and click Edit Profile to update your information.' },
-]
+import { useLanguage } from '@/context/LanguageContext'
 
 const contacts = [
   { name: 'IT Helpdesk', phone: '080-2294-XXXX', email: 'helpdesk@ksp.gov.in', hours: '24/7' },
@@ -15,21 +8,37 @@ const contacts = [
 ]
 
 export function HelpPage() {
+  const { t } = useLanguage()
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+
+  const faqs = [
+    { q: t('faq_q1'), a: t('faq_a1') },
+    { q: t('faq_q2'), a: t('faq_a2') },
+    { q: t('faq_q3'), a: t('faq_a3') },
+    { q: t('faq_q4'), a: t('faq_a4') },
+    { q: t('faq_q5'), a: t('faq_a5') },
+  ]
+
+  const quickLinks = [
+    { label: t('user_manual'), icon: '📖' },
+    { label: t('video_tutorials'), icon: '🎥' },
+    { label: t('report_issue'), icon: '🐛' },
+    { label: t('feature_request'), icon: '💡' },
+  ]
 
   return (
     <div className="space-y-6">
       <div className="page-header">
         <div>
-          <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">Help & Support</h1>
-          <p className="text-xs text-[var(--color-text-light)] mt-0.5">Find answers and get assistance</p>
+          <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">{t('help_support')}</h1>
+          <p className="text-xs text-[var(--color-text-light)] mt-0.5">{t('find_answers')}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* FAQs */}
         <div className="lg:col-span-2 card p-6">
-          <h3 className="text-lg font-semibold text-[var(--color-text-dark)] mb-4">Frequently Asked Questions</h3>
+          <h3 className="text-lg font-semibold text-[var(--color-text-dark)] mb-4">{t('faq_title')}</h3>
           <div className="space-y-3">
             {faqs.map((faq, i) => (
               <div key={i} className="border border-[var(--color-border)] rounded-lg overflow-hidden">
@@ -52,7 +61,7 @@ export function HelpPage() {
 
         {/* Contact Support */}
         <div className="card p-6">
-          <h3 className="text-lg font-semibold text-[var(--color-text-dark)] mb-4">Contact Support</h3>
+          <h3 className="text-lg font-semibold text-[var(--color-text-dark)] mb-4">{t('contact_support')}</h3>
           <div className="space-y-4">
             {contacts.map((c, i) => (
               <div key={i} className="p-3 bg-[var(--color-bg-main)] rounded-lg">
@@ -70,14 +79,9 @@ export function HelpPage() {
 
       {/* Quick Links */}
       <div className="card p-6">
-        <h3 className="text-lg font-semibold text-[var(--color-text-dark)] mb-4">Quick Links</h3>
+        <h3 className="text-lg font-semibold text-[var(--color-text-dark)] mb-4">{t('quick_links')}</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { label: 'User Manual', icon: '📖' },
-            { label: 'Video Tutorials', icon: '🎥' },
-            { label: 'Report Issue', icon: '🐛' },
-            { label: 'Feature Request', icon: '💡' },
-          ].map((link, i) => (
+          {quickLinks.map((link, i) => (
             <button key={i} className="p-4 bg-[var(--color-bg-main)] rounded-lg hover:bg-[var(--color-border)] transition-colors text-center">
               <span className="text-2xl">{link.icon}</span>
               <p className="mt-2 text-sm font-medium text-[var(--color-text-dark)]">{link.label}</p>

@@ -4,9 +4,11 @@ import { DataTable, type Column } from '@/components/common/DataTable'
 import { Modal, ConfirmDialog } from '@/components/common/Modal'
 import { FormField, TextInput, TextArea, Select } from '@/components/common/FormField'
 import { useNotifications } from '@/context/NotificationContext'
+import { useLanguage } from '@/context/LanguageContext'
 import type { Department } from '@/types'
 
 export default function DepartmentsPage() {
+  const { t } = useLanguage()
   const [departments, setDepartments] = useState<Department[]>([])
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
@@ -116,20 +118,20 @@ export default function DepartmentsPage() {
   const columns: Column<Department>[] = [
     {
       key: 'code',
-      header: 'Code',
+      header: t('code'),
       accessor: row => <span className="font-mono text-sm">{row.code}</span>,
       sortable: true,
     },
     {
       key: 'name',
-      header: 'Name',
+      header: t('name'),
       accessor: row => <span className="font-medium">{row.name}</span>,
       sortable: true,
       filterable: true,
     },
     {
       key: 'description',
-      header: 'Description',
+      header: t('description'),
       accessor: row => (
         <span className="text-[var(--color-text-light)] truncate max-w-xs block">
           {row.description || '-'}
@@ -138,12 +140,12 @@ export default function DepartmentsPage() {
     },
     {
       key: 'parent',
-      header: 'Parent',
+      header: t('parent'),
       accessor: row => getParentName(row.parentId),
     },
     {
       key: 'employeeCount',
-      header: 'Employees',
+      header: t('employees'),
       accessor: row => row.employeeCount,
       sortable: true,
     },
@@ -157,9 +159,10 @@ export default function DepartmentsPage() {
               e.stopPropagation()
               handleOpenModal(row)
             }}
-            className="text-[var(--color-primary)] hover:text-[var(--color-primary-dark)]"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-semibold text-[#6b5c42] bg-[rgba(107,92,66,0.05)] hover:bg-[rgba(107,92,66,0.1)] transition-colors"
           >
-            Edit
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>
+            {t('edit')}
           </button>
           <button
             onClick={(e) => {
@@ -167,9 +170,10 @@ export default function DepartmentsPage() {
               setDeletingDepartment(row)
               setDeleteDialogOpen(true)
             }}
-            className="text-[var(--color-error)] hover:text-[var(--color-error)]/80"
+            className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-semibold text-[#ba1a1a] bg-[rgba(186,26,26,0.05)] hover:bg-[rgba(186,26,26,0.1)] transition-colors"
           >
-            Delete
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+            {t('delete')}
           </button>
         </div>
       ),
@@ -180,11 +184,11 @@ export default function DepartmentsPage() {
     <div className="space-y-6">
       <div className="page-header">
         <div>
-          <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">Departments</h1>
-          <p className="text-xs text-[var(--color-text-light)] mt-0.5">Manage organizational structure</p>
+          <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">{t('departments')}</h1>
+          <p className="text-xs text-[var(--color-text-light)] mt-0.5">{t('manage_org_structure')}</p>
         </div>
         <button onClick={() => handleOpenModal()} className="btn btn-primary">
-          Add Department
+          {t('add_department')}
         </button>
       </div>
 
@@ -201,10 +205,10 @@ export default function DepartmentsPage() {
       <Modal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editingDepartment ? 'Edit Department' : 'Add Department'}
+        title={editingDepartment ? t('edit_department') : t('add_department')}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <FormField label="Department Name" required>
+          <FormField label={t('department_name')} required>
             <TextInput
               value={formData.name}
               onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
@@ -213,7 +217,7 @@ export default function DepartmentsPage() {
             />
           </FormField>
 
-          <FormField label="Code" required>
+          <FormField label={t('code')} required>
             <TextInput
               value={formData.code}
               onChange={e => setFormData(prev => ({ ...prev, code: e.target.value.toUpperCase() }))}
@@ -223,7 +227,7 @@ export default function DepartmentsPage() {
             />
           </FormField>
 
-          <FormField label="Description">
+          <FormField label={t('description')}>
             <TextArea
               value={formData.description}
               onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
@@ -231,12 +235,12 @@ export default function DepartmentsPage() {
             />
           </FormField>
 
-          <FormField label="Parent Department">
+          <FormField label={t('parent_department')}>
             <Select
               value={formData.parentId}
               onChange={e => setFormData(prev => ({ ...prev, parentId: e.target.value }))}
               options={[
-                { value: '', label: 'None (Top Level)' },
+                { value: '', label: t('none_top_level') },
                 ...departments
                   .filter(d => d.id !== editingDepartment?.id)
                   .map(d => ({ value: d.id, label: d.name })),
@@ -246,10 +250,10 @@ export default function DepartmentsPage() {
 
           <div className="flex justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
             <button type="button" onClick={() => setModalOpen(false)} className="btn btn-secondary">
-              Cancel
+              {t('cancel')}
             </button>
             <button type="submit" className="btn btn-primary">
-              {editingDepartment ? 'Update' : 'Create'} Department
+              {editingDepartment ? t('update') : t('create')} {t('department')}
             </button>
           </div>
         </form>
@@ -259,9 +263,9 @@ export default function DepartmentsPage() {
         isOpen={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleDelete}
-        title="Delete Department"
-        message={`Are you sure you want to delete "${deletingDepartment?.name}"? This action cannot be undone.`}
-        confirmText="Delete"
+        title={t('delete_department')}
+        message={t('delete_confirm_msg').replace('{0}', deletingDepartment?.name || '')}
+        confirmText={t('delete')}
         variant="danger"
       />
     </div>

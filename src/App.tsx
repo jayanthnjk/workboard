@@ -23,6 +23,8 @@ const ReportsPage = lazy(() => import('@/pages/ReportsPage'))
 const AuditPage = lazy(() => import('@/pages/AuditPage'))
 const DocumentUploadPage = lazy(() => import('@/pages/DocumentUploadPage'))
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
+const MessagingConfigPage = lazy(() => import('@/pages/MessagingConfigPage'))
+const MessageTemplateEditPage = lazy(() => import('@/pages/MessageTemplateEditPage'))
 const PersonnelFormPage = lazy(() => import('@/pages/PersonnelFormPage'))
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'))
 const HelpPage = lazy(() => import('@/pages/HelpPage'))
@@ -30,6 +32,7 @@ const NewAssignmentPage = lazy(() => import('@/pages/NewAssignmentPage'))
 const DutyDetailPage = lazy(() => import('@/pages/DutyDetailPage'))
 const ShiftSchedulePage = lazy(() => import('@/pages/ShiftSchedulePage'))
 const ShiftAssignPage = lazy(() => import('@/pages/ShiftAssignPage'))
+const LocationFormPage = lazy(() => import('@/pages/LocationFormPage'))
 
 function App() {
   return (
@@ -97,6 +100,38 @@ function App() {
                     }
                   />
                   <Route
+                    path="locations/add"
+                    element={
+                      <ProtectedRoute allowedRoles={['admin']}>
+                        <LocationFormPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="locations/:id/edit"
+                    element={
+                      <ProtectedRoute allowedRoles={['admin']}>
+                        <LocationFormPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="locations/add"
+                    element={
+                      <ProtectedRoute allowedRoles={['admin']}>
+                        <LocationFormPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="locations/:id/edit"
+                    element={
+                      <ProtectedRoute allowedRoles={['admin']}>
+                        <LocationFormPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
                     path="shift-types"
                     element={
                       <ProtectedRoute allowedRoles={['admin']}>
@@ -146,6 +181,22 @@ function App() {
                     }
                   />
                   <Route path="settings" element={<SettingsPage />} />
+                  <Route
+                    path="messaging"
+                    element={
+                      <ProtectedRoute allowedRoles={['admin']}>
+                        <MessagingConfigPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="messaging/template"
+                    element={
+                      <ProtectedRoute allowedRoles={['admin']}>
+                        <MessageTemplateEditPage />
+                      </ProtectedRoute>
+                    }
+                  />
                   <Route path="profile" element={<ProfilePage />} />
                   <Route path="help" element={<HelpPage />} />
                 </Route>

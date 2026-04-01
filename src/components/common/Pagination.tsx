@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { useLanguage } from '@/context/LanguageContext'
 
 interface PaginationProps {
   currentPage: number
@@ -19,6 +20,7 @@ export function Pagination({
   onPageSizeChange,
   pageSizeOptions = PAGE_SIZE_OPTIONS,
 }: PaginationProps) {
+  const { t } = useLanguage()
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize))
   const startItem = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1
   const endItem = Math.min(currentPage * pageSize, totalItems)
@@ -43,10 +45,10 @@ export function Pagination({
     <div className="px-4 py-3 bg-[var(--color-bg-main)] border-t border-[var(--color-border)] flex flex-col sm:flex-row items-center justify-between gap-3">
       <div className="flex items-center gap-3">
         <span className="text-sm text-[var(--color-text-medium)]">
-          {totalItems === 0 ? 'No records' : `${startItem}–${endItem} of ${totalItems}`}
+          {totalItems === 0 ? t('no_records') : `${startItem}–${endItem} ${t('of')} ${totalItems}`}
         </span>
         <div className="flex items-center gap-1.5">
-          <span className="text-xs text-[var(--color-text-light)]">Rows:</span>
+          <span className="text-xs text-[var(--color-text-light)]">{t('rows')}</span>
           <select
             value={pageSize}
             onChange={(e) => { onPageSizeChange(Number(e.target.value)); onPageChange(1) }}

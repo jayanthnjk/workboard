@@ -83,7 +83,14 @@ export default function AuditPage() {
           <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">{t('audit_title')}</h1>
           <p className="text-xs text-[var(--color-text-light)] mt-0.5">{t('audit_subtitle')}</p>
         </div>
-        <button className="btn btn-primary">
+        <button onClick={() => {
+          const rows = [['Time', 'User', 'Action', 'Entity Type', 'Entity']]
+          filteredEntries.forEach(e => rows.push([new Date(e.timestamp).toLocaleString(), e.userName, e.action, e.entityType, e.entityName || '-']))
+          const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n')
+          const blob = new Blob([csv], { type: 'text/csv' })
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a'); a.href = url; a.download = `audit-log-${new Date().toISOString().split('T')[0]}.csv`; a.click(); URL.revokeObjectURL(url)
+        }} className="btn btn-primary">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
           {t('export_log')}
         </button>
@@ -92,10 +99,10 @@ export default function AuditPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total Entries', value: stats.total, iconClass: 'stat-icon-info' },
-          { label: 'Creates', value: stats.creates, iconClass: 'stat-icon-success' },
-          { label: 'Updates', value: stats.updates, iconClass: 'stat-icon-warning' },
-          { label: 'Deletes', value: stats.deletes, iconClass: 'stat-icon-error' },
+          { label: t('total_entries'), value: stats.total, iconClass: 'stat-icon-info' },
+          { label: t('creates'), value: stats.creates, iconClass: 'stat-icon-success' },
+          { label: t('updates'), value: stats.updates, iconClass: 'stat-icon-warning' },
+          { label: t('deletes'), value: stats.deletes, iconClass: 'stat-icon-error' },
         ].map((stat, idx) => (
           <div key={idx} className="stat-card">
             <div className="flex items-center gap-3">
@@ -124,7 +131,7 @@ export default function AuditPage() {
           <div>
             <label className="block text-xs font-medium text-[var(--color-text-medium)] mb-1">Action</label>
             <select value={filters.action} onChange={e => setFilters({ ...filters, action: e.target.value as AuditAction })} className="input">
-              <option value="">All Actions</option>
+              <option value="">{t('all_actions')}</option>
               <option value="create">Create</option>
               <option value="update">Update</option>
               <option value="delete">Delete</option>
@@ -165,12 +172,11 @@ export default function AuditPage() {
                 <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">Action</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">Entity Type</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">Entity</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-[var(--color-text-medium)] uppercase">Details</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--color-border)]">
               {filteredEntries.length === 0 ? (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-[var(--color-text-medium)]">No audit entries found</td></tr>
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-[var(--color-text-medium)]">{t('no_audit_entries_found')}</td></tr>
               ) : (
                 filteredEntries.map(entry => (
                   <tr key={entry.id} className="table-row">
@@ -186,9 +192,6 @@ export default function AuditPage() {
                     <td className="px-4 py-3"><span className={`badge capitalize ${actionColors[entry.action]}`}>{entry.action}</span></td>
                     <td className="px-4 py-3 text-sm text-[var(--color-text-medium)] capitalize">{entry.entityType.replace(/-/g, ' ')}</td>
                     <td className="px-4 py-3 text-sm text-[var(--color-text-dark)]">{entry.entityName || '-'}</td>
-                    <td className="px-4 py-3 text-right">
-                      <button onClick={() => setSelectedEntry(entry)} className="text-sm text-[var(--color-primary)] hover:underline">View</button>
-                    </td>
                   </tr>
                 ))
               )}
@@ -211,7 +214,7 @@ export default function AuditPage() {
         <div className="modal-overlay" onClick={() => setSelectedEntry(null)}>
           <div className="modal-content p-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-[var(--color-text-dark)]">Audit Entry Details</h3>
+              <h3 className="text-lg font-semibold text-[var(--color-text-dark)]">{t('audit_entry_details')}</h3>
               <button onClick={() => setSelectedEntry(null)} className="p-1 hover:bg-[var(--color-bg-main)] rounded">
                 <svg className="w-5 h-5 text-[var(--color-text-medium)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
@@ -246,7 +249,7 @@ export default function AuditPage() {
                 </div>
               )}
             </div>
-            <button onClick={() => setSelectedEntry(null)} className="mt-6 w-full btn btn-primary">Close</button>
+            <button onClick={() => setSelectedEntry(null)} className="mt-6 w-full btn btn-primary">{t('close')}</button>
           </div>
         </div>
       )}

@@ -4,6 +4,7 @@ import { DataTable, type Column } from '@/components/common/DataTable'
 import { Modal, ConfirmDialog } from '@/components/common/Modal'
 import { FormField, TextInput, TextArea, Select, TimePicker } from '@/components/common/FormField'
 import { useNotifications } from '@/context/NotificationContext'
+import { useLanguage } from '@/context/LanguageContext'
 import type { ShiftType, ShiftCategory } from '@/types'
 
 const colorOptions = [
@@ -25,6 +26,7 @@ export default function ShiftTypesPage() {
   const [editingShiftType, setEditingShiftType] = useState<ShiftType | null>(null)
   const [deletingShiftType, setDeletingShiftType] = useState<ShiftType | null>(null)
   const { showToast } = useNotifications()
+  const { t } = useLanguage()
 
   const [formData, setFormData] = useState({
     name: '',
@@ -152,20 +154,20 @@ export default function ShiftTypesPage() {
     },
     {
       key: 'name',
-      header: 'Name',
+      header: t('name'),
       accessor: row => <span className="font-medium">{row.name}</span>,
       sortable: true,
       filterable: true,
     },
     {
       key: 'time',
-      header: 'Time',
+      header: t('time'),
       accessor: row => `${row.startTime} - ${row.endTime}`,
       sortable: true,
     },
     {
       key: 'duration',
-      header: 'Duration',
+      header: t('duration'),
       accessor: row => {
         const duration = calculateDuration(row.startTime, row.endTime)
         return `${duration.toFixed(1)}h`
@@ -173,12 +175,12 @@ export default function ShiftTypesPage() {
     },
     {
       key: 'break',
-      header: 'Break',
-      accessor: row => `${row.breakDuration} min`,
+      header: t('break_label'),
+      accessor: row => `${row.breakDuration} ${t('minutes_short')}`,
     },
     {
       key: 'category',
-      header: 'Category',
+      header: t('category'),
       accessor: row => (
         <span className="badge badge-info capitalize">{row.category}</span>
       ),
@@ -186,10 +188,10 @@ export default function ShiftTypesPage() {
     },
     {
       key: 'status',
-      header: 'Status',
+      header: t('status'),
       accessor: row => (
         <span className={`badge ${row.isActive ? 'badge-success' : 'badge-error'}`}>
-          {row.isActive ? 'Active' : 'Inactive'}
+          {row.isActive ? t('active') : t('inactive')}
         </span>
       ),
     },
@@ -198,8 +200,8 @@ export default function ShiftTypesPage() {
       header: '',
       accessor: row => (
         <div className="flex items-center gap-2">
-          <button onClick={(e) => { e.stopPropagation(); handleOpenModal(row) }} className="text-[var(--color-primary)] hover:text-[var(--color-primary-dark)]">Edit</button>
-          <button onClick={(e) => { e.stopPropagation(); setDeletingShiftType(row); setDeleteDialogOpen(true) }} className="text-[var(--color-error)] hover:text-[var(--color-error)]/80">Delete</button>
+          <button onClick={(e) => { e.stopPropagation(); handleOpenModal(row) }} className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-semibold text-[#6b5c42] bg-[rgba(107,92,66,0.05)] hover:bg-[rgba(107,92,66,0.1)] transition-colors"><svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>{t('edit')}</button>
+          <button onClick={(e) => { e.stopPropagation(); setDeletingShiftType(row); setDeleteDialogOpen(true) }} className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-semibold text-[#ba1a1a] bg-[rgba(186,26,26,0.05)] hover:bg-[rgba(186,26,26,0.1)] transition-colors"><svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>{t('delete')}</button>
         </div>
       ),
     },
@@ -209,46 +211,46 @@ export default function ShiftTypesPage() {
     <div className="space-y-6">
       <div className="page-header">
         <div>
-          <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">Shift Types</h1>
-          <p className="text-xs text-[var(--color-text-light)] mt-0.5">Configure shift definitions</p>
+          <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">{t('shift_types_title')}</h1>
+          <p className="text-xs text-[var(--color-text-light)] mt-0.5">{t('configure_shift_defs')}</p>
         </div>
-        <button onClick={() => handleOpenModal()} className="btn btn-primary">Add Shift Type</button>
+        <button onClick={() => handleOpenModal()} className="btn btn-primary">{t('add_shift_type')}</button>
       </div>
 
       <div className="card">
         <DataTable data={shiftTypes} columns={columns} keyExtractor={row => row.id} loading={loading} onRowClick={handleOpenModal} />
       </div>
 
-      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingShiftType ? 'Edit Shift Type' : 'Add Shift Type'}>
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)} title={editingShiftType ? t('edit_shift_type') : t('add_shift_type')}>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <FormField label="Name" required>
-            <TextInput value={formData.name} onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))} placeholder="e.g., Morning Shift" required />
+          <FormField label={t('name')} required>
+            <TextInput value={formData.name} onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))} placeholder={t('placeholder_shift_name')} required />
           </FormField>
 
           <div className="grid grid-cols-2 gap-4">
-            <FormField label="Start Time" required>
+            <FormField label={t('start_time')} required>
               <TimePicker value={formData.startTime} onChange={e => setFormData(prev => ({ ...prev, startTime: e.target.value }))} required />
             </FormField>
-            <FormField label="End Time" required>
+            <FormField label={t('end_time')} required>
               <TimePicker value={formData.endTime} onChange={e => setFormData(prev => ({ ...prev, endTime: e.target.value }))} required />
             </FormField>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <FormField label="Break Duration (minutes)" required>
+            <FormField label={t('break_duration')} required>
               <TextInput type="number" value={formData.breakDuration} onChange={e => setFormData(prev => ({ ...prev, breakDuration: parseInt(e.target.value) || 0 }))} min={0} required />
             </FormField>
-            <FormField label="Category" required>
+            <FormField label={t('category')} required>
               <Select value={formData.category} onChange={e => setFormData(prev => ({ ...prev, category: e.target.value as ShiftCategory }))} options={[
-                { value: 'regular', label: 'Regular' },
-                { value: 'overtime', label: 'Overtime' },
-                { value: 'on-call', label: 'On-Call' },
-                { value: 'training', label: 'Training' },
+                { value: 'regular', label: t('regular') },
+                { value: 'overtime', label: t('overtime') },
+                { value: 'on-call', label: t('on_call') },
+                { value: 'training', label: t('training') },
               ]} required />
             </FormField>
           </div>
 
-          <FormField label="Color">
+          <FormField label={t('color')}>
             <div className="flex gap-2">
               {colorOptions.map(color => (
                 <button key={color.value} type="button" onClick={() => setFormData(prev => ({ ...prev, colorCode: color.value }))}
@@ -258,19 +260,19 @@ export default function ShiftTypesPage() {
             </div>
           </FormField>
 
-          <FormField label="Description">
-            <TextArea value={formData.description} onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))} placeholder="Optional description" />
+          <FormField label={t('description')}>
+            <TextArea value={formData.description} onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))} placeholder={t('placeholder_optional_desc')} />
           </FormField>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-[var(--color-border)]">
-            <button type="button" onClick={() => setModalOpen(false)} className="btn btn-secondary">Cancel</button>
-            <button type="submit" className="btn btn-primary">{editingShiftType ? 'Update' : 'Create'} Shift Type</button>
+            <button type="button" onClick={() => setModalOpen(false)} className="btn btn-secondary">{t('cancel')}</button>
+            <button type="submit" className="btn btn-primary">{editingShiftType ? t('update') : t('create')} {t('shift_types')}</button>
           </div>
         </form>
       </Modal>
 
       <ConfirmDialog isOpen={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)} onConfirm={handleDelete}
-        title="Delete Shift Type" message={`Are you sure you want to delete "${deletingShiftType?.name}"?`} confirmText="Delete" variant="danger" />
+        title={t('delete_shift_type')} message={t('delete_confirm_shift').replace('{0}', deletingShiftType?.name || '')} confirmText={t('delete')} variant="danger" />
     </div>
   )
 }

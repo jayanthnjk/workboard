@@ -7,18 +7,25 @@ import { rbacService } from '@/services/rbacService'
 import { kpLeaveBalances, personnel, leaveRequests as seedLeaveRequests } from '@/data/seedData'
 import type { KPLeaveType, RequestStatus, PoliceRank } from '@/types'
 
-const LEAVE_TYPE_META: Record<KPLeaveType, { label: string; color: string; icon: string }> = {
-  CL: { label: 'Casual Leave', color: '#3b82f6', icon: '📋' },
-  CML: { label: 'Medical Leave', color: '#ef4444', icon: '🏥' },
-  EL: { label: 'Earned Leave', color: '#10b981', icon: '🗓️' },
-  PL: { label: 'Privilege Leave', color: '#8b5cf6', icon: '⭐' },
+const LEAVE_TYPE_META: Record<KPLeaveType, { labelKey: string; color: string; icon: string }> = {
+  CL: { labelKey: 'casual_leave_full', color: '#3b82f6', icon: '📋' },
+  CML: { labelKey: 'medical_leave_full', color: '#ef4444', icon: '🏥' },
+  EL: { labelKey: 'earned_leave_full', color: '#10b981', icon: '🗓️' },
+  PL: { labelKey: 'privilege_leave_full', color: '#8b5cf6', icon: '⭐' },
 }
 
-const STATUS_META: Record<RequestStatus, { label: string; bg: string; text: string }> = {
-  pending: { label: 'Pending', bg: 'bg-amber-50 dark:bg-amber-900/20', text: 'text-amber-700 dark:text-amber-400' },
-  approved: { label: 'Approved', bg: 'bg-green-50 dark:bg-green-900/20', text: 'text-green-700 dark:text-green-400' },
-  rejected: { label: 'Rejected', bg: 'bg-red-50 dark:bg-red-900/20', text: 'text-red-700 dark:text-red-400' },
-  cancelled: { label: 'Cancelled', bg: 'bg-gray-50 dark:bg-gray-800', text: 'text-gray-500' },
+const LEAVE_TYPE_CARD_KEYS: Record<KPLeaveType, string> = {
+  CL: 'casual_leave',
+  CML: 'medical_leave',
+  EL: 'earned_leave',
+  PL: 'privilege_leave',
+}
+
+const STATUS_META: Record<RequestStatus, { labelKey: string; bg: string; text: string }> = {
+  pending: { labelKey: 'pending', bg: 'bg-amber-50 dark:bg-amber-900/20', text: 'text-amber-700 dark:text-amber-400' },
+  approved: { labelKey: 'approved', bg: 'bg-green-50 dark:bg-green-900/20', text: 'text-green-700 dark:text-green-400' },
+  rejected: { labelKey: 'rejected', bg: 'bg-red-50 dark:bg-red-900/20', text: 'text-red-700 dark:text-red-400' },
+  cancelled: { labelKey: 'cancelled', bg: 'bg-gray-50 dark:bg-gray-800', text: 'text-gray-500' },
 }
 
 interface LeaveRow {
@@ -149,7 +156,7 @@ export default function LeaveRequestsPage() {
         </div>
         <button className="btn btn-primary self-start">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-          Request Leave
+          {t('request_leave_btn')}
         </button>
       </div>
 
@@ -157,21 +164,22 @@ export default function LeaveRequestsPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {userLeaveBalance.map(b => {
           const meta = LEAVE_TYPE_META[b.type as KPLeaveType]
+          const cardKey = LEAVE_TYPE_CARD_KEYS[b.type as KPLeaveType]
           const pct = b.entitled > 0 ? (b.remaining / b.entitled) * 100 : 0
           return (
             <div key={b.type} className="card p-4">
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-lg">{meta?.icon}</span>
-                <span className="text-xs font-semibold text-[var(--color-text-medium)] uppercase tracking-wide">{meta?.label || b.type}</span>
+                <span className="text-xs font-semibold text-[var(--color-text-medium)] uppercase tracking-wide">{cardKey ? t(cardKey) : b.type}</span>
               </div>
               <div className="flex items-end justify-between mb-2">
                 <span className="text-2xl font-bold text-[var(--color-text-dark)]">{b.remaining}</span>
-                <span className="text-xs text-[var(--color-text-light)]">of {b.entitled} days</span>
+                <span className="text-xs text-[var(--color-text-light)]">{t('of_days').replace('{0}', String(b.entitled))}</span>
               </div>
               <div className="h-1.5 bg-[var(--color-bg-main)] rounded-full overflow-hidden">
                 <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: meta?.color || 'var(--color-primary)' }} />
               </div>
-              <p className="text-[10px] text-[var(--color-text-light)] mt-1.5">{b.used} days used this year</p>
+              <p className="text-[10px] text-[var(--color-text-light)] mt-1.5">{t('days_used_this_year').replace('{0}', String(b.used))}</p>
             </div>
           )
         })}
@@ -180,10 +188,10 @@ export default function LeaveRequestsPage() {
       {/* Quick Stats Row */}
       <div className="flex flex-wrap gap-3">
         {[
-          { label: 'On Leave Today', value: stats.onLeaveToday, color: '#3b82f6' },
-          { label: 'Pending Approval', value: stats.pending, color: '#f59e0b' },
-          { label: 'Approved', value: stats.approved, color: '#10b981' },
-          { label: 'Rejected', value: stats.rejected, color: '#ef4444' },
+          { label: t('on_leave_today'), value: stats.onLeaveToday, color: '#3b82f6' },
+          { label: t('pending_approval'), value: stats.pending, color: '#f59e0b' },
+          { label: t('approved'), value: stats.approved, color: '#10b981' },
+          { label: t('rejected'), value: stats.rejected, color: '#ef4444' },
         ].map(s => (
           <div key={s.label} className="flex items-center gap-2 px-3 py-2 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-lg">
             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: s.color }} />
@@ -208,7 +216,7 @@ export default function LeaveRequestsPage() {
                     : 'border-transparent text-[var(--color-text-light)] hover:text-[var(--color-text-medium)]'
                 }`}
               >
-                {tab === 'all' ? `All (${stats.total})` : `${tab} (${stats[tab]})`}
+                {tab === 'all' ? `${t('all')} (${stats.total})` : `${t(tab)} (${stats[tab]})`}
               </button>
             ))}
           </div>
@@ -216,11 +224,11 @@ export default function LeaveRequestsPage() {
           <div className="flex items-center gap-2 pb-3 sm:pb-0">
             <div className="flex items-center gap-2 bg-[var(--color-bg-main)] rounded-lg px-3 py-1.5 border border-[var(--color-border)]">
               <svg className="w-4 h-4 text-[var(--color-text-light)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-              <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search..." className="bg-transparent text-xs text-[var(--color-text-dark)] placeholder-[var(--color-text-light)] focus:outline-none w-32" />
+              <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder={t('search_placeholder')} className="bg-transparent text-xs text-[var(--color-text-dark)] placeholder-[var(--color-text-light)] focus:outline-none w-32" />
             </div>
             <select value={typeFilter} onChange={e => setTypeFilter(e.target.value as KPLeaveType)} className="text-xs bg-[var(--color-bg-main)] border border-[var(--color-border)] rounded-lg px-2 py-1.5 text-[var(--color-text-medium)] focus:outline-none">
-              <option value="">All Types</option>
-              {Object.entries(LEAVE_TYPE_META).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+              <option value="">{t('all_types_leave')}</option>
+              {Object.entries(LEAVE_TYPE_META).map(([k, v]) => <option key={k} value={k}>{t(v.labelKey)}</option>)}
             </select>
           </div>
         </div>
@@ -230,18 +238,18 @@ export default function LeaveRequestsPage() {
           <table className="w-full">
             <thead>
               <tr className="bg-[var(--color-bg-main)]">
-                <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-[var(--color-text-light)] uppercase tracking-wider">Personnel</th>
-                <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-[var(--color-text-light)] uppercase tracking-wider">Leave Type</th>
-                <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-[var(--color-text-light)] uppercase tracking-wider">Period</th>
-                <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-[var(--color-text-light)] uppercase tracking-wider">Days</th>
-                <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-[var(--color-text-light)] uppercase tracking-wider">Reason</th>
-                <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-[var(--color-text-light)] uppercase tracking-wider">Status</th>
-                <th className="px-4 py-2.5 text-right text-[10px] font-semibold text-[var(--color-text-light)] uppercase tracking-wider">Actions</th>
+                <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-[var(--color-text-light)] uppercase tracking-wider">{t('personnel_label')}</th>
+                <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-[var(--color-text-light)] uppercase tracking-wider">{t('leave_type')}</th>
+                <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-[var(--color-text-light)] uppercase tracking-wider">{t('period')}</th>
+                <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-[var(--color-text-light)] uppercase tracking-wider">{t('days')}</th>
+                <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-[var(--color-text-light)] uppercase tracking-wider">{t('reason')}</th>
+                <th className="px-4 py-2.5 text-left text-[10px] font-semibold text-[var(--color-text-light)] uppercase tracking-wider">{t('status')}</th>
+                <th className="px-4 py-2.5 text-right text-[10px] font-semibold text-[var(--color-text-light)] uppercase tracking-wider">{t('actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--color-border)]">
               {paginatedRequests.length === 0 ? (
-                <tr><td colSpan={7} className="px-4 py-12 text-center text-sm text-[var(--color-text-light)]">No leave requests found</td></tr>
+                <tr><td colSpan={7} className="px-4 py-12 text-center text-sm text-[var(--color-text-light)]">{t('no_leave_requests_found')}</td></tr>
               ) : (
                 paginatedRequests.map(req => {
                   const meta = LEAVE_TYPE_META[req.leaveType]
@@ -263,7 +271,7 @@ export default function LeaveRequestsPage() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1.5">
                           <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: meta.color }} />
-                          <span className="text-xs text-[var(--color-text-dark)]">{meta.label}</span>
+                          <span className="text-xs text-[var(--color-text-dark)]">{t(meta.labelKey)}</span>
                         </div>
                       </td>
                       <td className="px-4 py-3">
@@ -278,21 +286,23 @@ export default function LeaveRequestsPage() {
                       </td>
                       <td className="px-4 py-3">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${sMeta.bg} ${sMeta.text}`}>
-                          {sMeta.label}
+                          {t(sMeta.labelKey)}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right">
                         {req.status === 'pending' && canApprove ? (
                           <div className="flex items-center justify-end gap-1.5">
-                            <button onClick={() => handleApprove(req.id)} className="px-2.5 py-1 text-[10px] font-semibold rounded-md bg-green-50 text-green-700 hover:bg-green-100 transition-colors">
-                              Approve
+                            <button onClick={() => handleApprove(req.id)} className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-semibold rounded-md bg-green-50 text-green-700 hover:bg-green-100 transition-colors">
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                              {t('approve')}
                             </button>
-                            <button onClick={() => handleReject(req.id)} className="px-2.5 py-1 text-[10px] font-semibold rounded-md bg-red-50 text-red-700 hover:bg-red-100 transition-colors">
-                              Reject
+                            <button onClick={() => handleReject(req.id)} className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-semibold rounded-md bg-red-50 text-red-700 hover:bg-red-100 transition-colors">
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                              {t('reject')}
                             </button>
                           </div>
                         ) : req.status === 'pending' ? (
-                          <span className="text-[10px] text-[var(--color-text-light)] italic">Awaiting senior approval</span>
+                          <span className="text-[10px] text-[var(--color-text-light)] italic">{t('awaiting_senior_approval')}</span>
                         ) : (
                           <span className="text-[10px] text-[var(--color-text-light)]">{req.status === 'approved' ? '✓' : '✗'}</span>
                         )}
@@ -322,7 +332,7 @@ export default function LeaveRequestsPage() {
       {!permissions.canApproveLeave && (
         <div className="flex items-center gap-2 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-700">
           <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-          You can view leave requests for personnel at your rank level and below. Approval requires a senior officer.
+          {t('rbac_notice')}
         </div>
       )}
     </div>

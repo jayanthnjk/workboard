@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { useLanguage } from '@/context/LanguageContext'
 
 export default function LoginPage() {
+  const { t } = useLanguage()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
@@ -77,7 +79,7 @@ export default function LoginPage() {
           <div className={`transition-all duration-700 delay-150 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
             <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-white tracking-tight mb-3 lg:mb-4">KSP WorkBoard</h1>
             <p className="text-sm lg:text-base text-white/70 leading-relaxed mb-8 lg:mb-10">
-              Karnataka State Police - CAR Unit Duty Roster Management
+              {t('ksp_duty_roster')}
             </p>
           </div>
 
@@ -129,8 +131,8 @@ export default function LoginPage() {
             </div>
 
             <div className={`text-center mb-5 transition-all duration-500 delay-200 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
-              <h2 className="text-xl font-bold text-[var(--color-text-dark)] mb-1">Welcome back</h2>
-              <p className="text-[var(--color-text-medium)] text-xs">Sign in to continue</p>
+              <h2 className="text-xl font-bold text-[var(--color-text-dark)] mb-1">{t('welcome_back')}</h2>
+              <p className="text-[var(--color-text-medium)] text-xs">{t('sign_in_continue')}</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3.5">
@@ -144,7 +146,7 @@ export default function LoginPage() {
               )}
 
               <div className={`space-y-1 transition-all duration-500 delay-300 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
-                <label htmlFor="username" className="block text-xs font-medium text-[var(--color-text-dark)]">Username</label>
+                <label htmlFor="username" className="block text-xs font-medium text-[var(--color-text-dark)]">{t('username')}</label>
                 <div className={`relative transition-transform duration-200 ${focusedField === 'username' ? 'scale-[1.01]' : ''}`}>
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg className={`w-4 h-4 transition-colors ${focusedField === 'username' ? 'text-[var(--color-secondary)]' : 'text-[var(--color-text-light)]'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,7 +161,7 @@ export default function LoginPage() {
                     onFocus={() => setFocusedField('username')}
                     onBlur={() => setFocusedField(null)}
                     className="w-full pl-9 pr-3 py-2.5 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg-card)] text-[var(--color-text-dark)] placeholder-[var(--color-text-light)] focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] focus:outline-none transition-all text-sm"
-                    placeholder="Enter username"
+                    placeholder={t('enter_username')}
                     required
                     autoComplete="username"
                     disabled={isSubmitting}
@@ -168,7 +170,7 @@ export default function LoginPage() {
               </div>
 
               <div className={`space-y-1 transition-all duration-500 delay-400 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
-                <label htmlFor="password" className="block text-xs font-medium text-[var(--color-text-dark)]">Password</label>
+                <label htmlFor="password" className="block text-xs font-medium text-[var(--color-text-dark)]">{t('password')}</label>
                 <div className={`relative transition-transform duration-200 ${focusedField === 'password' ? 'scale-[1.01]' : ''}`}>
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg className={`w-4 h-4 transition-colors ${focusedField === 'password' ? 'text-[var(--color-secondary)]' : 'text-[var(--color-text-light)]'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -183,7 +185,7 @@ export default function LoginPage() {
                     onFocus={() => setFocusedField('password')}
                     onBlur={() => setFocusedField(null)}
                     className="w-full pl-9 pr-9 py-2.5 border border-[var(--color-border)] rounded-lg bg-[var(--color-bg-card)] text-[var(--color-text-dark)] placeholder-[var(--color-text-light)] focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] focus:outline-none transition-all text-sm"
-                    placeholder="Enter password"
+                    placeholder={t('enter_password')}
                     required
                     autoComplete="current-password"
                     disabled={isSubmitting}
@@ -199,9 +201,9 @@ export default function LoginPage() {
               <div className={`flex items-center justify-between transition-all duration-500 delay-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} className="w-3.5 h-3.5 rounded border-[var(--color-border)] text-[var(--color-secondary)] focus:ring-[var(--color-secondary)] focus:ring-offset-0" />
-                  <span className="text-xs text-[var(--color-text-medium)]">Remember me</span>
+                  <span className="text-xs text-[var(--color-text-medium)]">{t('remember_me')}</span>
                 </label>
-                <button type="button" className="text-xs text-[var(--color-secondary)] hover:text-[var(--color-secondary-dark)] font-medium">Forgot password?</button>
+                <button type="button" className="text-xs text-[var(--color-secondary)] hover:text-[var(--color-secondary-dark)] font-medium">{t('forgot_password')}</button>
               </div>
 
               <button
@@ -231,7 +233,7 @@ export default function LoginPage() {
           {/* Demo Accounts */}
           <div className={`mt-5 transition-all duration-500 delay-700 ${mounted ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'}`}>
             <div className="text-center mb-3">
-              <span className="text-[10px] uppercase tracking-wider text-[var(--color-text-light)] font-medium">Demo Accounts</span>
+              <span className="text-[10px] uppercase tracking-wider text-[var(--color-text-light)] font-medium">{t('demo_accounts')}</span>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {[

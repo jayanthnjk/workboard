@@ -69,7 +69,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         <button
           onClick={toggleTheme}
           className="h-8 w-8 flex items-center justify-center text-[var(--color-text-medium)] hover:bg-[var(--color-bg-main)] rounded-lg transition-colors"
-          title={resolvedTheme === 'light' ? 'Dark mode' : 'Light mode'}
+          title={resolvedTheme === 'light' ? t('dark_mode') : t('light_mode')}
         >
           {resolvedTheme === 'light' ? (
             <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -1,19 +1,21 @@
 import { useState, useMemo } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { useNotifications } from '@/context/NotificationContext'
+import { useLanguage } from '@/context/LanguageContext'
 import { rbacService } from '@/services/rbacService'
 import { kpLeaveBalances, personnel } from '@/data/seedData'
 import type { KPLeaveType } from '@/types'
 
-const LEAVE_META: Record<KPLeaveType, { label: string; color: string }> = {
-  CL: { label: 'Casual Leave', color: '#3b82f6' },
-  CML: { label: 'Medical Leave', color: '#ef4444' },
-  EL: { label: 'Earned Leave', color: '#10b981' },
-  PL: { label: 'Privilege Leave', color: '#8b5cf6' },
+function getLeaveMeta(t: (key: string) => string): Record<KPLeaveType, { label: string; color: string }> {
+  return {
+    CL: { label: t('casual_leave_full'), color: '#3b82f6' },
+    CML: { label: t('medical_leave_full'), color: '#ef4444' },
+    EL: { label: t('earned_leave_full'), color: '#10b981' },
+    PL: { label: t('privilege_leave_full'), color: '#8b5cf6' },
+  }
 }
 
-const TABS = ['Overview', 'Leave & Attendance', 'Service Record', 'Settings'] as const
-type Tab = typeof TABS[number]
+type Tab = 'Overview' | 'Leave & Attendance' | 'Service Record' | 'Settings'
 
 // Mock holidays for 2026
 const holidays2026 = [
@@ -38,12 +40,22 @@ const achievements = [
 export function ProfilePage() {
   const { user } = useAuth()
   const { showToast } = useNotifications()
+  const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState<Tab>('Overview')
   const [isEditingContact, setIsEditingContact] = useState(false)
   const [phone, setPhone] = useState('+91 98765 43210')
   const [email, setEmail] = useState(user?.email || `${user?.username}@ksp.gov.in`)
   const [phoneError, setPhoneError] = useState('')
   const [emailError, setEmailError] = useState('')
+
+  const LEAVE_META = useMemo(() => getLeaveMeta(t), [t])
+  const TAB_LABELS: Record<Tab, string> = {
+    'Overview': t('tab_overview'),
+    'Leave & Attendance': t('tab_leave_attendance'),
+    'Service Record': t('tab_service_record'),
+    'Settings': t('tab_settings'),
+  }
+  const TABS: Tab[] = ['Overview', 'Leave & Attendance', 'Service Record', 'Settings']
 
   const permissions = useMemo(() => rbacService.getPermissions(user ?? null), [user])
   const myPersonnel = useMemo(() => personnel.find(p => p.personnelId === user?.employeeId) || personnel[0], [user])
@@ -87,11 +99,11 @@ export function ProfilePage() {
         <p className="text-sm text-[var(--color-text-medium)]">{permissions.userRank || 'Officer'}</p>
         <span className="mt-1 px-3 py-0.5 text-[10px] font-semibold rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] uppercase">{user?.role}</span>
         <div className="w-full mt-4 pt-4 border-t border-[var(--color-border)] space-y-2 text-left">
-          <div className="flex justify-between text-xs"><span className="text-[var(--color-text-light)]">Employee ID</span><span className="font-mono text-[var(--color-text-dark)]">{myPersonnel?.personnelId || 'N/A'}</span></div>
-          <div className="flex justify-between text-xs"><span className="text-[var(--color-text-light)]">Section</span><span className="text-[var(--color-text-dark)]">Section {myPersonnel?.section}</span></div>
-          <div className="flex justify-between text-xs"><span className="text-[var(--color-text-light)]">Platoon</span><span className="text-[var(--color-text-dark)]">{myPersonnel?.platoon ? `Platoon ${myPersonnel.platoon.replace('P', '')}` : 'N/A'}</span></div>
-          <div className="flex justify-between text-xs"><span className="text-[var(--color-text-light)]">Status</span><span className="text-green-600 font-medium capitalize">{myPersonnel?.status}</span></div>
-          <div className="flex justify-between text-xs"><span className="text-[var(--color-text-light)]">Joined</span><span className="text-[var(--color-text-dark)]">{myPersonnel?.hireDate ? new Date(myPersonnel.hireDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}</span></div>
+          <div className="flex justify-between text-xs"><span className="text-[var(--color-text-light)]">{t('employee_id')}</span><span className="font-mono text-[var(--color-text-dark)]">{myPersonnel?.personnelId || 'N/A'}</span></div>
+          <div className="flex justify-between text-xs"><span className="text-[var(--color-text-light)]">{t('section')}</span><span className="text-[var(--color-text-dark)]">{t('section')} {myPersonnel?.section}</span></div>
+          <div className="flex justify-between text-xs"><span className="text-[var(--color-text-light)]">{t('platoon')}</span><span className="text-[var(--color-text-dark)]">{myPersonnel?.platoon ? `${t('platoon')} ${myPersonnel.platoon.replace('P', '')}` : 'N/A'}</span></div>
+          <div className="flex justify-between text-xs"><span className="text-[var(--color-text-light)]">{t('status')}</span><span className="text-green-600 font-medium capitalize">{myPersonnel?.status}</span></div>
+          <div className="flex justify-between text-xs"><span className="text-[var(--color-text-light)]">{t('date_of_joining')}</span><span className="text-[var(--color-text-dark)]">{myPersonnel?.hireDate ? new Date(myPersonnel.hireDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}</span></div>
         </div>
       </div>
 
@@ -100,14 +112,14 @@ export function ProfilePage() {
         {/* Contact Info */}
         <div className="card p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-[var(--color-text-dark)]">Contact Information</h3>
+            <h3 className="text-sm font-semibold text-[var(--color-text-dark)]">{t('contact_information')}</h3>
             {isEditingContact ? (
               <div className="flex gap-2">
-                <button onClick={() => setIsEditingContact(false)} className="text-xs text-[var(--color-text-light)] hover:text-[var(--color-text-medium)]">Cancel</button>
-                <button onClick={handleSaveContact} className="text-xs text-[var(--color-primary)] font-semibold hover:underline">Save</button>
+                <button onClick={() => setIsEditingContact(false)} className="text-xs text-[var(--color-text-light)] hover:text-[var(--color-text-medium)]">{t('cancel')}</button>
+                <button onClick={handleSaveContact} className="text-xs text-[var(--color-primary)] font-semibold hover:underline">{t('save')}</button>
               </div>
             ) : (
-              <button onClick={() => setIsEditingContact(true)} className="text-xs text-[var(--color-primary)] hover:underline">Edit</button>
+              <button onClick={() => setIsEditingContact(true)} className="text-xs text-[var(--color-primary)] hover:underline">{t('edit')}</button>
             )}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -138,7 +150,7 @@ export function ProfilePage() {
 
         {/* Quick Leave Summary */}
         <div className="card p-5">
-          <h3 className="text-sm font-semibold text-[var(--color-text-dark)] mb-3">Leave Balance</h3>
+          <h3 className="text-sm font-semibold text-[var(--color-text-dark)] mb-3">{t('leave_balance')}</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {myLeaveBalance.map(b => {
               const meta = LEAVE_META[b.type as KPLeaveType]
@@ -157,7 +169,7 @@ export function ProfilePage() {
 
         {/* Achievements */}
         <div className="card p-5">
-          <h3 className="text-sm font-semibold text-[var(--color-text-dark)] mb-3">Achievements & Awards</h3>
+          <h3 className="text-sm font-semibold text-[var(--color-text-dark)] mb-3">{t('achievements_awards')}</h3>
           <div className="space-y-3">
             {achievements.map((a, i) => (
               <div key={i} className="flex items-start gap-3">
@@ -194,7 +206,7 @@ export function ProfilePage() {
               <div className="h-1.5 bg-[var(--color-bg-main)] rounded-full overflow-hidden">
                 <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: meta?.color }} />
               </div>
-              <p className="text-[10px] text-[var(--color-text-light)] mt-1">{b.used} used · {b.remaining} remaining</p>
+              <p className="text-[10px] text-[var(--color-text-light)] mt-1">{t('used_remaining').replace('{0}', String(b.used)).replace('{1}', String(b.remaining))}</p>
             </div>
           )
         })}
@@ -202,13 +214,13 @@ export function ProfilePage() {
 
       {/* Pending Leaves */}
       <div className="card p-5">
-        <h3 className="text-sm font-semibold text-[var(--color-text-dark)] mb-3">My Pending Requests</h3>
-        <div className="text-xs text-[var(--color-text-light)] py-4 text-center">No pending leave requests</div>
+        <h3 className="text-sm font-semibold text-[var(--color-text-dark)] mb-3">{t('my_pending_requests')}</h3>
+        <div className="text-xs text-[var(--color-text-light)] py-4 text-center">{t('no_pending_leave')}</div>
       </div>
 
       {/* Holiday Calendar */}
       <div className="card p-5">
-        <h3 className="text-sm font-semibold text-[var(--color-text-dark)] mb-3">Holiday Calendar 2026</h3>
+        <h3 className="text-sm font-semibold text-[var(--color-text-dark)] mb-3">{t('holiday_calendar_2026')}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
           {holidays2026.map(h => {
             const d = new Date(h.date + 'T00:00:00')
@@ -235,17 +247,17 @@ export function ProfilePage() {
   const ServiceTab = () => (
     <div className="space-y-5">
       <div className="card p-5">
-        <h3 className="text-sm font-semibold text-[var(--color-text-dark)] mb-4">Service Details</h3>
+        <h3 className="text-sm font-semibold text-[var(--color-text-dark)] mb-4">{t('service_details')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
-            { label: 'Date of Joining', value: myPersonnel?.hireDate ? new Date(myPersonnel.hireDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A' },
-            { label: 'Current Rank', value: permissions.userRank || 'N/A' },
-            { label: 'Section', value: `Section ${myPersonnel?.section}` },
-            { label: 'Platoon', value: myPersonnel?.platoon ? `Platoon ${myPersonnel.platoon.replace('P', '')}` : 'N/A' },
-            { label: 'Current Duty', value: myPersonnel?.dutyCategory || 'Rotational Duty' },
-            { label: 'Unit', value: 'City Armed Reserve (CAR), Mangaluru' },
-            { label: 'District', value: 'Dakshina Kannada' },
-            { label: 'Years of Service', value: myPersonnel?.hireDate ? `${new Date().getFullYear() - new Date(myPersonnel.hireDate).getFullYear()} years` : 'N/A' },
+            { label: t('date_of_joining'), value: myPersonnel?.hireDate ? new Date(myPersonnel.hireDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A' },
+            { label: t('current_rank'), value: permissions.userRank || 'N/A' },
+            { label: t('section'), value: `${t('section')} ${myPersonnel?.section}` },
+            { label: t('platoon'), value: myPersonnel?.platoon ? `${t('platoon')} ${myPersonnel.platoon.replace('P', '')}` : 'N/A' },
+            { label: t('current_duty_profile'), value: myPersonnel?.dutyCategory || 'Rotational Duty' },
+            { label: t('unit'), value: 'City Armed Reserve (CAR), Mangaluru' },
+            { label: t('district'), value: 'Dakshina Kannada' },
+            { label: t('years_of_service'), value: myPersonnel?.hireDate ? `${new Date().getFullYear() - new Date(myPersonnel.hireDate).getFullYear()} years` : 'N/A' },
           ].map(item => (
             <div key={item.label} className="flex justify-between py-2 border-b border-[var(--color-border)]">
               <span className="text-xs text-[var(--color-text-light)]">{item.label}</span>
@@ -257,7 +269,7 @@ export function ProfilePage() {
 
       {/* Achievements */}
       <div className="card p-5">
-        <h3 className="text-sm font-semibold text-[var(--color-text-dark)] mb-3">Awards & Commendations</h3>
+        <h3 className="text-sm font-semibold text-[var(--color-text-dark)] mb-3">{t('awards_commendations')}</h3>
         <div className="space-y-3">
           {achievements.map((a, i) => (
             <div key={i} className="flex items-start gap-3 p-3 bg-[var(--color-bg-main)] rounded-lg">
@@ -274,7 +286,7 @@ export function ProfilePage() {
 
       {/* Training History */}
       <div className="card p-5">
-        <h3 className="text-sm font-semibold text-[var(--color-text-dark)] mb-3">Training History</h3>
+        <h3 className="text-sm font-semibold text-[var(--color-text-dark)] mb-3">{t('training_history')}</h3>
         <div className="space-y-2">
           {[
             { name: 'Basic Training PTS Mysuru', date: 'May 2025', status: 'Completed' },
@@ -297,12 +309,12 @@ export function ProfilePage() {
   // ─── Settings Tab ───
   const SettingsTab = () => (
     <div className="card p-5 max-w-2xl">
-      <h3 className="text-sm font-semibold text-[var(--color-text-dark)] mb-4">Account Settings</h3>
+      <h3 className="text-sm font-semibold text-[var(--color-text-dark)] mb-4">{t('account_settings')}</h3>
       <div className="space-y-4">
         <div className="flex items-center justify-between py-3 border-b border-[var(--color-border)]">
           <div>
-            <p className="text-sm text-[var(--color-text-dark)]">Email Notifications</p>
-            <p className="text-xs text-[var(--color-text-light)]">Receive duty and leave notifications via email</p>
+            <p className="text-sm text-[var(--color-text-dark)]">{t('email_notifications')}</p>
+            <p className="text-xs text-[var(--color-text-light)]">{t('email_notif_desc')}</p>
           </div>
           <div className="w-10 h-5 bg-[var(--color-primary)] rounded-full relative cursor-pointer">
             <div className="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow" />
@@ -310,8 +322,8 @@ export function ProfilePage() {
         </div>
         <div className="flex items-center justify-between py-3 border-b border-[var(--color-border)]">
           <div>
-            <p className="text-sm text-[var(--color-text-dark)]">SMS Alerts</p>
-            <p className="text-xs text-[var(--color-text-light)]">Get SMS for urgent duty changes</p>
+            <p className="text-sm text-[var(--color-text-dark)]">{t('sms_alerts')}</p>
+            <p className="text-xs text-[var(--color-text-light)]">{t('sms_alerts_desc')}</p>
           </div>
           <div className="w-10 h-5 bg-[var(--color-primary)] rounded-full relative cursor-pointer">
             <div className="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow" />
@@ -319,8 +331,8 @@ export function ProfilePage() {
         </div>
         <div className="flex items-center justify-between py-3">
           <div>
-            <p className="text-sm text-[var(--color-text-dark)]">Language</p>
-            <p className="text-xs text-[var(--color-text-light)]">Choose your preferred language</p>
+            <p className="text-sm text-[var(--color-text-dark)]">{t('language')}</p>
+            <p className="text-xs text-[var(--color-text-light)]">{t('language_pref_desc')}</p>
           </div>
           <select className="text-xs bg-[var(--color-bg-main)] border border-[var(--color-border)] rounded-lg px-3 py-1.5">
             <option>English</option>
@@ -335,8 +347,8 @@ export function ProfilePage() {
     <div className="space-y-5">
       {/* Header */}
       <div>
-        <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">My Profile</h1>
-        <p className="text-xs text-[var(--color-text-light)] mt-0.5">View and manage your profile, leave balance, and service record</p>
+        <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">{t('my_profile')}</h1>
+        <p className="text-xs text-[var(--color-text-light)] mt-0.5">{t('profile_subtitle')}</p>
       </div>
 
       {/* Tabs */}
@@ -351,7 +363,7 @@ export function ProfilePage() {
                 : 'border-transparent text-[var(--color-text-light)] hover:text-[var(--color-text-medium)]'
             }`}
           >
-            {tab}
+            {TAB_LABELS[tab]}
           </button>
         ))}
       </div>

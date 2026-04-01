@@ -1,12 +1,14 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useLanguage } from '@/context/LanguageContext'
 import { apiGateway } from '@/services/apiGateway'
 import { rotationService } from '@/services/rotationService'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 import { Pagination } from '@/components/common/Pagination'
-import type { Employee, ShiftAssignment, ShiftType, LeaveRequest, Personnel, PoliceRank, Platoon, PlatoonRotation, PlatoonId, RotationalDutyType } from '@/types'
+import type { Employee, ShiftAssignment, ShiftType, LeaveRequest, Personnel, PoliceRank, Platoon, PlatoonRotation, PlatoonId, RotationalDutyType, AdhocRequest } from '@/types'
 
 type ViewRange = 'day' | 'week' | 'month'
+type SubTab = 'adhoc' | 'assign'
 
 // Rank hierarchy for grouping (high to low)
 const RANK_HIERARCHY: { rank: PoliceRank; label: string }[] = [
@@ -67,6 +69,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 export default function ShiftSchedulePage() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const [employees, setEmployees] = useState<Employee[]>([])
   const [personnelList, setPersonnelList] = useState<Personnel[]>([])
   const [shiftAssignments, setShiftAssignments] = useState<ShiftAssignment[]>([])
@@ -82,11 +85,16 @@ export default function ShiftSchedulePage() {
   const [monthDate, setMonthDate] = useState(() => new Date())
   const [searchQuery, setSearchQuery] = useState('')
   const [groupFilter, setGroupFilter] = useState('all')
-  const [showOpenShifts, setShowOpenShifts] = useState(true)
-  const [showTimeOff, setShowTimeOff] = useState(true)
+  const [showOpenShifts] = useState(true)
+  const [showTimeOff] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [expandedMonthDay, setExpandedMonthDay] = useState<string | null>(null)
+  const [subTab, setSubTab] = useState<SubTab>('adhoc')
+  const [adhocRequests, setAdhocRequests] = useState<AdhocRequest[]>([])
+  const [adhocPage, setAdhocPage] = useState(1)
+  const [adhocPageSize, setAdhocPageSize] = useState(5)
+  const [adhocFilter, setAdhocFilter] = useState<'all' | 'pending' | 'accepted' | 'declined' | 'completed'>('all')
 
   const today = useMemo(() => new Date(), [])
 
@@ -94,13 +102,14 @@ export default function ShiftSchedulePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [empRes, typesRes, leaveRes, personnelRes, platoonsRes, rotationsRes] = await Promise.all([
+        const [empRes, typesRes, leaveRes, personnelRes, platoonsRes, rotationsRes, adhocRes] = await Promise.all([
           apiGateway.getEmployees(1, 200),
           apiGateway.getShiftTypes(),
           apiGateway.getLeaveRequests(),
           apiGateway.getAllPersonnel(),
           apiGateway.getPlatoons(),
           apiGateway.getPlatoonRotations(),
+          apiGateway.getAdhocRequests(),
         ])
         if (empRes.data) setEmployees(empRes.data)
         if (typesRes.success) setShiftTypes(typesRes.data)
@@ -108,6 +117,7 @@ export default function ShiftSchedulePage() {
         if (personnelRes.success) setPersonnelList(personnelRes.data)
         if (platoonsRes.success) setPlatoons(platoonsRes.data)
         if (rotationsRes.success) setStoredRotations(rotationsRes.data)
+        if (adhocRes.success) setAdhocRequests(adhocRes.data)
       } catch (e) {
         console.error(e)
       } finally {
@@ -340,18 +350,22 @@ export default function ShiftSchedulePage() {
 
   if (loading) return <div className="flex items-center justify-center h-64"><LoadingSpinner /></div>
 
+  const filteredAdhoc = adhocFilter === 'all' ? adhocRequests : adhocRequests.filter(r => r.status === adhocFilter)
+  const pendingAdhocCount = adhocRequests.filter(r => r.status === 'pending').length
+  const pagedAdhoc = filteredAdhoc.slice((adhocPage - 1) * adhocPageSize, adhocPage * adhocPageSize)
+
   return (
     <div className="space-y-4">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">Schedule</h1>
-          <p className="text-xs text-[var(--color-text-light)] mt-0.5">Manage team schedules and shifts</p>
+          <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">{t('schedule_page_title')}</h1>
+          <p className="text-xs text-[var(--color-text-light)] mt-0.5">{t('manage_team_schedules')}</p>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={() => window.location.reload()} className="btn btn-secondary text-xs gap-1.5">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-            Refresh
+            {t('refresh')}
           </button>
           <button onClick={() => {
             const rows = [['Employee', 'Date', 'Shift', 'Start', 'End']]
@@ -368,11 +382,11 @@ export default function ShiftSchedulePage() {
             link.click(); URL.revokeObjectURL(url)
           }} className="btn btn-secondary text-xs gap-1.5">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-            Export
+            {t('export')}
           </button>
           <button onClick={() => navigate('/schedule/new')} className="btn btn-primary text-xs gap-1.5">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-            New Assignment
+            {t('new_assignment')}
           </button>
         </div>
       </div>
@@ -381,7 +395,7 @@ export default function ShiftSchedulePage() {
       <div className="card overflow-hidden">
         <div className="px-4 py-3 border-b border-[var(--color-border)] bg-[var(--color-bg-tertiary)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-[var(--color-text-dark)]">Current Rotation</span>
+            <span className="text-xs font-semibold text-[var(--color-text-dark)]">{t('current_rotation')}</span>
             <span className="text-[10px] px-2.5 py-1 rounded-full bg-[var(--color-primary)] text-white font-bold">Cycle {cycleNumber}</span>
           </div>
           <span className="text-[10px] text-[var(--color-text-light)]">
@@ -422,7 +436,7 @@ export default function ShiftSchedulePage() {
                   ) : (
                     <div className="flex-1 sm:flex-none rounded-lg border border-dashed border-[var(--color-border)] px-3 py-3 flex items-center justify-center gap-1.5 text-[var(--color-text-light)] w-full">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                      <span className="text-[10px] font-medium">Not assigned</span>
+                      <span className="text-[10px] font-medium">{t('not_assigned')}</span>
                     </div>
                   )}
                 </div>
@@ -434,14 +448,129 @@ export default function ShiftSchedulePage() {
             <div className="w-12 h-12 rounded-full bg-[var(--color-bg-tertiary)] flex items-center justify-center">
               <svg className="w-6 h-6 text-[var(--color-text-light)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
             </div>
-            <p className="text-xs text-[var(--color-text-medium)]">Cycle {cycleNumber} is not assigned yet</p>
+            <p className="text-xs text-[var(--color-text-medium)]">{t('cycle')} {cycleNumber} {t('is_not_assigned_yet')}</p>
             <button onClick={() => navigate(`/schedule/new?cycle=${cycleNumber}`)} className="btn btn-primary text-xs">
-              Assign Cycle {cycleNumber}
+              {t('assign_cycle')} {cycleNumber}
             </button>
           </div>
         )}
       </div>
 
+      {/* View switcher — segmented control instead of nested tabs */}
+      <div className="flex items-center gap-3">
+        <div className="flex bg-[var(--color-bg-secondary)] rounded-xl p-1 gap-0.5">
+          <button onClick={() => setSubTab('adhoc')}
+            className={`px-4 py-2 rounded-lg text-xs font-medium transition-all ${subTab === 'adhoc' ? 'bg-[var(--color-bg-card)] text-[var(--color-text-dark)] shadow-sm' : 'text-[var(--color-text-light)] hover:text-[var(--color-text-medium)]'}`}>
+            {t('adhoc_requests')} {pendingAdhocCount > 0 && <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-[var(--color-error)] text-white">{pendingAdhocCount}</span>}
+          </button>
+          <button onClick={() => setSubTab('assign')}
+            className={`px-4 py-2 rounded-lg text-xs font-medium transition-all ${subTab === 'assign' ? 'bg-[var(--color-bg-card)] text-[var(--color-text-dark)] shadow-sm' : 'text-[var(--color-text-light)] hover:text-[var(--color-text-medium)]'}`}>
+            {t('assign_shift')}
+          </button>
+        </div>
+      </div>
+
+      {/* ═══ ADHOC REQUESTS TAB ═══ */}
+      {subTab === 'adhoc' && (() => {
+        const counts = { all: adhocRequests.length, pending: adhocRequests.filter(r => r.status === 'pending').length, accepted: adhocRequests.filter(r => r.status === 'accepted').length, declined: adhocRequests.filter(r => r.status === 'declined').length, completed: adhocRequests.filter(r => r.status === 'completed').length }
+        return (
+        <div className="space-y-4">
+          {/* Filter tabs + search */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-[var(--color-bg-secondary)] rounded-xl p-1.5">
+            <div className="flex items-center gap-0.5">
+              {(['all', 'pending', 'accepted', 'declined', 'completed'] as const).map(f => (
+                <button key={f} onClick={() => { setAdhocFilter(f); setAdhocPage(1) }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all capitalize ${adhocFilter === f ? 'bg-[var(--color-bg-card)] text-[var(--color-text-dark)] shadow-sm' : 'text-[var(--color-text-light)] hover:text-[var(--color-text-medium)]'}`}>
+                  {t(f === 'all' ? 'all' : f)} ({counts[f]})
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--color-bg-card)] text-sm">
+                <svg className="w-4 h-4 text-[var(--color-text-light)]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                <input type="text" placeholder={t('search_placeholder')} className="bg-transparent outline-none text-[var(--color-text-dark)] placeholder-[var(--color-text-light)] w-28" />
+              </div>
+              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-[var(--color-text-medium)] bg-[var(--color-bg-card)] hover:bg-[var(--color-bg-tertiary)] transition-colors">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                {t('export')}
+              </button>
+            </div>
+          </div>
+
+          {/* Table */}
+          <div className="card rounded-xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="bg-[var(--color-bg-secondary)]">
+                  <th className="text-left px-4 py-3 text-[10px] font-semibold text-[var(--color-text-medium)] uppercase tracking-wider">{t('personnel_label')}</th>
+                  <th className="text-left px-4 py-3 text-[10px] font-semibold text-[var(--color-text-medium)] uppercase tracking-wider">{t('duty_type')}</th>
+                  <th className="text-left px-4 py-3 text-[10px] font-semibold text-[var(--color-text-medium)] uppercase tracking-wider">{t('date')}</th>
+                  <th className="text-left px-4 py-3 text-[10px] font-semibold text-[var(--color-text-medium)] uppercase tracking-wider">{t('location')}</th>
+                  <th className="text-left px-4 py-3 text-[10px] font-semibold text-[var(--color-text-medium)] uppercase tracking-wider">{t('reason')}</th>
+                  <th className="text-left px-4 py-3 text-[10px] font-semibold text-[var(--color-text-medium)] uppercase tracking-wider">{t('status')}</th>
+                  <th className="text-center px-4 py-3 text-[10px] font-semibold text-[var(--color-text-medium)] uppercase tracking-wider">{t('actions')}</th>
+                </tr></thead>
+                <tbody>
+                  {pagedAdhoc.length === 0 ? (
+                    <tr><td colSpan={7} className="px-4 py-12 text-center text-sm text-[var(--color-text-light)]">{t('no_adhoc_requests')}</td></tr>
+                  ) : pagedAdhoc.map((req, idx) => (
+                    <tr key={req.id} className={`transition-colors hover:bg-[rgba(0,0,128,0.02)] ${idx % 2 === 1 ? 'bg-[var(--color-bg-secondary)]' : ''}`}>
+                      <td className="px-4 py-3.5">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0" style={{ background: `hsl(${req.assignedTo.charCodeAt(0) * 37 % 360}, 45%, 50%)` }}>
+                            {req.assignedTo.slice(0, 2)}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-[var(--color-text-dark)]">{req.assignedTo}</p>
+                            <p className="text-[10px] text-[var(--color-text-light)]">{new Date(req.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: 'rgba(0,0,128,0.06)', color: 'var(--color-primary)' }}>{req.shiftTypeId}</span>
+                      </td>
+                      <td className="px-4 py-3.5 text-sm text-[var(--color-text-dark)]">{new Date(req.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                      <td className="px-4 py-3.5 text-sm text-[var(--color-text-dark)]">{req.locationId}</td>
+                      <td className="px-4 py-3.5 text-xs text-[var(--color-text-medium)] max-w-[220px] truncate">{req.reason}</td>
+                      <td className="px-4 py-3.5">
+                        <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${req.status === 'pending' ? 'text-amber-600' : req.status === 'accepted' ? 'text-green-600' : req.status === 'declined' ? 'text-red-600' : 'text-gray-500'}`}>
+                          <span className={`w-2 h-2 rounded-full ${req.status === 'pending' ? 'bg-amber-500' : req.status === 'accepted' ? 'bg-green-500' : req.status === 'declined' ? 'bg-red-500' : 'bg-gray-400'}`} />
+                          <span className="capitalize">{req.status}</span>
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 text-center">
+                        {req.status === 'pending' ? (
+                          <div className="flex items-center justify-center gap-1">
+                            <button className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-semibold text-green-700 bg-green-50 hover:bg-green-100 transition-colors">
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                              {t('accept')}
+                            </button>
+                            <button className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-semibold text-red-700 bg-red-50 hover:bg-red-100 transition-colors">
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                              {t('decline')}
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-[10px] text-[var(--color-text-light)]">&mdash;</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {filteredAdhoc.length > adhocPageSize && (
+              <div className="px-4 py-3 bg-[var(--color-bg-secondary)]">
+                <Pagination currentPage={adhocPage} totalItems={filteredAdhoc.length} pageSize={adhocPageSize} onPageChange={setAdhocPage} onPageSizeChange={(s) => { setAdhocPageSize(s); setAdhocPage(1) }} />
+              </div>
+            )}
+          </div>
+        </div>
+        )
+      })()}
+
+      {/* ═══ ASSIGN SHIFT TAB ═══ */}
+      {subTab === 'assign' && (<>
       {/* Controls Bar */}
       <div className="card p-3">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
@@ -454,13 +583,13 @@ export default function ShiftSchedulePage() {
             </button>
             <span className="text-sm font-semibold text-[var(--color-text-dark)] min-w-[180px]">{rangeLabel}</span>
             <button onClick={goToToday} className="px-3 py-1 text-xs font-medium border border-[var(--color-border)] rounded-md hover:bg-[var(--color-bg-tertiary)] text-[var(--color-text-dark)] transition-colors">
-              Today
+              {t('today')}
             </button>
             <div className="flex bg-[var(--color-bg-tertiary)] rounded-lg p-0.5 ml-2">
               {(['day', 'week', 'month'] as ViewRange[]).map(mode => (
                 <button key={mode} onClick={() => setViewRange(mode)}
                   className={`px-3 py-1 rounded-md text-xs font-medium capitalize transition-all ${viewRange === mode ? 'bg-[var(--color-bg-primary)] text-[var(--color-primary)] shadow-sm' : 'text-[var(--color-text-medium)] hover:text-[var(--color-text-dark)]'}`}>
-                  {mode}
+                  {t(mode)}
                 </button>
               ))}
             </div>
@@ -468,21 +597,9 @@ export default function ShiftSchedulePage() {
           <div className="flex flex-wrap items-center gap-2">
             <select value={groupFilter} onChange={e => setGroupFilter(e.target.value)}
               className="px-3 py-1.5 text-xs bg-[var(--color-bg-main)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-dark)] outline-none">
-              <option value="all">All Ranks</option>
+              <option value="all">{t('all_ranks')}</option>
               {RANK_HIERARCHY.map(r => <option key={r.rank} value={r.rank}>{r.label}</option>)}
             </select>
-            <label className="flex items-center gap-1.5 cursor-pointer">
-              <div className={`relative w-8 h-4 rounded-full transition-colors ${showOpenShifts ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-border)]'}`} onClick={() => setShowOpenShifts(!showOpenShifts)}>
-                <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-transform ${showOpenShifts ? 'translate-x-4' : 'translate-x-0.5'}`} />
-              </div>
-              <span className="text-xs text-[var(--color-text-medium)]">Open Shifts</span>
-            </label>
-            <label className="flex items-center gap-1.5 cursor-pointer">
-              <div className={`relative w-8 h-4 rounded-full transition-colors ${showTimeOff ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-border)]'}`} onClick={() => setShowTimeOff(!showTimeOff)}>
-                <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-transform ${showTimeOff ? 'translate-x-4' : 'translate-x-0.5'}`} />
-              </div>
-              <span className="text-xs text-[var(--color-text-medium)]">Time Off</span>
-            </label>
           </div>
         </div>
       </div>
@@ -490,7 +607,7 @@ export default function ShiftSchedulePage() {
       {/* Search Bar */}
       <div className="flex items-center gap-2 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-lg px-3 py-2">
         <svg className="w-4 h-4 text-[var(--color-text-light)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-        <input type="text" placeholder="Search employees by name, ID, or email..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+        <input type="text" placeholder={t('search_employees')} value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
           className="bg-transparent text-sm text-[var(--color-text-dark)] placeholder-[var(--color-text-light)] outline-none flex-1" />
         {searchQuery && (
           <button onClick={() => setSearchQuery('')} className="text-[var(--color-text-light)] hover:text-[var(--color-text-medium)]">
@@ -570,7 +687,7 @@ export default function ShiftSchedulePage() {
                           onClick={(e) => { e.stopPropagation(); setViewRange('day'); setSelectedDay(date) }}
                           className="w-full mt-0.5 text-[9px] text-[var(--color-primary)] font-medium hover:underline text-center py-0.5"
                         >
-                          View Day →
+                          {t('view_day')} →
                         </button>
                       </div>
                     ) : (
@@ -620,7 +737,7 @@ export default function ShiftSchedulePage() {
               {/* Column Headers */}
               <div className="flex border-b border-[var(--color-border)] bg-[var(--color-bg-tertiary)]">
                 <div className="w-[180px] shrink-0 px-4 py-3 text-xs font-semibold text-[var(--color-text-medium)] uppercase tracking-wider">
-                  Team Members
+                  {t('team_members')}
                 </div>
                 {viewColumns.map((day, idx) => {
                   const isToday = isSameDay(day, today)
@@ -637,7 +754,7 @@ export default function ShiftSchedulePage() {
                   )
                 })}
                 <div className="w-[60px] shrink-0 px-2 py-3 text-center border-l border-[var(--color-border)]">
-                  <p className="text-[10px] font-semibold text-[var(--color-text-light)] uppercase tracking-wider">Hours</p>
+                  <p className="text-[10px] font-semibold text-[var(--color-text-light)] uppercase tracking-wider">{t('hours')}</p>
                 </div>
               </div>
 
@@ -648,7 +765,7 @@ export default function ShiftSchedulePage() {
                     <div className="w-7 h-7 rounded-full bg-[var(--color-success)] flex items-center justify-center">
                       <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                     </div>
-                    <span className="text-xs font-semibold text-[var(--color-text-dark)]">Open Shifts</span>
+                    <span className="text-xs font-semibold text-[var(--color-text-dark)]">{t('open_shifts')}</span>
                   </div>
                   {viewColumns.map((day, idx) => {
                     const isToday = isSameDay(day, today)
@@ -657,7 +774,7 @@ export default function ShiftSchedulePage() {
                       <div key={idx} className={`min-w-[100px] flex-1 px-1 py-3 border-l border-[var(--color-border)] flex items-center justify-center ${isToday ? 'bg-[var(--color-primary)]/5' : ''}`}>
                         {openCount > 0 && (
                           <span className="text-[10px] text-[var(--color-text-light)] bg-[var(--color-bg-main)] border border-dashed border-[var(--color-border)] rounded px-2 py-1">
-                            {openCount} open
+                            {openCount} {t('open')}
                           </span>
                         )}
                       </div>
@@ -733,7 +850,7 @@ export default function ShiftSchedulePage() {
                 <div className="flex items-center justify-center py-16">
                   <div className="text-center">
                     <svg className="w-12 h-12 text-[var(--color-text-light)] mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                    <p className="text-sm text-[var(--color-text-medium)]">No employees match your filters</p>
+                    <p className="text-sm text-[var(--color-text-medium)]">{t('no_employees_match')}</p>
                   </div>
                 </div>
               )}
@@ -745,15 +862,17 @@ export default function ShiftSchedulePage() {
         </div>
       )}
 
+      </>)}
+
       {/* Summary Footer */}
       <div className="card p-3">
         <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-[var(--color-text-medium)]">
           <div className="flex items-center gap-4">
-            <span>{filteredEmployees.length} team members</span>
+            <span>{filteredEmployees.length} {t('team_members_count')}</span>
             <span>·</span>
-            <span>{shiftAssignments.length} shifts</span>
+            <span>{shiftAssignments.length} {t('shifts')}</span>
             <span>·</span>
-            <span>{leaveRequests.filter(lr => lr.status !== 'cancelled' && lr.status !== 'rejected').length} active leaves</span>
+            <span>{leaveRequests.filter(lr => lr.status !== 'cancelled' && lr.status !== 'rejected').length} {t('active_leaves')}</span>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             {shiftTypes.map(st => (
@@ -764,7 +883,7 @@ export default function ShiftSchedulePage() {
             ))}
             <div className="flex items-center gap-1.5">
               <span className="w-3 h-3 rounded-sm bg-[#8B5CF6]" />
-              <span>Leave</span>
+              <span>{t('leave_legend')}</span>
             </div>
           </div>
         </div>

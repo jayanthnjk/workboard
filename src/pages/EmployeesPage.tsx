@@ -142,7 +142,7 @@ export default function EmployeesPage() {
           <div className="flex flex-wrap gap-2">
             {(['all', ...SECTIONS] as const).map(section => (
               <button key={section} onClick={() => setSectionFilter(section)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${sectionFilter === section ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--color-bg-main)] text-[var(--color-text-medium)] hover:bg-[var(--color-border)]'}`}>
-                {section === 'all' ? 'All' : section}
+                {section === 'all' ? t('all_label') : section}
               </button>
             ))}
           </div>
@@ -150,11 +150,11 @@ export default function EmployeesPage() {
           {/* Dropdowns */}
           <div className="flex gap-2">
             <select value={rankFilter} onChange={(e) => setRankFilter(e.target.value as PoliceRank | 'all')} className="input py-2 text-sm">
-              <option value="all">All Ranks</option>
+              <option value="all">{t('all_ranks_label')}</option>
               {RANKS.map(r => <option key={r} value={r}>{r}</option>)}
             </select>
             <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as PersonnelStatus | 'all')} className="input py-2 text-sm">
-              <option value="all">All Status</option>
+              <option value="all">{t('all_status_label')}</option>
               {STATUSES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
             </select>
           </div>
@@ -167,13 +167,13 @@ export default function EmployeesPage() {
           <table className="w-full">
             <thead>
               <tr className="table-header">
-                <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">Name</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">ID</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">Rank</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">Section</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">Platoon</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">Status</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-[var(--color-text-medium)] uppercase">Actions</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">{t('name')}</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">{t('id')}</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">{t('rank')}</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">{t('section')}</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">{t('platoon')}</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">{t('status')}</th>
+                <th className="px-4 py-3 text-right text-xs font-medium text-[var(--color-text-medium)] uppercase">{t('actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--color-border)]">
@@ -199,7 +199,10 @@ export default function EmployeesPage() {
                     <td className="px-4 py-3 text-sm text-[var(--color-text-medium)]">{person.platoon || '-'}</td>
                     <td className="px-4 py-3"><span className={`px-2 py-1 rounded text-xs font-medium capitalize ${getStatusColor(person.status)}`}>{person.status}</span></td>
                     <td className="px-4 py-3 text-right">
-                      <button onClick={() => navigate(`/employees/${person.id}`)} className="text-sm text-[var(--color-primary)] hover:underline">{t('view')}</button>
+                      <button onClick={() => navigate(`/employees/${person.id}`)} className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-semibold text-[#000080] bg-[rgba(0,0,128,0.05)] hover:bg-[rgba(0,0,128,0.1)] transition-colors">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        {t('view')}
+                      </button>
                     </td>
                   </tr>
                 ))

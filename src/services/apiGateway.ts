@@ -878,6 +878,18 @@ class ApiGateway {
     return createResponse(updated, true, 'Guard location updated successfully')
   }
 
+  async deleteGuardLocation(id: string): Promise<ApiResponse<void>> {
+    logApiCall('DELETE', `/api/guard-locations/${id}`)
+    await delay(getRandomDelay())
+    
+    const deleted = dataStore.deleteGuardLocation(id)
+    if (!deleted) {
+      return createErrorResponse('Guard location not found')
+    }
+    
+    return createResponse(undefined, true, 'Guard location deleted successfully')
+  }
+
   // =============================================================================
   // VIP Escort and Gunman Endpoints
   // =============================================================================
