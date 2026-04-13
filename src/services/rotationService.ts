@@ -6,28 +6,25 @@ import type {
   PlatoonRotation,
 } from '@/types'
 
-// Rotation sequence: Guard-I → Guard-II → Check Point → Prison/VIP → Striking Force → Guard-I
-const ROTATION_SEQUENCE: RotationalDutyType[] = [
-  'guard-i',
-  'guard-ii',
-  'check-point',
-  'prison-vip-escort',
-  'striking-force',
-]
-
 const PLATOON_IDS: PlatoonId[] = ['P1', 'P2', 'P3', 'P4', 'P5']
 const CYCLE_DAYS = 15
 
-// Initial assignments (Cycle 1 starting Feb 1, 2026)
-const INITIAL_ASSIGNMENTS: Record<PlatoonId, RotationalDutyType> = {
-  P1: 'guard-i',
-  P2: 'guard-ii',
-  P3: 'check-point',
-  P4: 'prison-vip-escort',
-  P5: 'striking-force',
-}
+// Row = cycle index (0-4), Column = platoon index (P1=0..P5=4)
+// Each cell = the duty type for that platoon in that cycle
+const ROTATION_TABLE: RotationalDutyType[][] = [
+  // Cycle 1: P1→guard-i, P2→guard-ii, P3→check-point, P4→prison-vip-escort, P5→striking-force
+  ['guard-i', 'guard-ii', 'check-point', 'prison-vip-escort', 'striking-force'],
+  // Cycle 2: P3→guard-i, P4→guard-ii, P5→check-point, P1→prison-vip-escort, P2→striking-force
+  ['prison-vip-escort', 'striking-force', 'guard-i', 'guard-ii', 'check-point'],
+  // Cycle 3: P5→guard-i, P1→guard-ii, P2→check-point, P3→prison-vip-escort, P4→striking-force
+  ['guard-ii', 'check-point', 'prison-vip-escort', 'striking-force', 'guard-i'],
+  // Cycle 4: P4→guard-i, P5→guard-ii, P1→check-point, P2→prison-vip-escort, P3→striking-force
+  ['check-point', 'prison-vip-escort', 'striking-force', 'guard-i', 'guard-ii'],
+  // Cycle 5: P2→guard-i, P3→guard-ii, P4→check-point, P5→prison-vip-escort, P1→striking-force
+  ['striking-force', 'guard-i', 'guard-ii', 'check-point', 'prison-vip-escort'],
+]
 
-const BASE_DATE = new Date('2026-02-01')
+const BASE_DATE = new Date('2026-02-16')
 
 class RotationService {
   /**
@@ -53,11 +50,9 @@ class RotationService {
    * Calculate the duty type for a platoon based on cycle number
    */
   getDutyTypeForPlatoon(platoonId: PlatoonId, cycleNumber: number): RotationalDutyType {
-    const initialIndex = ROTATION_SEQUENCE.indexOf(INITIAL_ASSIGNMENTS[platoonId])
-    // Each cycle, platoons move backward in the sequence (P1 goes from guard-i to striking-force)
-    const rotationOffset = (cycleNumber - 1) % 5
-    const newIndex = (initialIndex - rotationOffset + 5) % 5
-    return ROTATION_SEQUENCE[newIndex]
+    const cycleIndex = ((cycleNumber - 1) % 5 + 5) % 5
+    const platoonIndex = PLATOON_IDS.indexOf(platoonId)
+    return ROTATION_TABLE[cycleIndex][platoonIndex]
   }
 
   /**

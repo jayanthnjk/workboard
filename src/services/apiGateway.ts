@@ -39,6 +39,8 @@ import type {
   PlatoonId,
   RotationalDutyType,
   PoliceRank,
+  PersonnelStatus,
+  DriverRecord,
 } from '@/types'
 
 // Configuration
@@ -93,6 +95,39 @@ const createPaginatedResponse = <T>(
 
 // API Gateway class
 class ApiGateway {
+  // Map backend PersonnelDto to frontend Personnel type
+  private mapBackendPersonnel(p: any): Personnel {
+    const designationToRank: Record<string, PoliceRank> = {
+      'DCP': 'DCP', 'ACP': 'ACP', 'RPI': 'RPI', 'RSI': 'RSI',
+      'ARSI': 'ARSI', 'AHC': 'AHC', 'APC': 'APC', 'PROB RSI': 'RSI',
+    }
+    const statusMap: Record<string, PersonnelStatus> = {
+      'ACTIVE': 'active', 'SUSPENDED': 'suspended', 'ABSENT': 'absent',
+      'TRANSFERRED': 'active', 'DELETED': 'active',
+    }
+    // Map section based on designation (simplified)
+    const sectionMap = (designation: string): SectionType => {
+      if (['DCP', 'ACP', 'RPI', 'RSI', 'ARSI'].includes(designation)) return 'A'
+      if (designation === 'AHC') return 'B'
+      if (designation === 'APC') return 'C'
+      return 'A'
+    }
+    return {
+      id: String(p.id),
+      personnelId: p.badgeNumber ? `${p.designation}-${p.badgeNumber}` : String(p.id),
+      name: p.name || '',
+      rank: designationToRank[p.designation] || 'APC',
+      section: sectionMap(p.designation),
+      status: statusMap[p.status] || 'active',
+      phone: p.phone || undefined,
+      email: p.email || undefined,
+      dutyCategory: p.dutyName || undefined,
+      hireDate: p.dateOfJoining || '2020-01-01',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    } as Personnel
+  }
+
   // Configuration
   setConfig(newConfig: Partial<typeof config>): void {
     Object.assign(config, newConfig)
@@ -101,20 +136,51 @@ class ApiGateway {
   // Authentication
   async login(credentials: Credentials): Promise<ApiResponse<User>> {
     logApiCall('POST', '/api/auth/login', { username: credentials.username })
-    await delay(getRandomDelay())
-    
-    if (shouldSimulateError()) {
-      return createErrorResponse('Network error')
+
+    try {
+      const response = await fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(credentials),
+      })
+
+      const result = await response.json()
+
+      if (result.success && result.data) {
+        const authData = result.data
+        // Store tokens for subsequent API calls
+        localStorage.setItem('workboard_access_token', authData.accessToken)
+        localStorage.setItem('workboard_refresh_token', authData.refreshToken)
+        localStorage.setItem('workboard_token_expiry', String(Date.now() + authData.expiresIn * 1000))
+
+        // Map backend AuthResponse to frontend User
+        const roleMap: Record<string, 'admin' | 'supervisor' | 'employee'> = {
+          'SUPER_ADMIN': 'admin',
+          'ADMIN': 'admin',
+          'SECTION_HEAD': 'supervisor',
+          'VIEWER': 'employee',
+        }
+
+        const user: User = {
+          id: authData.username,
+          username: authData.username,
+          email: `${authData.username}@ksp.gov.in`,
+          name: authData.username.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
+          role: roleMap[authData.role] || 'employee',
+          departmentId: authData.sectionId ? String(authData.sectionId) : 'all',
+          employeeId: authData.username,
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString(),
+        }
+
+        return createResponse(user, true, 'Login successful')
+      }
+
+      return createErrorResponse(result.message || 'Invalid credentials')
+    } catch (error) {
+      console.error('Login API error:', error)
+      return createErrorResponse('Unable to connect to server. Please try again.')
     }
-    
-    const user = dataStore.getUserByUsername(credentials.username)
-    
-    // Simple password check (in real app, this would be hashed)
-    if (user && credentials.password === 'password123') {
-      return createResponse(user, true, 'Login successful')
-    }
-    
-    return createErrorResponse('Invalid credentials')
   }
 
   async logout(): Promise<ApiResponse<void>> {
@@ -666,21 +732,120 @@ class ApiGateway {
     return createResponse(undefined, true, 'All notifications marked as read')
   }
 
-  // Audit Entries
-  async getAuditEntries(page = 1, pageSize = 50): Promise<PaginatedResponse<AuditEntry>> {
-    logApiCall('GET', `/api/audit?page=${page}&pageSize=${pageSize}`)
-    await delay(getRandomDelay())
-    
-    const entries = dataStore.getAuditEntries()
-    return createPaginatedResponse(entries, page, pageSize)
+  // Audit Entries — real backend API calls
+
+  async getAuditLogs(filters?: {
+    source?: string;
+    actionType?: string;
+    userId?: number;
+    from?: string;
+    to?: string;
+    search?: string;
+    page?: number;
+    size?: number;
+  }): Promise<ApiResponse<{ content: AuditEntry[]; totalElements: number; totalPages: number; number: number; size: number }>> {
+    const params = new URLSearchParams()
+    if (filters?.source) params.set('source', filters.source)
+    if (filters?.actionType) params.set('actionType', filters.actionType)
+    if (filters?.userId != null) params.set('userId', String(filters.userId))
+    if (filters?.from) params.set('from', filters.from)
+    if (filters?.to) params.set('to', filters.to)
+    if (filters?.search) params.set('search', filters.search)
+    params.set('page', String(filters?.page ?? 0))
+    params.set('size', String(filters?.size ?? 20))
+
+    const qs = params.toString()
+    logApiCall('GET', `/api/audit?${qs}`)
+
+    try {
+      const token = localStorage.getItem('workboard_access_token')
+      const res = await fetch(`http://localhost:8080/api/audit?${qs}`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      })
+      const result = await res.json()
+      if (result.success && result.data) {
+        return createResponse(result.data)
+      }
+      return createErrorResponse(result.message || 'Failed to fetch audit logs')
+    } catch (error) {
+      console.error('Audit logs fetch error:', error)
+      return createErrorResponse('Unable to connect to server')
+    }
   }
 
-  async createAuditEntry(entry: Omit<AuditEntry, 'id' | 'timestamp'>): Promise<ApiResponse<AuditEntry>> {
-    logApiCall('POST', '/api/audit', entry)
-    await delay(getRandomDelay())
-    
-    const newEntry = dataStore.createAuditEntry(entry)
-    return createResponse(newEntry, true, 'Audit entry created successfully')
+  async getAuditStats(from?: string, to?: string): Promise<ApiResponse<{ totalCount: number; countByActionType: Record<string, number>; countBySource: Record<string, number> }>> {
+    const params = new URLSearchParams()
+    if (from) params.set('from', from)
+    if (to) params.set('to', to)
+
+    const qs = params.toString()
+    logApiCall('GET', `/api/audit/stats?${qs}`)
+
+    try {
+      const token = localStorage.getItem('workboard_access_token')
+      const res = await fetch(`http://localhost:8080/api/audit/stats${qs ? '?' + qs : ''}`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      })
+      const result = await res.json()
+      if (result.success && result.data) {
+        return createResponse(result.data)
+      }
+      return createErrorResponse(result.message || 'Failed to fetch audit stats')
+    } catch (error) {
+      console.error('Audit stats fetch error:', error)
+      return createErrorResponse('Unable to connect to server')
+    }
+  }
+
+  async exportAuditCsv(filters?: {
+    source?: string;
+    actionType?: string;
+    userId?: number;
+    from?: string;
+    to?: string;
+    search?: string;
+  }): Promise<ApiResponse<Blob>> {
+    const params = new URLSearchParams()
+    if (filters?.source) params.set('source', filters.source)
+    if (filters?.actionType) params.set('actionType', filters.actionType)
+    if (filters?.userId != null) params.set('userId', String(filters.userId))
+    if (filters?.from) params.set('from', filters.from)
+    if (filters?.to) params.set('to', filters.to)
+    if (filters?.search) params.set('search', filters.search)
+
+    const qs = params.toString()
+    logApiCall('GET', `/api/audit/export?${qs}`)
+
+    try {
+      const token = localStorage.getItem('workboard_access_token')
+      const res = await fetch(`http://localhost:8080/api/audit/export${qs ? '?' + qs : ''}`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      })
+      if (!res.ok) {
+        return createErrorResponse('Failed to export audit CSV')
+      }
+      const blob = await res.blob()
+      return createResponse(blob)
+    } catch (error) {
+      console.error('Audit CSV export error:', error)
+      return createErrorResponse('Unable to connect to server')
+    }
+  }
+
+  // Legacy method — kept for backward compatibility with existing callers
+  async getAuditEntries(page = 1, pageSize = 50): Promise<PaginatedResponse<AuditEntry>> {
+    logApiCall('GET', `/api/audit?page=${page}&pageSize=${pageSize}`)
+    const result = await this.getAuditLogs({ page: page - 1, size: pageSize })
+    if (result.success && result.data) {
+      return {
+        data: result.data.content,
+        total: result.data.totalElements,
+        page,
+        pageSize,
+        totalPages: result.data.totalPages,
+      }
+    }
+    return { data: [], total: 0, page, pageSize, totalPages: 0 }
   }
 
   // Leave Balances
@@ -713,31 +878,75 @@ class ApiGateway {
   }
 
   async getAllPersonnel(): Promise<ApiResponse<Personnel[]>> {
-    logApiCall('GET', '/api/personnel/all')
-    await delay(getRandomDelay())
-    
-    return createResponse(dataStore.getPersonnel())
+    logApiCall('GET', '/api/personnel')
+    try {
+      const token = localStorage.getItem('workboard_access_token')
+      const res = await fetch('http://localhost:8080/api/personnel?size=1000', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      })
+      const result = await res.json()
+      if (result.success && result.data) {
+        const mapped = (result.data.content || []).map(this.mapBackendPersonnel)
+        return createResponse(mapped)
+      }
+      return createErrorResponse(result.message || 'Failed to fetch personnel')
+    } catch (error) {
+      console.error('Personnel fetch error:', error)
+      // Fallback to mock
+      return createResponse(dataStore.getPersonnel())
+    }
   }
 
   async getPersonnelById(id: string): Promise<ApiResponse<Personnel | undefined>> {
     logApiCall('GET', `/api/personnel/${id}`)
-    await delay(getRandomDelay())
-    
-    return createResponse(dataStore.getPersonnelById(id))
+    try {
+      const token = localStorage.getItem('workboard_access_token')
+      const res = await fetch(`http://localhost:8080/api/personnel/${id}`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      })
+      const result = await res.json()
+      if (result.success && result.data) {
+        return createResponse(this.mapBackendPersonnel(result.data))
+      }
+      return createResponse(undefined)
+    } catch {
+      return createResponse(dataStore.getPersonnelById(id))
+    }
   }
 
   async getPersonnelBySection(section: SectionType): Promise<ApiResponse<Personnel[]>> {
-    logApiCall('GET', `/api/personnel/section/${section}`)
-    await delay(getRandomDelay())
-    
-    return createResponse(dataStore.getPersonnelBySection(section))
+    logApiCall('GET', `/api/personnel?section=${section}`)
+    // Backend doesn't have section filter directly — fetch all and filter
+    const all = await this.getAllPersonnel()
+    if (all.success) {
+      const filtered = all.data.filter(p => p.section === section)
+      return createResponse(filtered)
+    }
+    return all
   }
 
   async getPersonnelByPlatoon(platoonId: PlatoonId): Promise<ApiResponse<Personnel[]>> {
-    logApiCall('GET', `/api/personnel/platoon/${platoonId}`)
-    await delay(getRandomDelay())
-    
-    return createResponse(dataStore.getPersonnelByPlatoon(platoonId))
+    logApiCall('GET', `/api/reference/platoon-members/${platoonId}`)
+    try {
+      const token = localStorage.getItem('workboard_access_token')
+      const res = await fetch(`http://localhost:8080/api/reference/platoon-members/${platoonId}`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+      })
+      const result = await res.json()
+      if (result.success && result.data) {
+        const mapped: Personnel[] = result.data.map((pm: any) => {
+          const p = pm.personnel
+          if (!p) return null
+          return this.mapBackendPersonnel(p)
+        }).filter(Boolean).map((p: Personnel) => ({ ...p, platoon: platoonId, section: 'C' as SectionType }))
+        return createResponse(mapped)
+      }
+      return createErrorResponse(result.message || 'Failed to fetch platoon members')
+    } catch (error) {
+      console.error('Platoon members fetch error, falling back to mock:', error)
+      // Fallback to mock
+      return createResponse(dataStore.getPersonnelByPlatoon(platoonId))
+    }
   }
 
   async getPersonnelByRank(rank: PoliceRank): Promise<ApiResponse<Personnel[]>> {
@@ -749,28 +958,68 @@ class ApiGateway {
 
   async createPersonnel(personnel: Omit<Personnel, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<Personnel>> {
     logApiCall('POST', '/api/personnel', personnel)
-    await delay(getRandomDelay())
-    
-    // Check for duplicate personnel ID
-    const existing = dataStore.getPersonnelByPersonnelId(personnel.personnelId)
-    if (existing) {
-      return createErrorResponse('Personnel ID already exists')
+    try {
+      const token = localStorage.getItem('workboard_access_token')
+      // Map frontend Personnel to backend CreatePersonnelRequest
+      const parts = personnel.personnelId?.split('-') || []
+      const body = {
+        name: personnel.name,
+        designation: personnel.rank || parts[0] || 'APC',
+        badgeNumber: parts[1] || null,
+        phone: personnel.phone || null,
+        email: (personnel as any).email || null,
+        dutyName: personnel.dutyCategory || null,
+        sectionId: personnel.section === 'A' ? 1 : personnel.section === 'B' ? 2 : personnel.section === 'C' ? 3 : null,
+      }
+      const res = await fetch('http://localhost:8080/api/personnel', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(body),
+      })
+      const result = await res.json()
+      if (result.success && result.data) {
+        return createResponse(this.mapBackendPersonnel(result.data), true, 'Personnel created successfully')
+      }
+      return createErrorResponse(result.message || 'Creation failed')
+    } catch (error) {
+      console.error('Create personnel error:', error)
+      return createErrorResponse('Failed to connect to server')
     }
-    
-    const newPersonnel = dataStore.createPersonnel(personnel)
-    return createResponse(newPersonnel, true, 'Personnel created successfully')
   }
 
   async updatePersonnel(id: string, updates: Partial<Personnel>): Promise<ApiResponse<Personnel | undefined>> {
     logApiCall('PUT', `/api/personnel/${id}`, updates)
-    await delay(getRandomDelay())
-    
-    const updated = dataStore.updatePersonnel(id, updates)
-    if (!updated) {
-      return createErrorResponse('Personnel not found')
+    try {
+      const token = localStorage.getItem('workboard_access_token')
+      const parts = updates.personnelId?.split('-') || []
+      const body = {
+        name: updates.name,
+        designation: updates.rank || parts[0],
+        badgeNumber: parts[1] || null,
+        phone: updates.phone || null,
+        email: (updates as any).email || null,
+        dutyName: updates.dutyCategory || null,
+      }
+      const res = await fetch(`http://localhost:8080/api/personnel/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(body),
+      })
+      const result = await res.json()
+      if (result.success && result.data) {
+        return createResponse(this.mapBackendPersonnel(result.data), true, 'Personnel updated successfully')
+      }
+      return createErrorResponse(result.message || 'Update failed')
+    } catch (error) {
+      console.error('Update personnel error:', error)
+      return createErrorResponse('Failed to connect to server')
     }
-    
-    return createResponse(updated, true, 'Personnel updated successfully')
   }
 
   // =============================================================================
@@ -1025,6 +1274,25 @@ class ApiGateway {
     await delay(getRandomDelay())
     
     return createResponse(dataStore.getKPLeaveBalance(personnelId))
+  }
+
+  // =============================================================================
+  // Reference Data — Drivers
+  // =============================================================================
+
+  async getDrivers(): Promise<ApiResponse<DriverRecord[]>> {
+    try {
+      const token = localStorage.getItem('workboard_access_token')
+      const res = await fetch('http://localhost:8080/api/reference/drivers', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+      const result = await res.json()
+      if (result.success) return createResponse(result.data)
+      return createErrorResponse(result.message || 'Failed to fetch drivers')
+    } catch (error) {
+      console.error('Drivers fetch error:', error)
+      return createErrorResponse('Failed to fetch drivers')
+    }
   }
 
   // =============================================================================

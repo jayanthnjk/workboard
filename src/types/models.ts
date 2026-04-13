@@ -256,6 +256,7 @@ export interface NotificationPreferences {
 }
 
 // Audit Types
+// Kept for backward compatibility — may no longer be used by new backend-driven code
 export type AuditAction = 'create' | 'update' | 'delete' | 'login' | 'logout'
 export type AuditEntityType = 
   | 'employee'
@@ -271,17 +272,23 @@ export type AuditEntityType =
   | 'user'
 
 export interface AuditEntry {
-  id: string
-  userId: string
-  userName: string
-  action: AuditAction
-  entityType: AuditEntityType
-  entityId: string
-  entityName?: string
-  beforeValue?: Record<string, unknown>
-  afterValue?: Record<string, unknown>
-  ipAddress?: string
-  timestamp: string
+  id: number;
+  timestamp: string;
+  userId: number | null;
+  userRole: string | null;
+  source: string;
+  actionType: string;
+  targetTable: string | null;
+  targetRecordId: number | null;
+  oldValues: string | null;
+  newValues: string | null;
+  voiceTranscript: string | null;
+  detectedIntent: string | null;
+  documentFilename: string | null;
+  ipAddress: string | null;
+  userAgent: string | null;
+  result: string;
+  denialReason: string | null;
 }
 
 // Report Types
@@ -764,4 +771,16 @@ export interface StrikingForceConfig {
   isActive: boolean
   createdAt: string
   updatedAt: string
+}
+
+// Driver record from CAR MT Section
+export interface DriverRecord {
+  slNo: number
+  name: string
+  designationDisplay: string
+  duty: string
+  vehicleNo: string
+  pdmsStatus: string | null
+  licenseType: string | null
+  deployedFrom: string
 }

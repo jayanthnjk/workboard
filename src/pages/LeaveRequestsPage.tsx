@@ -4,7 +4,7 @@ import { useLanguage } from '@/context/LanguageContext'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 import { Pagination } from '@/components/common/Pagination'
 import { rbacService } from '@/services/rbacService'
-import { kpLeaveBalances, personnel, leaveRequests as seedLeaveRequests } from '@/data/seedData'
+import { personnel, leaveRequests as seedLeaveRequests } from '@/data/seedData'
 import type { KPLeaveType, RequestStatus, PoliceRank } from '@/types'
 
 const LEAVE_TYPE_META: Record<KPLeaveType, { labelKey: string; color: string; icon: string }> = {
@@ -14,12 +14,7 @@ const LEAVE_TYPE_META: Record<KPLeaveType, { labelKey: string; color: string; ic
   PL: { labelKey: 'privilege_leave_full', color: '#8b5cf6', icon: '⭐' },
 }
 
-const LEAVE_TYPE_CARD_KEYS: Record<KPLeaveType, string> = {
-  CL: 'casual_leave',
-  CML: 'medical_leave',
-  EL: 'earned_leave',
-  PL: 'privilege_leave',
-}
+
 
 const STATUS_META: Record<RequestStatus, { labelKey: string; bg: string; text: string }> = {
   pending: { labelKey: 'pending', bg: 'bg-amber-50 dark:bg-amber-900/20', text: 'text-amber-700 dark:text-amber-400' },
@@ -97,8 +92,6 @@ export default function LeaveRequestsPage() {
     setLoading(false)
   }, [viewableRanks])
 
-  const userLeaveBalance = useMemo(() => kpLeaveBalances[0]?.balances || [], [])
-
   const filteredRequests = useMemo(() => {
     return requests.filter(r => {
       // Tab filter
@@ -154,51 +147,7 @@ export default function LeaveRequestsPage() {
           <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">{t('leave_title')}</h1>
           <p className="text-xs text-[var(--color-text-light)] mt-0.5">{t('manage_leave')}</p>
         </div>
-        <button className="btn btn-primary self-start">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-          {t('request_leave_btn')}
-        </button>
-      </div>
 
-      {/* My Leave Balance (always visible) */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {userLeaveBalance.map(b => {
-          const meta = LEAVE_TYPE_META[b.type as KPLeaveType]
-          const cardKey = LEAVE_TYPE_CARD_KEYS[b.type as KPLeaveType]
-          const pct = b.entitled > 0 ? (b.remaining / b.entitled) * 100 : 0
-          return (
-            <div key={b.type} className="card p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-lg">{meta?.icon}</span>
-                <span className="text-xs font-semibold text-[var(--color-text-medium)] uppercase tracking-wide">{cardKey ? t(cardKey) : b.type}</span>
-              </div>
-              <div className="flex items-end justify-between mb-2">
-                <span className="text-2xl font-bold text-[var(--color-text-dark)]">{b.remaining}</span>
-                <span className="text-xs text-[var(--color-text-light)]">{t('of_days').replace('{0}', String(b.entitled))}</span>
-              </div>
-              <div className="h-1.5 bg-[var(--color-bg-main)] rounded-full overflow-hidden">
-                <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: meta?.color || 'var(--color-primary)' }} />
-              </div>
-              <p className="text-[10px] text-[var(--color-text-light)] mt-1.5">{t('days_used_this_year').replace('{0}', String(b.used))}</p>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Quick Stats Row */}
-      <div className="flex flex-wrap gap-3">
-        {[
-          { label: t('on_leave_today'), value: stats.onLeaveToday, color: '#3b82f6' },
-          { label: t('pending_approval'), value: stats.pending, color: '#f59e0b' },
-          { label: t('approved'), value: stats.approved, color: '#10b981' },
-          { label: t('rejected'), value: stats.rejected, color: '#ef4444' },
-        ].map(s => (
-          <div key={s.label} className="flex items-center gap-2 px-3 py-2 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-lg">
-            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: s.color }} />
-            <span className="text-xs text-[var(--color-text-medium)]">{s.label}:</span>
-            <span className="text-sm font-semibold text-[var(--color-text-dark)]">{s.value}</span>
-          </div>
-        ))}
       </div>
 
       {/* Tabs + Filters */}

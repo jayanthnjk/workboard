@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useSearchParams, useNavigate } from 'react-router-dom'
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom'
 import { apiGateway } from '@/services/apiGateway'
 import { rbacService, type UserPermissions } from '@/services/rbacService'
 import { useAuth } from '@/context/AuthContext'
@@ -15,6 +15,7 @@ const STATUSES: PersonnelStatus[] = ['active', 'on-leave', 'absent', 'suspended'
 export default function EmployeesPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const { user } = useAuth()
   const { t } = useLanguage()
   const [personnel, setPersonnel] = useState<Personnel[]>([])
@@ -41,7 +42,7 @@ export default function EmployeesPage() {
       }
     }
     fetchData()
-  }, [sectionFilter])
+  }, [sectionFilter, location.key])
 
   const filteredPersonnel = useMemo(() => {
     return personnel.filter(p => {
@@ -64,6 +65,7 @@ export default function EmployeesPage() {
     { label: t('total_personnel'), value: personnel.length, color: 'bg-[var(--color-info)]/10', icon: '👥' },
     { label: t('active'), value: personnel.filter(p => p.status === 'active').length, color: 'bg-[var(--color-success)]/10', icon: '✓' },
     { label: t('on_leave'), value: personnel.filter(p => p.status === 'on-leave').length, color: 'bg-[var(--color-warning)]/10', icon: '📋' },
+    { label: 'Suspended', value: personnel.filter(p => p.status === 'suspended').length, color: 'bg-[var(--color-error)]/10', icon: '⛔' },
     { label: t('training'), value: personnel.filter(p => p.status === 'training').length, color: 'bg-[var(--color-accent-indigo)]/10', icon: '📚' },
   ], [personnel, t])
 
@@ -111,7 +113,7 @@ export default function EmployeesPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {stats.map((stat, idx) => (
           <div key={idx} className="card p-4">
             <div className="flex items-center gap-3">
@@ -171,6 +173,7 @@ export default function EmployeesPage() {
                 <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">{t('id')}</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">{t('rank')}</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">{t('section')}</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">Duty</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">{t('platoon')}</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">{t('status')}</th>
                 <th className="px-4 py-3 text-right text-xs font-medium text-[var(--color-text-medium)] uppercase">{t('actions')}</th>
@@ -178,7 +181,7 @@ export default function EmployeesPage() {
             </thead>
             <tbody className="divide-y divide-[var(--color-border)]">
               {filteredPersonnel.length === 0 ? (
-                <tr><td colSpan={7} className="px-4 py-8 text-center text-[var(--color-text-medium)]">{t('no_personnel_found')}</td></tr>
+                <tr><td colSpan={8} className="px-4 py-8 text-center text-[var(--color-text-medium)]">{t('no_personnel_found')}</td></tr>
               ) : (
                 paginatedPersonnel.map(person => (
                   <tr key={person.id} className="table-row">
@@ -196,6 +199,7 @@ export default function EmployeesPage() {
                     <td className="px-4 py-3 text-sm text-[var(--color-text-medium)] font-mono">{person.personnelId}</td>
                     <td className="px-4 py-3"><span className={`px-2 py-1 rounded text-xs font-medium ${getRankColor(person.rank)}`}>{person.rank}</span></td>
                     <td className="px-4 py-3 text-sm text-[var(--color-text-medium)]">{person.section}</td>
+                    <td className="px-4 py-3 text-sm text-[var(--color-text-medium)]">{person.dutyCategory || '-'}</td>
                     <td className="px-4 py-3 text-sm text-[var(--color-text-medium)]">{person.platoon || '-'}</td>
                     <td className="px-4 py-3"><span className={`px-2 py-1 rounded text-xs font-medium capitalize ${getStatusColor(person.status)}`}>{person.status}</span></td>
                     <td className="px-4 py-3 text-right">

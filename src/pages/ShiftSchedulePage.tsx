@@ -1,11 +1,13 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, lazy, Suspense, Component, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '@/context/LanguageContext'
 import { apiGateway } from '@/services/apiGateway'
 import { rotationService } from '@/services/rotationService'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 import { Pagination } from '@/components/common/Pagination'
-import type { Employee, ShiftAssignment, ShiftType, LeaveRequest, Personnel, PoliceRank, Platoon, PlatoonRotation, PlatoonId, RotationalDutyType, AdhocRequest } from '@/types'
+import type { Employee, ShiftAssignment, ShiftType, LeaveRequest, Personnel, PoliceRank, Platoon, PlatoonRotation, PlatoonId, RotationalDutyType, AdhocRequest, DriverRecord } from '@/types'
+
+const DutyDetailPage = lazy(() => import('@/pages/DutyDetailPage'))
 
 type ViewRange = 'day' | 'week' | 'month'
 type SubTab = 'adhoc' | 'assign'
@@ -67,6 +69,244 @@ const STATUS_LABEL: Record<string, string> = {
   approved: 'Approved',
 }
 
+const RANKS = ['DCP', 'ACP', 'RPI', 'RSI', 'ARSI', 'AHC', 'APC']
+
+interface ChartData {
+  sectionId: number; sectionName: string
+  dutyGroups: { slNo: number; dutyName: string; totalPersonnel: number; rankCounts: Record<string, number>
+    subRows: { subDetail: string | null; personnel: { id: number; name: string; designation: string; badgeNumber: string | null }[]; rankCounts: Record<string, number> }[]
+  }[]
+  rankTotals: Record<string, number>
+}
+
+function SectionChartView({ sectionId }: { sectionId: number }) {
+  const [chart, setChart] = useState<ChartData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [expandedRow, setExpandedRow] = useState<number | null>(null)
+
+  useEffect(() => {
+    setExpandedRow(null)
+    setLoading(true)
+    ;(async () => {
+      try {
+        const token = localStorage.getItem('workboard_access_token')
+        const res = await fetch(`http://localhost:8080/api/sections/${sectionId}/chart`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        })
+        const result = await res.json()
+        if (result.success) setChart(result.data)
+      } catch (e) { console.error(e) }
+      finally { setLoading(false) }
+    })()
+  }, [sectionId])
+
+  if (loading) return <div className="flex items-center justify-center h-32"><LoadingSpinner /></div>
+  if (!chart || chart.dutyGroups.length === 0) return <div className="card p-8 text-center text-sm text-[var(--color-text-light)]">No chart data available</div>
+
+  const totalPersonnel = chart.dutyGroups.reduce((s, g) => s + g.totalPersonnel, 0)
+
+  return (
+    <div className="card overflow-hidden">
+      <div className="px-4 py-3 border-b border-[var(--color-border)] flex items-center justify-between" style={{ background: 'linear-gradient(135deg, var(--color-bg-tertiary), var(--color-bg-card))' }}>
+        <div className="flex items-center gap-2.5">
+          <span className="text-sm font-bold text-[var(--color-text-dark)]">{chart.sectionName}</span>
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-semibold">{totalPersonnel} personnel</span>
+        </div>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="bg-[var(--color-bg-secondary)]">
+              <th className="px-3 py-2.5 text-left font-semibold text-[var(--color-text-light)] w-8">#</th>
+              <th className="px-3 py-2.5 text-left font-semibold text-[var(--color-text-light)]">DUTY</th>
+              {RANKS.map(r => <th key={r} className="px-2 py-2.5 text-center font-semibold text-[var(--color-text-light)] w-12">{r}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {chart.dutyGroups.map(group => {
+              const isExpanded = expandedRow === group.slNo
+              const personnelList = group.subRows.flatMap(sr => sr.personnel)
+              return (
+                <>
+                  <tr key={group.slNo}
+                    onClick={() => setExpandedRow(isExpanded ? null : group.slNo)}
+                    className={`border-t border-[var(--color-border)] cursor-pointer transition-colors ${isExpanded ? 'bg-[var(--color-primary)]/5' : 'hover:bg-[var(--color-bg-main)]/50'}`}>
+                    <td className="px-3 py-2.5 text-[var(--color-text-light)] align-top">{group.slNo}</td>
+                    <td className="px-3 py-2.5 align-top">
+                      <div className="flex items-center gap-1.5">
+                        <svg className={`w-3.5 h-3.5 text-[var(--color-text-light)] transition-transform flex-shrink-0 ${isExpanded ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                        <span className="font-semibold text-[var(--color-text-dark)]">{group.dutyName}</span>
+                        <span className="text-[10px] text-[var(--color-text-light)] ml-1">({group.totalPersonnel})</span>
+                      </div>
+                      {group.subRows.some(sr => sr.subDetail) && !isExpanded && (
+                        <p className="ml-5 mt-0.5 text-[10px] text-[var(--color-text-light)]">
+                          {group.subRows.filter(sr => sr.subDetail).map(sr => sr.subDetail).join(' · ')}
+                        </p>
+                      )}
+                    </td>
+                    {RANKS.map(r => (
+                      <td key={r} className="px-2 py-2.5 text-center align-top">
+                        <span className={`${(group.rankCounts[r] || 0) > 0 ? 'font-semibold text-[var(--color-text-dark)]' : 'text-[var(--color-text-light)]'}`}>
+                          {group.rankCounts[r] || 0}
+                        </span>
+                      </td>
+                    ))}
+                  </tr>
+                  {isExpanded && (
+                    <tr key={`${group.slNo}-detail`}>
+                      <td colSpan={2 + RANKS.length} className="p-0">
+                        <div className="mx-8 my-3 rounded-lg border border-[var(--color-border)] overflow-hidden bg-[var(--color-bg-card)]">
+                          {group.subRows.map((sr, si) => (
+                            <div key={si}>
+                              {sr.subDetail && (
+                                <div className="px-4 py-1.5 text-[10px] font-semibold text-[var(--color-text-medium)] uppercase tracking-wider bg-[var(--color-bg-tertiary)] border-b border-[var(--color-border)]">
+                                  {sr.subDetail}
+                                </div>
+                              )}
+                              {sr.personnel.map((p, pi) => (
+                                <div key={p.id} className={`flex items-center px-4 py-1.5 text-[11px] ${pi > 0 || sr.subDetail ? 'border-t border-[var(--color-border)]/40' : ''} hover:bg-[var(--color-bg-main)]/50`}>
+                                  <span className="flex-1 font-medium text-[var(--color-text-dark)]">{p.name}</span>
+                                  <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                                    p.designation === 'DCP' || p.designation === 'ACP' ? 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400' :
+                                    p.designation === 'RPI' ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400' :
+                                    p.designation === 'RSI' || p.designation === 'PROB RSI' ? 'bg-teal-50 text-teal-700 dark:bg-teal-900/20 dark:text-teal-400' :
+                                    p.designation === 'ARSI' ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400' :
+                                    p.designation === 'AHC' ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400' :
+                                    'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                                  }`}>{p.designation}</span>
+                                </div>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </>
+              )
+            })}
+            <tr className="border-t-2 border-[var(--color-border)] bg-[var(--color-bg-secondary)]">
+              <td className="px-3 py-2.5 font-bold text-[var(--color-text-dark)]" colSpan={2}>TOTAL</td>
+              {RANKS.map(r => (
+                <td key={r} className="px-2 py-2.5 text-center font-bold text-[var(--color-text-dark)]">{chart.rankTotals[r] || 0}</td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+class ErrorBoundaryWrapper extends Component<{ children: ReactNode }, { hasError: boolean; error?: Error }> {
+  constructor(props: { children: ReactNode }) {
+    super(props)
+    this.state = { hasError: false }
+  }
+  static getDerivedStateFromError(error: Error) { return { hasError: true, error } }
+  componentDidCatch(error: Error) { console.error('[DriversTab] Error:', error) }
+  render() {
+    if (this.state.hasError) {
+      return <div className="card p-8 text-center text-sm text-red-500">Error loading Drivers tab: {this.state.error?.message}</div>
+    }
+    return this.props.children
+  }
+}
+
+function DriversTabView() {
+  const [drivers, setDrivers] = useState<DriverRecord[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
+
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const res = await apiGateway.getDrivers()
+        if (res.success && Array.isArray(res.data)) setDrivers(res.data)
+        else if (res.success) setDrivers([])
+        else setError(res.error || 'Failed to fetch drivers')
+      } catch (e) { setError('Failed to fetch drivers') }
+      finally { setLoading(false) }
+    })()
+  }, [])
+
+  const filtered = useMemo(() => {
+    if (!search) return drivers
+    const q = search.toLowerCase()
+    return drivers.filter(d =>
+      (d.name || '').toLowerCase().includes(q) ||
+      (d.designationDisplay || '').toLowerCase().includes(q) ||
+      (d.duty || '').toLowerCase().includes(q) ||
+      (d.vehicleNo || '').toLowerCase().includes(q)
+    )
+  }, [drivers, search])
+
+  if (loading) return <div className="flex items-center justify-center h-32"><LoadingSpinner /></div>
+  if (error) return <div className="card p-8 text-center text-sm text-red-500">{error}</div>
+
+  return (
+    <div className="card overflow-hidden">
+      <div className="px-4 py-3 border-b border-[var(--color-border)] flex items-center justify-between gap-3" style={{ background: 'linear-gradient(135deg, var(--color-bg-tertiary), var(--color-bg-card))' }}>
+        <div className="flex items-center gap-2.5">
+          <span className="text-sm font-bold text-[var(--color-text-dark)]">CAR MT Section Drivers</span>
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-semibold">
+            {search ? `${filtered.length} / ${drivers.length}` : `${drivers.length}`} personnel
+          </span>
+        </div>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--color-bg-card)] border border-[var(--color-border)]">
+          <svg className="w-3.5 h-3.5 text-[var(--color-text-light)]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          <input type="text" placeholder="Search drivers..." value={search} onChange={e => setSearch(e.target.value)}
+            className="bg-transparent outline-none text-xs text-[var(--color-text-dark)] placeholder-[var(--color-text-light)] w-40" />
+          {search && (
+            <button onClick={() => setSearch('')} className="text-[var(--color-text-light)] hover:text-[var(--color-text-medium)]">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          )}
+        </div>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="bg-[var(--color-bg-secondary)]">
+              <th className="px-3 py-2.5 text-left font-semibold text-[var(--color-text-light)] w-10">#</th>
+              <th className="px-3 py-2.5 text-left font-semibold text-[var(--color-text-light)]">Name</th>
+              <th className="px-3 py-2.5 text-left font-semibold text-[var(--color-text-light)]">Designation</th>
+              <th className="px-3 py-2.5 text-left font-semibold text-[var(--color-text-light)]">Duty</th>
+              <th className="px-3 py-2.5 text-left font-semibold text-[var(--color-text-light)]">Vehicle No</th>
+              <th className="px-3 py-2.5 text-left font-semibold text-[var(--color-text-light)]">PDMS</th>
+              <th className="px-3 py-2.5 text-left font-semibold text-[var(--color-text-light)]">License</th>
+              <th className="px-3 py-2.5 text-left font-semibold text-[var(--color-text-light)]">Deployed From</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.length === 0 ? (
+              <tr><td colSpan={8} className="px-4 py-8 text-center text-sm text-[var(--color-text-light)]">No drivers found</td></tr>
+            ) : filtered.map((d, idx) => (
+              <tr key={d.slNo} className={`border-t border-[var(--color-border)] hover:bg-[var(--color-bg-main)]/50 transition-colors ${idx % 2 === 1 ? 'bg-[var(--color-bg-secondary)]/30' : ''}`}>
+                <td className="px-3 py-2 text-[var(--color-text-light)]">{d.slNo}</td>
+                <td className="px-3 py-2 font-medium text-[var(--color-text-dark)]">{d.name}</td>
+                <td className="px-3 py-2">
+                  <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                    (d.designationDisplay || '').startsWith('ARSI') ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400' :
+                    (d.designationDisplay || '').startsWith('AHC') ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400' :
+                    'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                  }`}>{d.designationDisplay || '-'}</span>
+                </td>
+                <td className="px-3 py-2 text-[var(--color-text-dark)]">{d.duty}</td>
+                <td className="px-3 py-2 text-[var(--color-text-dark)]">{d.vehicleNo}</td>
+                <td className="px-3 py-2 text-[var(--color-text-medium)]">{d.pdmsStatus || '—'}</td>
+                <td className="px-3 py-2 text-[var(--color-text-medium)]">{d.licenseType || '—'}</td>
+                <td className="px-3 py-2 text-[var(--color-text-medium)]">{d.deployedFrom || '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
 export default function ShiftSchedulePage() {
   const navigate = useNavigate()
   const { t } = useLanguage()
@@ -95,6 +335,8 @@ export default function ShiftSchedulePage() {
   const [adhocPage, setAdhocPage] = useState(1)
   const [adhocPageSize, setAdhocPageSize] = useState(5)
   const [adhocFilter, setAdhocFilter] = useState<'all' | 'pending' | 'accepted' | 'declined' | 'completed'>('all')
+  const [sectionTab, setSectionTab] = useState<'A' | 'B' | 'C' | 'D'>('A')
+  const [selectedPlatoon, setSelectedPlatoon] = useState<PlatoonId>('P1')
 
   const today = useMemo(() => new Date(), [])
 
@@ -161,11 +403,15 @@ export default function ShiftSchedulePage() {
   }, [employees, personnelList])
 
   // Current cycle info
-  const cycleNumber = useMemo(() => {
+  const currentCycleNum = useMemo(() => {
     const num = rotationService.getCycleNumber(new Date())
     return Math.min(num, MAX_CYCLE)
   }, [])
+  const [cycleNumber, setCycleNumber] = useState<number>(0)
+  // Initialize cycle number after computation
+  useEffect(() => { setCycleNumber(currentCycleNum) }, [currentCycleNum])
   const cycleDateRange = useMemo(() => rotationService.getCycleDateRange(cycleNumber), [cycleNumber])
+  const isCurrentCycle = cycleNumber === currentCycleNum
 
   // Get stored assignments for current cycle
   const currentCycleAssignments = useMemo((): Map<PlatoonId, RotationalDutyType> | null => {
@@ -356,11 +602,25 @@ export default function ShiftSchedulePage() {
 
   return (
     <div className="space-y-4">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-lg font-semibold text-[var(--color-text-dark)]">{t('schedule_page_title')}</h1>
-          <p className="text-xs text-[var(--color-text-light)] mt-0.5">{t('manage_team_schedules')}</p>
+      {/* Section Tabs + Actions */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-0.5">
+          {([
+            { key: 'A' as const, label: 'Section A', desc: 'Officers & Staff' },
+            { key: 'B' as const, label: 'Section B', desc: 'Writers & Support' },
+            { key: 'C' as const, label: 'Section C', desc: 'Platoon Rotation' },
+            { key: 'D' as const, label: 'Drivers', desc: 'CAR MT Section' },
+          ]).map(sec => (
+            <button key={sec.key} onClick={() => setSectionTab(sec.key)}
+              className={`relative px-5 py-2.5 text-xs font-semibold transition-all border-b-2 ${
+                sectionTab === sec.key
+                  ? 'text-[var(--color-primary)] border-[var(--color-primary)] bg-[var(--color-primary)]/5'
+                  : 'text-[var(--color-text-light)] border-transparent hover:text-[var(--color-text-dark)] hover:bg-[var(--color-bg-secondary)]'
+              }`}>
+              <span className="block">{sec.label}</span>
+              <span className={`block text-[9px] font-normal mt-0.5 ${sectionTab === sec.key ? 'text-[var(--color-primary)]/70' : 'text-[var(--color-text-light)]'}`}>{sec.desc}</span>
+            </button>
+          ))}
         </div>
         <div className="flex items-center gap-2">
           <button onClick={() => window.location.reload()} className="btn btn-secondary text-xs gap-1.5">
@@ -384,53 +644,91 @@ export default function ShiftSchedulePage() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
             {t('export')}
           </button>
-          <button onClick={() => navigate('/schedule/new')} className="btn btn-primary text-xs gap-1.5">
+          <button disabled className="btn btn-primary text-xs gap-1.5 opacity-50 cursor-not-allowed">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
             {t('new_assignment')}
           </button>
         </div>
       </div>
 
-      {/* ===== CURRENT CYCLE TIMELINE ===== */}
+      {/* Section A */}
+      {sectionTab === 'A' && <SectionChartView sectionId={1} />}
+
+      {/* Section B */}
+      {sectionTab === 'B' && <SectionChartView sectionId={2} />}
+
+      {/* Drivers — CAR MT Section */}
+      {sectionTab === 'D' && (
+        <ErrorBoundaryWrapper>
+          <DriversTabView />
+        </ErrorBoundaryWrapper>
+      )}
+
+      {/* Section C — Platoon Rotation */}
+      {sectionTab === 'C' && (<>
+
+      {/* ===== ROTATION CYCLE ===== */}
       <div className="card overflow-hidden">
-        <div className="px-4 py-3 border-b border-[var(--color-border)] bg-[var(--color-bg-tertiary)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-[var(--color-text-dark)]">{t('current_rotation')}</span>
-            <span className="text-[10px] px-2.5 py-1 rounded-full bg-[var(--color-primary)] text-white font-bold">Cycle {cycleNumber}</span>
+        {/* Cycle Navigation — clean centered design */}
+        <div className="px-5 py-3.5 border-b border-[var(--color-border)] flex items-center justify-between" style={{ background: 'linear-gradient(135deg, var(--color-bg-tertiary), var(--color-bg-card))' }}>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setCycleNumber(c => Math.max(1, c - 1))} disabled={cycleNumber <= 1}
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[var(--color-bg-card)] border border-[var(--color-border)] disabled:opacity-25 disabled:cursor-not-allowed text-[var(--color-text-dark)] transition-all hover:shadow-sm">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <div className="flex items-center gap-2.5">
+              <div className={`px-4 py-1.5 rounded-lg text-sm font-bold ${isCurrentCycle ? 'bg-[var(--color-primary)] text-white shadow-sm' : 'bg-[var(--color-bg-card)] text-[var(--color-text-dark)] border border-[var(--color-border)]'}`}>
+                Cycle {cycleNumber}
+              </div>
+              <div>
+                <p className="text-xs font-medium text-[var(--color-text-dark)]">
+                  {new Date(cycleDateRange.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} — {new Date(cycleDateRange.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                </p>
+                {isCurrentCycle && <p className="text-[10px] text-[var(--color-success)] font-semibold flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-[var(--color-success)] animate-pulse" />Active Rotation</p>}
+                {!isCurrentCycle && <p className="text-[10px] text-[var(--color-text-light)]">{cycleNumber < currentCycleNum ? 'Past Rotation' : 'Upcoming Rotation'}</p>}
+              </div>
+            </div>
+            <button onClick={() => setCycleNumber(c => c + 1)}
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[var(--color-bg-card)] border border-[var(--color-border)] text-[var(--color-text-dark)] transition-all hover:shadow-sm">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+            </button>
           </div>
-          <span className="text-[10px] text-[var(--color-text-light)]">
-            {new Date(cycleDateRange.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} — {new Date(cycleDateRange.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-          </span>
+          {!isCurrentCycle && (
+            <button onClick={() => setCycleNumber(currentCycleNum)}
+              className="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--color-primary)] bg-[var(--color-primary)]/8 hover:bg-[var(--color-primary)]/15 px-3.5 py-2 rounded-lg transition-all border border-[var(--color-primary)]/15">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              Current Cycle
+            </button>
+          )}
         </div>
 
+        {/* Platoon Cards */}
         {currentCycleAssignments ? (
           <div className="grid grid-cols-1 sm:grid-cols-5">
             {PLATOON_IDS.map((pid, idx) => {
               const duty = currentCycleAssignments.get(pid)
               const meta = duty ? DUTY_META[duty] : null
               const platoon = platoons.find(p => p.id === pid)
+              const isSelected = selectedPlatoon === pid
               return (
                 <div
                   key={pid}
-                  onClick={() => navigate(`/schedule/platoon/${pid}`)}
-                  className={`flex sm:flex-col items-center sm:items-stretch gap-3 sm:gap-0 px-4 py-4 sm:py-5 cursor-pointer transition-all hover:bg-[var(--color-bg-secondary)]/40 group ${idx < 4 ? 'border-b sm:border-b-0 sm:border-r border-[var(--color-border)]' : ''}`}
+                  onClick={() => setSelectedPlatoon(pid)}
+                  className={`flex sm:flex-col items-center sm:items-stretch gap-2 sm:gap-0 px-3 py-3 cursor-pointer transition-all duration-200 group relative ${idx < 4 ? 'sm:border-r border-[var(--color-border)]' : ''} ${isSelected ? '' : 'hover:bg-[var(--color-bg-secondary)]/30'}`}
+                  style={isSelected ? { background: `linear-gradient(180deg, ${meta?.color || 'var(--color-primary)'}08 0%, ${meta?.color || 'var(--color-primary)'}03 100%)` } : {}}
                 >
-                  {/* Platoon label */}
-                  <div className="sm:text-center sm:mb-3 shrink-0">
-                    <p className="text-[11px] font-semibold text-[var(--color-text-dark)]">{platoon?.name || `Platoon ${pid}`}</p>
-                  </div>
-                  {/* Duty bar */}
+                  {/* Selected indicator — top accent bar */}
+                  <div className={`absolute top-0 left-0 right-0 h-[3px] transition-all duration-200 ${isSelected ? 'opacity-100' : 'opacity-0'}`} style={{ background: meta?.color || 'var(--color-primary)' }} />
+                  {/* Duty bar with platoon label */}
                   {meta ? (
-                    <div className="flex-1 sm:flex-none rounded-lg px-3 py-2.5 sm:py-3 relative overflow-hidden transition-shadow group-hover:shadow-md w-full"
-                      style={{ background: `${meta.color}12`, borderLeft: `4px solid ${meta.color}` }}>
-                      <div className="absolute inset-0 opacity-[0.03]" style={{ background: `linear-gradient(135deg, ${meta.color}, transparent)` }} />
+                    <div className={`flex-1 sm:flex-none rounded-lg px-2.5 py-2 sm:py-2.5 relative overflow-hidden transition-all duration-200 w-full ${isSelected ? 'shadow-md' : 'group-hover:shadow-sm'}`}
+                      style={{ background: `${meta.color}${isSelected ? '18' : '0a'}`, borderLeft: `3px solid ${meta.color}` }}>
                       <div className="relative z-10 flex items-center gap-2">
-                        <span className="text-lg">{meta.icon}</span>
+                        <span className="text-base">{meta.icon}</span>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-bold leading-tight" style={{ color: meta.color }}>{meta.short}</p>
-                          <p className="text-[10px] text-[var(--color-text-light)] leading-tight">{meta.label}</p>
+                          <p className="text-xs font-bold leading-tight" style={{ color: meta.color }}>Platoon {pid.replace('P', '')}</p>
+                          <p className="text-[9px] text-[var(--color-text-light)] leading-tight">{meta.label}</p>
                         </div>
-                        <svg className="w-4 h-4 text-[var(--color-text-light)] opacity-0 group-hover:opacity-60 transition-opacity shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                       </div>
                     </div>
                   ) : (
@@ -456,8 +754,15 @@ export default function ShiftSchedulePage() {
         )}
       </div>
 
-      {/* View switcher — segmented control instead of nested tabs */}
-      <div className="flex items-center gap-3">
+      {/* Inline Duty Detail for selected platoon */}
+      {currentCycleAssignments && (
+        <Suspense fallback={<div className="flex items-center justify-center h-32"><LoadingSpinner /></div>}>
+          <DutyDetailPage key={selectedPlatoon} embedded platoonOverride={selectedPlatoon} />
+        </Suspense>
+      )}
+
+      {/* View switcher — hidden for now */}
+      {false && <div className="flex items-center gap-3">
         <div className="flex bg-[var(--color-bg-secondary)] rounded-xl p-1 gap-0.5">
           <button onClick={() => setSubTab('adhoc')}
             className={`px-4 py-2 rounded-lg text-xs font-medium transition-all ${subTab === 'adhoc' ? 'bg-[var(--color-bg-card)] text-[var(--color-text-dark)] shadow-sm' : 'text-[var(--color-text-light)] hover:text-[var(--color-text-medium)]'}`}>
@@ -468,10 +773,10 @@ export default function ShiftSchedulePage() {
             {t('assign_shift')}
           </button>
         </div>
-      </div>
+      </div>}
 
       {/* ═══ ADHOC REQUESTS TAB ═══ */}
-      {subTab === 'adhoc' && (() => {
+      {false && subTab === 'adhoc' && (() => {
         const counts = { all: adhocRequests.length, pending: adhocRequests.filter(r => r.status === 'pending').length, accepted: adhocRequests.filter(r => r.status === 'accepted').length, declined: adhocRequests.filter(r => r.status === 'declined').length, completed: adhocRequests.filter(r => r.status === 'completed').length }
         return (
         <div className="space-y-4">
@@ -570,7 +875,7 @@ export default function ShiftSchedulePage() {
       })()}
 
       {/* ═══ ASSIGN SHIFT TAB ═══ */}
-      {subTab === 'assign' && (<>
+      {false && subTab === 'assign' && (<>
       {/* Controls Bar */}
       <div className="card p-3">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
@@ -864,8 +1169,10 @@ export default function ShiftSchedulePage() {
 
       </>)}
 
-      {/* Summary Footer */}
-      <div className="card p-3">
+      </>)}
+
+      {/* Summary Footer — hidden for now */}
+      {false && <div className="card p-3">
         <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-[var(--color-text-medium)]">
           <div className="flex items-center gap-4">
             <span>{filteredEmployees.length} {t('team_members_count')}</span>
@@ -887,7 +1194,7 @@ export default function ShiftSchedulePage() {
             </div>
           </div>
         </div>
-      </div>
+      </div>}
     </div>
   )
 }

@@ -32,15 +32,12 @@ const sections: Section[] = [
   ]},
   { label: 'admin_section', entries: [
     { nameKey: 'configuration', icon: I.config, roles: ['admin'], children: [
-      { nameKey: 'departments', path: '/departments', icon: <></> },
+      { nameKey: 'sections', path: '/sections', icon: <></> },
       { nameKey: 'locations', path: '/locations', icon: <></> },
       { nameKey: 'shift_types', path: '/shift-types', icon: <></> },
-      { nameKey: 'shift_patterns', path: '/shift-patterns', icon: <></> },
       { nameKey: 'rotation_rules', path: '/rotation-rules', icon: <></> },
-      { nameKey: 'documents', path: '/documents', icon: <></> },
       { nameKey: 'messaging', path: '/messaging', icon: <></> },
     ]},
-    { nameKey: 'reports', path: '/reports', icon: I.reports, roles: ['admin', 'supervisor'] },
     { nameKey: 'audit_log', path: '/audit', icon: I.audit, roles: ['admin'] },
   ]},
 ]
@@ -49,12 +46,12 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
   const { role } = useAuth()
   const { t } = useLanguage()
   const location = useLocation()
-  const [configOpen, setConfigOpen] = useState(true)
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({})
+  const toggleGroup = (key: string) => setOpenGroups(prev => ({ ...prev, [key]: !prev[key] }))
 
   const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(path + '/')
   const isAllowed = (roles?: UserRole[]) => !roles || (role != null && roles.includes(role))
-  const anyConfigChildActive = sections.flatMap(s => s.entries).filter(isGroup).some(g => g.children.some(c => isActive(c.path)))
-  const expanded = configOpen || anyConfigChildActive
+  const anyGroupChildActive = (group: NavGroup) => group.children.some(c => isActive(c.path))
 
   /* ── Nav Item ── */
   const Item = ({ item, mobile = false, child = false }: { item: NavItem; mobile?: boolean; child?: boolean }) => {
@@ -128,11 +125,12 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
   /* ── Config Group ── */
   const Group = ({ group, mobile = false }: { group: NavGroup; mobile?: boolean }) => {
     const label = t(group.nameKey)
+    const expanded = openGroups[group.nameKey] || anyGroupChildActive(group)
     if (collapsed && !mobile) {
       return (
         <div className="relative group">
           <button
-            onClick={() => setConfigOpen(!configOpen)}
+            onClick={() => toggleGroup(group.nameKey)}
             title={label}
             className="w-full flex items-center justify-center mx-1 px-2 py-2 min-h-[40px] rounded-lg text-[#94A3B8] hover:text-[#334155] hover:bg-[rgba(0,0,0,0.02)] transition-all"
           >
@@ -147,7 +145,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
     return (
       <div>
         <button
-          onClick={() => setConfigOpen(!expanded)}
+          onClick={() => toggleGroup(group.nameKey)}
           className="w-full flex items-center gap-2.5 mx-2 px-3 py-2 min-h-[40px] rounded-lg text-[#64748B] hover:text-[#334155] hover:bg-[rgba(0,0,0,0.02)] transition-all"
           style={{ width: 'calc(100% - 16px)' }}
         >
@@ -200,14 +198,14 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
           'fixed left-3 top-[68px] bottom-3 flex-col z-20 hidden md:flex transition-all duration-300',
           collapsed ? 'w-[64px]' : 'w-[220px]'
         )}
-        style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.06)', borderRadius: '0.75rem' }}
+        style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border)', borderRadius: '0.75rem' }}
       >
         {/* Nav — starts directly, logo is in header */}
 
         {/* Collapse toggle — edge circle */}
         <button
           onClick={onToggle}
-          className="absolute top-1/2 -translate-y-1/2 -right-3 w-6 h-6 rounded-full flex items-center justify-center z-30 transition-all hover:scale-110 bg-white border border-black/[0.08]"
+          className="absolute top-1/2 -translate-y-1/2 -right-3 w-6 h-6 rounded-full flex items-center justify-center z-30 transition-all hover:scale-110 bg-[var(--color-bg-card)] border border-[var(--color-border)]"
           style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}
           title={collapsed ? t('expand') : t('collapse_sidebar')}
         >
@@ -245,7 +243,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
           'fixed left-0 top-0 bottom-0 w-[260px] z-50 transform transition-transform duration-300 md:hidden flex flex-col',
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         )}
-        style={{ background: '#ffffff' }}
+        style={{ background: 'var(--color-bg-card)' }}
       >
         <div className="flex items-center justify-between h-[56px] px-4">
           <div className="flex items-center gap-2.5">

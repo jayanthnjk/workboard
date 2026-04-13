@@ -25,7 +25,7 @@ const DUTY_COLORS: Record<RotationalDutyType, string> = {
   'striking-force': 'var(--color-error)',
 }
 
-export default function DutyDetailPage() {
+export default function DutyDetailPage({ embedded, platoonOverride }: { embedded?: boolean; platoonOverride?: string } = {}) {
   const { platoonId } = useParams<{ platoonId: string }>()
   const navigate = useNavigate()
   const [personnel, setPersonnel] = useState<Personnel[]>([])
@@ -35,6 +35,7 @@ export default function DutyDetailPage() {
   const [addSearch, setAddSearch] = useState('')
   const [additionalPersonnel, setAdditionalPersonnel] = useState<Personnel[]>([])
   const [selectedMapLocation, setSelectedMapLocation] = useState<GuardLocation | null>(null)
+  const [expandedGroup, setExpandedGroup] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
@@ -42,9 +43,9 @@ export default function DutyDetailPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filterRank, setFilterRank] = useState('')
   const [filterLocation, setFilterLocation] = useState('')
-  const [filterType, setFilterType] = useState<'' | 'regular' | 'additional'>('')
 
-  const pid = (platoonId || 'P1') as PlatoonId
+
+  const pid = (platoonOverride || platoonId || 'P1') as PlatoonId
   const cycleNumber = useMemo(() => rotationService.getCycleNumber(new Date()), [])
   const dutyType = useMemo(() => rotationService.getDutyTypeForPlatoon(pid, cycleNumber), [pid, cycleNumber])
   const cycleDateRange = useMemo(() => rotationService.getCycleDateRange(cycleNumber), [cycleNumber])
@@ -128,15 +129,10 @@ export default function DutyDetailPage() {
     if (filterLocation) {
       result = result.filter(p => personnelLocationMap.get(p.id) === filterLocation)
     }
-    if (filterType === 'regular') {
-      result = result.filter(p => !additionalPersonnel.some(ap => ap.id === p.id))
-    } else if (filterType === 'additional') {
-      result = result.filter(p => additionalPersonnel.some(ap => ap.id === p.id))
-    }
     return result
-  }, [allOnDuty, searchQuery, filterRank, filterLocation, filterType, personnelLocationMap, additionalPersonnel])
+  }, [allOnDuty, searchQuery, filterRank, filterLocation, personnelLocationMap])
 
-  const hasActiveFilters = !!(searchQuery || filterRank || filterLocation || filterType)
+  const hasActiveFilters = !!(searchQuery || filterRank || filterLocation)
 
   // Filtered locations for map — show only locations that have filtered personnel
   const filteredLocations = useMemo(() => {
@@ -175,7 +171,7 @@ export default function DutyDetailPage() {
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchQuery, filterRank, filterLocation, filterType])
+  }, [searchQuery, filterRank, filterLocation])
 
   // When filtering to a single location, auto-highlight it on map
   useEffect(() => {
@@ -190,8 +186,9 @@ export default function DutyDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
+      {!embedded && (
       <div className="flex items-start sm:items-center gap-3 sm:gap-4">
-        <button onClick={() => navigate('/schedule')} className="p-2 hover:bg-[var(--color-bg-card)] rounded-lg text-[var(--color-text-medium)] flex-shrink-0">
+        <button onClick={() => navigate(-1)} className="p-2 hover:bg-[var(--color-bg-card)] rounded-lg text-[var(--color-text-medium)] flex-shrink-0">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
         </button>
         <div className="flex-1 min-w-0">
@@ -211,8 +208,10 @@ export default function DutyDetailPage() {
           <span className="sm:hidden">Add</span>
         </button>
       </div>
+      )}
 
       {/* Stats row */}
+      {!embedded && (
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="stat-card">
           <div className="flex items-center gap-3">
@@ -259,12 +258,13 @@ export default function DutyDetailPage() {
           </div>
         </div>
       </div>
+      )}
 
       {/* Filters */}
       <div className="card px-4 py-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap items-center gap-3">
-          {/* Search */}
-          <div className="flex items-center gap-2 bg-[var(--color-bg-main)] border border-[var(--color-border)] rounded-lg px-3 py-1.5 sm:col-span-2 lg:flex-1 lg:min-w-[200px] lg:max-w-[300px]">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Search — takes remaining space */}
+          <div className="flex items-center gap-2 bg-[var(--color-bg-main)] border border-[var(--color-border)] rounded-lg px-3 py-1.5 flex-1 min-w-[200px]">
             <svg className="w-4 h-4 text-[var(--color-text-light)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
             <input
               type="text"
@@ -281,42 +281,25 @@ export default function DutyDetailPage() {
           </div>
 
           {/* Rank filter */}
-          <select
-            value={filterRank}
-            onChange={e => setFilterRank(e.target.value)}
-            className="px-3 py-1.5 text-xs bg-[var(--color-bg-main)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-dark)] outline-none focus:border-[var(--color-primary)]"
-          >
+          <select value={filterRank} onChange={e => setFilterRank(e.target.value)}
+            className="px-3 py-1.5 text-xs bg-[var(--color-bg-main)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-dark)] outline-none focus:border-[var(--color-primary)]">
             <option value="">All Ranks</option>
             {availableRanks.map(r => <option key={r} value={r}>{r}</option>)}
           </select>
 
           {/* Location filter */}
-          <select
-            value={filterLocation}
-            onChange={e => setFilterLocation(e.target.value)}
-            className="px-3 py-1.5 text-xs bg-[var(--color-bg-main)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-dark)] outline-none focus:border-[var(--color-primary)]"
-          >
+          <select value={filterLocation} onChange={e => setFilterLocation(e.target.value)}
+            className="px-3 py-1.5 text-xs bg-[var(--color-bg-main)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-dark)] outline-none focus:border-[var(--color-primary)]">
             <option value="">All Locations</option>
             {availableLocationCodes.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
 
-          {/* Type filter */}
-          <select
-            value={filterType}
-            onChange={e => setFilterType(e.target.value as '' | 'regular' | 'additional')}
-            className="px-3 py-1.5 text-xs bg-[var(--color-bg-main)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-dark)] outline-none focus:border-[var(--color-primary)]"
-          >
-            <option value="">All Types</option>
-            <option value="regular">Regular</option>
-            <option value="additional">Additional</option>
-          </select>
+
 
           {/* Clear filters */}
           {hasActiveFilters && (
-            <button
-              onClick={() => { setSearchQuery(''); setFilterRank(''); setFilterLocation(''); setFilterType(''); setSelectedMapLocation(null) }}
-              className="px-3 py-1.5 text-xs font-medium text-[var(--color-error)] hover:bg-[var(--color-error)]/10 rounded-lg transition-colors"
-            >
+            <button onClick={() => { setSearchQuery(''); setFilterRank(''); setFilterLocation(''); setSelectedMapLocation(null) }}
+              className="px-3 py-1.5 text-xs font-medium text-[var(--color-error)] hover:bg-[var(--color-error)]/10 rounded-lg transition-colors">
               Clear Filters
             </button>
           )}
@@ -350,40 +333,49 @@ export default function DutyDetailPage() {
                 <h3 className="text-sm font-semibold text-[var(--color-text-dark)]">Assigned Locations</h3>
                 <p className="text-[10px] text-[var(--color-text-light)] mt-0.5">{filteredLocations.length} locations · {filteredLocations.reduce((sum, l) => sum + l.requiredPersonnel, 0)} personnel required</p>
               </div>
-              <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin divide-y divide-[var(--color-border)]">
-                {groupedLocations.map(group => (
-                  <div key={group.label} className="px-4 py-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm">{group.icon}</span>
-                      <span className="text-[11px] font-semibold text-[var(--color-text-dark)] uppercase tracking-wider">{group.label}</span>
-                      <span className="ml-auto text-[10px] font-medium text-[var(--color-text-light)] bg-[var(--color-bg-main)] px-1.5 py-0.5 rounded-full">{group.locs.length}</span>
+              <div className="flex-1 min-h-0 overflow-y-auto scrollbar-thin">
+                {groupedLocations.map((group, gi) => {
+                  const isOpen = expandedGroup === group.label
+                  return (
+                    <div key={group.label} className={gi > 0 ? 'border-t border-[var(--color-border)]' : ''}>
+                      <button
+                        onClick={() => setExpandedGroup(isOpen ? null : group.label)}
+                        className="w-full flex items-center gap-2 px-4 py-2.5 hover:bg-[var(--color-bg-main)]/50 transition-colors"
+                      >
+                        <svg className={`w-3.5 h-3.5 text-[var(--color-text-light)] transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+                        <span className="text-sm">{group.icon}</span>
+                        <span className="text-[11px] font-semibold text-[var(--color-text-dark)] uppercase tracking-wider flex-1 text-left">{group.label}</span>
+                        <span className="text-[10px] font-medium text-[var(--color-text-light)] bg-[var(--color-bg-main)] px-1.5 py-0.5 rounded-full">{group.locs.length}</span>
+                      </button>
+                      {isOpen && (
+                        <div className="px-4 pb-3 space-y-1.5">
+                          {group.locs.map(loc => (
+                            <button
+                              key={loc.id}
+                              onClick={() => setSelectedMapLocation(loc)}
+                              className={`w-full text-left flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all text-xs group ${
+                                selectedMapLocation?.id === loc.id
+                                  ? 'bg-[var(--color-primary)]/10 ring-1 ring-[var(--color-primary)]/30'
+                                  : 'hover:bg-[var(--color-bg-main)]'
+                              }`}
+                            >
+                              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                                selectedMapLocation?.id === loc.id ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-text-light)]'
+                              }`} />
+                              <div className="flex-1 min-w-0">
+                                <p className={`font-medium truncate ${
+                                  selectedMapLocation?.id === loc.id ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-dark)]'
+                                }`}>{loc.name}</p>
+                                <p className="text-[10px] text-[var(--color-text-light)] font-mono">{loc.code} · {loc.requiredPersonnel} personnel</p>
+                              </div>
+                              <svg className="w-3.5 h-3.5 text-[var(--color-text-light)] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <div className="space-y-1.5">
-                      {group.locs.map(loc => (
-                        <button
-                          key={loc.id}
-                          onClick={() => setSelectedMapLocation(loc)}
-                          className={`w-full text-left flex items-center gap-2.5 px-2.5 py-2 rounded-lg transition-all text-xs group ${
-                            selectedMapLocation?.id === loc.id
-                              ? 'bg-[var(--color-primary)]/10 ring-1 ring-[var(--color-primary)]/30'
-                              : 'hover:bg-[var(--color-bg-main)]'
-                          }`}
-                        >
-                          <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                            selectedMapLocation?.id === loc.id ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-text-light)]'
-                          }`} />
-                          <div className="flex-1 min-w-0">
-                            <p className={`font-medium truncate ${
-                              selectedMapLocation?.id === loc.id ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-dark)]'
-                            }`}>{loc.name}</p>
-                            <p className="text-[10px] text-[var(--color-text-light)] font-mono">{loc.code} · {loc.requiredPersonnel} personnel</p>
-                          </div>
-                          <svg className="w-3.5 h-3.5 text-[var(--color-text-light)] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           </div>
@@ -404,8 +396,6 @@ export default function DutyDetailPage() {
                     <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">ID</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">Rank</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">Location</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">Type</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-[var(--color-text-medium)] uppercase">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--color-border)]">
@@ -426,12 +416,6 @@ export default function DutyDetailPage() {
                         <td className="px-4 py-3">
                           <span className="text-xs font-mono text-[var(--color-text-medium)]">{personnelLocationMap.get(p.id) || '—'}</span>
                         </td>
-                        <td className="px-4 py-3">
-                          <span className={`badge ${isAdditional ? 'badge-orange' : 'badge-success'}`}>
-                            {isAdditional ? 'Additional' : 'Regular'}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3"><span className="badge badge-success">Active</span></td>
                       </tr>
                     )
                   })}

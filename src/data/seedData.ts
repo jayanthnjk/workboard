@@ -253,7 +253,7 @@ export const platoons: Platoon[] = [
   {
     id: 'P1',
     name: 'PLATOON-I',
-    personnelCount: 56,
+    personnelCount: 55,
     personnelIds: [], // Will be populated from personnel data
     currentDutyType: 'guard-i',
     createdAt: '2024-01-01T00:00:00Z',
@@ -340,57 +340,57 @@ const sectionALeadership: Personnel[] = [
 
 // Section A Personnel - Chamber Sentry (10 personnel)
 const sectionAChamberSentry: Personnel[] = [
-  createPersonnel('p-ahc-cs-1', 'AHC-2834', 'CHAMBER SENTRY 1', 'AHC', 'A', 'chamber-sentry'),
-  createPersonnel('p-ahc-cs-2', 'AHC-2600', 'CHAMBER SENTRY 2', 'AHC', 'A', 'chamber-sentry'),
-  createPersonnel('p-ahc-cs-3', 'AHC-2688', 'CHAMBER SENTRY 3', 'AHC', 'A', 'chamber-sentry'),
-  createPersonnel('p-ahc-cs-4', 'AHC-2645', 'CHAMBER SENTRY 4', 'AHC', 'A', 'chamber-sentry'),
-  createPersonnel('p-ahc-cs-5', 'AHC-2724', 'CHAMBER SENTRY 5', 'AHC', 'A', 'chamber-sentry'),
-  createPersonnel('p-apc-cs-1', 'APC-035', 'CHAMBER SENTRY 6', 'APC', 'A', 'chamber-sentry'),
-  createPersonnel('p-apc-cs-2', 'APC-2788', 'CHAMBER SENTRY 7', 'APC', 'A', 'chamber-sentry'),
-  createPersonnel('p-apc-cs-3', 'APC-2572', 'CHAMBER SENTRY 8', 'APC', 'A', 'chamber-sentry'),
-  createPersonnel('p-apc-cs-4', 'APC-2567', 'CHAMBER SENTRY 9', 'APC', 'A', 'chamber-sentry'),
-  createPersonnel('p-apc-cs-5', 'APC-2640', 'CHAMBER SENTRY 10', 'APC', 'A', 'chamber-sentry'),
+  createPersonnel('p-ahc-cs-1', 'AHC-2834', 'AHC-2834', 'AHC', 'A', 'chamber-sentry'),
+  createPersonnel('p-ahc-cs-2', 'AHC-2600', 'AHC-2600', 'AHC', 'A', 'chamber-sentry'),
+  createPersonnel('p-ahc-cs-3', 'AHC-2688', 'AHC-2688', 'AHC', 'A', 'chamber-sentry'),
+  createPersonnel('p-ahc-cs-4', 'AHC-2645', 'AHC-2645', 'AHC', 'A', 'chamber-sentry'),
+  createPersonnel('p-ahc-cs-5', 'AHC-2724', 'AHC-2724', 'AHC', 'A', 'chamber-sentry'),
+  createPersonnel('p-apc-cs-1', 'APC-035', 'APC-035', 'APC', 'A', 'chamber-sentry'),
+  createPersonnel('p-apc-cs-2', 'APC-2788', 'APC-2788', 'APC', 'A', 'chamber-sentry'),
+  createPersonnel('p-apc-cs-3', 'APC-2572', 'APC-2572', 'APC', 'A', 'chamber-sentry'),
+  createPersonnel('p-apc-cs-4', 'APC-2567', 'APC-2567', 'APC', 'A', 'chamber-sentry'),
+  createPersonnel('p-apc-cs-5', 'APC-2640', 'APC-2640', 'APC', 'A', 'chamber-sentry'),
 ]
 
 
 // Section A Personnel - Armoury (5 personnel: 1 RSI, 2 ARSI, 2 APC)
 const sectionAArmoury: Personnel[] = [
-  createPersonnel('p-rsi-arm-1', 'RSI-ARM-1', 'SRI ARMOURY RSI', 'RSI', 'A', 'armoury'),
-  createPersonnel('p-arsi-arm-1', 'ARSI-ARM-1', 'SRI ARMOURY ARSI 1', 'ARSI', 'A', 'armoury'),
-  createPersonnel('p-arsi-arm-2', 'ARSI-ARM-2', 'SRI ARMOURY ARSI 2', 'ARSI', 'A', 'armoury'),
-  createPersonnel('p-apc-arm-1', 'APC-2826', 'ARMOURY APC 1', 'APC', 'A', 'armoury'),
-  createPersonnel('p-apc-arm-2', 'APC-2525', 'ARMOURY APC 2', 'APC', 'A', 'armoury'),
+  createPersonnel('p-rsi-arm-1', 'RSI-ARM-1', 'SRI CHANDU', 'RSI', 'A', 'armoury'),
+  createPersonnel('p-arsi-arm-1', 'ARSI-ARM-1', 'SRI YASHODHAR SHETTY', 'ARSI', 'A', 'armoury'),
+  createPersonnel('p-arsi-arm-2', 'ARSI-ARM-2', 'SRI REJI THOMAS', 'ARSI', 'A', 'armoury'),
+  createPersonnel('p-apc-arm-1', 'APC-2826', 'APC-2826', 'APC', 'A', 'armoury'),
+  createPersonnel('p-apc-arm-2', 'APC-2525', 'APC-2525', 'APC', 'A', 'armoury'),
 ]
 
 // Section A Personnel - Dog Squad (10 personnel: 1 ARSI, 5 AHC, 4 APC)
 const sectionADogSquad: Personnel[] = [
-  createPersonnel('p-arsi-ds-1', 'ARSI-DS-1', 'SRI DOG SQUAD ARSI', 'ARSI', 'A', 'dog-squad'),
-  createPersonnel('p-ahc-ds-1', 'AHC-DS-1', 'DOG SQUAD AHC 1', 'AHC', 'A', 'dog-squad'),
-  createPersonnel('p-ahc-ds-2', 'AHC-DS-2', 'DOG SQUAD AHC 2', 'AHC', 'A', 'dog-squad'),
-  createPersonnel('p-ahc-ds-3', 'AHC-DS-3', 'DOG SQUAD AHC 3', 'AHC', 'A', 'dog-squad'),
-  createPersonnel('p-ahc-ds-4', 'AHC-DS-4', 'DOG SQUAD AHC 4', 'AHC', 'A', 'dog-squad'),
-  createPersonnel('p-ahc-ds-5', 'AHC-DS-5', 'DOG SQUAD AHC 5', 'AHC', 'A', 'dog-squad'),
-  createPersonnel('p-apc-ds-1', 'APC-DS-1', 'DOG SQUAD APC 1', 'APC', 'A', 'dog-squad'),
-  createPersonnel('p-apc-ds-2', 'APC-DS-2', 'DOG SQUAD APC 2', 'APC', 'A', 'dog-squad'),
-  createPersonnel('p-apc-ds-3', 'APC-DS-3', 'DOG SQUAD APC 3', 'APC', 'A', 'dog-squad'),
-  createPersonnel('p-apc-ds-4', 'APC-DS-4', 'DOG SQUAD APC 4', 'APC', 'A', 'dog-squad'),
+  createPersonnel('p-arsi-ds-1', 'ARSI-DS-1', 'SRI MANOJ SHETTY', 'ARSI', 'A', 'dog-squad'),
+  createPersonnel('p-ahc-ds-1', 'AHC-276', 'AHC-276', 'AHC', 'A', 'dog-squad'),
+  createPersonnel('p-ahc-ds-2', 'AHC-212', 'AHC-212', 'AHC', 'A', 'dog-squad'),
+  createPersonnel('p-ahc-ds-3', 'AHC-053', 'AHC-053', 'AHC', 'A', 'dog-squad'),
+  createPersonnel('p-ahc-ds-4', 'AHC-2501', 'AHC-2501', 'AHC', 'A', 'dog-squad'),
+  createPersonnel('p-ahc-ds-5', 'AHC-2664', 'AHC-2664', 'AHC', 'A', 'dog-squad'),
+  createPersonnel('p-apc-ds-1', 'APC-DS-1', 'APC-DS-1', 'APC', 'A', 'dog-squad'),
+  createPersonnel('p-apc-ds-2', 'APC-DS-2', 'APC-DS-2', 'APC', 'A', 'dog-squad'),
+  createPersonnel('p-apc-ds-3', 'APC-DS-3', 'APC-DS-3', 'APC', 'A', 'dog-squad'),
+  createPersonnel('p-apc-ds-4', 'APC-DS-4', 'APC-DS-4', 'APC', 'A', 'dog-squad'),
 ]
 
 // Section A Personnel - ASC Team (13 personnel: 1 ARSI, 7 AHC, 5 APC)
 const sectionAASCTeam: Personnel[] = [
-  createPersonnel('p-arsi-asc-1', 'ARSI-ASC-1', 'SRI ASC TEAM ARSI', 'ARSI', 'A', 'asc-team'),
-  createPersonnel('p-ahc-asc-1', 'AHC-ASC-1', 'ASC TEAM AHC 1', 'AHC', 'A', 'asc-team'),
-  createPersonnel('p-ahc-asc-2', 'AHC-ASC-2', 'ASC TEAM AHC 2', 'AHC', 'A', 'asc-team'),
-  createPersonnel('p-ahc-asc-3', 'AHC-ASC-3', 'ASC TEAM AHC 3', 'AHC', 'A', 'asc-team'),
-  createPersonnel('p-ahc-asc-4', 'AHC-ASC-4', 'ASC TEAM AHC 4', 'AHC', 'A', 'asc-team'),
-  createPersonnel('p-ahc-asc-5', 'AHC-ASC-5', 'ASC TEAM AHC 5', 'AHC', 'A', 'asc-team'),
-  createPersonnel('p-ahc-asc-6', 'AHC-ASC-6', 'ASC TEAM AHC 6', 'AHC', 'A', 'asc-team'),
-  createPersonnel('p-ahc-asc-7', 'AHC-ASC-7', 'ASC TEAM AHC 7', 'AHC', 'A', 'asc-team'),
-  createPersonnel('p-apc-asc-1', 'APC-ASC-1', 'ASC TEAM APC 1', 'APC', 'A', 'asc-team'),
-  createPersonnel('p-apc-asc-2', 'APC-ASC-2', 'ASC TEAM APC 2', 'APC', 'A', 'asc-team'),
-  createPersonnel('p-apc-asc-3', 'APC-ASC-3', 'ASC TEAM APC 3', 'APC', 'A', 'asc-team'),
-  createPersonnel('p-apc-asc-4', 'APC-ASC-4', 'ASC TEAM APC 4', 'APC', 'A', 'asc-team'),
-  createPersonnel('p-apc-asc-5', 'APC-ASC-5', 'ASC TEAM APC 5', 'APC', 'A', 'asc-team'),
+  createPersonnel('p-arsi-asc-1', 'ARSI-ASC-1', 'SRI SATHISHA', 'ARSI', 'A', 'asc-team'),
+  createPersonnel('p-ahc-asc-1', 'AHC-2543', 'AHC-2543', 'AHC', 'A', 'asc-team'),
+  createPersonnel('p-ahc-asc-2', 'AHC-2719', 'AHC-2719', 'AHC', 'A', 'asc-team'),
+  createPersonnel('p-ahc-asc-3', 'AHC-2527', 'AHC-2527', 'AHC', 'A', 'asc-team'),
+  createPersonnel('p-ahc-asc-4', 'AHC-2809', 'AHC-2809', 'AHC', 'A', 'asc-team'),
+  createPersonnel('p-ahc-asc-5', 'AHC-2768', 'AHC-2768', 'AHC', 'A', 'asc-team'),
+  createPersonnel('p-ahc-asc-6', 'AHC-2830', 'AHC-2830', 'AHC', 'A', 'asc-team'),
+  createPersonnel('p-ahc-asc-7', 'AHC-2630', 'AHC-2630', 'AHC', 'A', 'asc-team'),
+  createPersonnel('p-apc-asc-1', 'APC-ASC-1', 'APC-ASC-1', 'APC', 'A', 'asc-team'),
+  createPersonnel('p-apc-asc-2', 'APC-ASC-2', 'APC-ASC-2', 'APC', 'A', 'asc-team'),
+  createPersonnel('p-apc-asc-3', 'APC-ASC-3', 'APC-ASC-3', 'APC', 'A', 'asc-team'),
+  createPersonnel('p-apc-asc-4', 'APC-ASC-4', 'APC-ASC-4', 'APC', 'A', 'asc-team'),
+  createPersonnel('p-apc-asc-5', 'APC-ASC-5', 'APC-ASC-5', 'APC', 'A', 'asc-team'),
 ]
 
 
@@ -403,31 +403,31 @@ const sectionAGunman: Personnel[] = [
   createPersonnel('p-arsi-gm-5', 'ARSI-IBRAHIM', 'SRI IBRAHIM', 'ARSI', 'A', 'gunman'),
   createPersonnel('p-ahc-gm-1', 'AHC-190', 'NITHIN', 'AHC', 'A', 'gunman'),
   createPersonnel('p-ahc-gm-2', 'AHC-178', 'NITHESH', 'AHC', 'A', 'gunman'),
-  createPersonnel('p-ahc-gm-3', 'AHC-2633', 'GUNMAN AHC 3', 'AHC', 'A', 'gunman'),
-  createPersonnel('p-ahc-gm-4', 'AHC-2815', 'GUNMAN AHC 4', 'AHC', 'A', 'gunman'),
-  createPersonnel('p-ahc-gm-5', 'AHC-GM-5', 'GUNMAN AHC 5', 'AHC', 'A', 'gunman'),
-  createPersonnel('p-apc-gm-1', 'APC-0182', 'GUNMAN APC 1', 'APC', 'A', 'gunman'),
-  createPersonnel('p-apc-gm-2', 'APC-0469', 'GUNMAN APC 2', 'APC', 'A', 'gunman'),
-  createPersonnel('p-apc-gm-3', 'APC-GM-3', 'GUNMAN APC 3', 'APC', 'A', 'gunman'),
-  createPersonnel('p-apc-gm-4', 'APC-GM-4', 'GUNMAN APC 4', 'APC', 'A', 'gunman'),
+  createPersonnel('p-ahc-gm-3', 'AHC-2633', 'SRI SRINIVAS NADAGOUDAR', 'AHC', 'A', 'gunman'),
+  createPersonnel('p-ahc-gm-4', 'AHC-2815', 'SRI MOHAMMAD YASIN', 'AHC', 'A', 'gunman'),
+  createPersonnel('p-ahc-gm-5', 'AHC-GM-5', 'AHC-GM-5', 'AHC', 'A', 'gunman'),
+  createPersonnel('p-apc-gm-1', 'APC-0182', 'APC-0182', 'APC', 'A', 'gunman'),
+  createPersonnel('p-apc-gm-2', 'APC-0469', 'APC-0469', 'APC', 'A', 'gunman'),
+  createPersonnel('p-apc-gm-3', 'APC-GM-3', 'APC-GM-3', 'APC', 'A', 'gunman'),
+  createPersonnel('p-apc-gm-4', 'APC-GM-4', 'APC-GM-4', 'APC', 'A', 'gunman'),
 ]
 
 // Section A Personnel - OOD (14 personnel: 2 RSI, 4 ARSI, 4 AHC, 4 APC)
 const sectionAOOD: Personnel[] = [
-  createPersonnel('p-rsi-ood-1', 'RSI-OOD-1', 'SRI OOD RSI 1', 'RSI', 'A', 'ood'),
-  createPersonnel('p-rsi-ood-2', 'RSI-OOD-2', 'SRI OOD RSI 2', 'RSI', 'A', 'ood'),
+  createPersonnel('p-rsi-ood-1', 'RSI-OOD-1', 'RSI-OOD-1', 'RSI', 'A', 'ood'),
+  createPersonnel('p-rsi-ood-2', 'RSI-OOD-2', 'RSI-OOD-2', 'RSI', 'A', 'ood'),
   createPersonnel('p-arsi-ood-1', 'ARSI-SURESH', 'SRI SURESH', 'ARSI', 'A', 'ood'),
   createPersonnel('p-arsi-ood-2', 'ARSI-POORNESH', 'SRI POORNESH T', 'ARSI', 'A', 'ood'),
   createPersonnel('p-arsi-ood-3', 'ARSI-MOHAN-BHANDARY', 'SRI MOHAN BHANDARY', 'ARSI', 'A', 'ood'),
   createPersonnel('p-arsi-ood-4', 'ARSI-UDAYAKUMARA', 'SRI UDAYAKUMARA SHETTY', 'ARSI', 'A', 'ood'),
-  createPersonnel('p-ahc-ood-1', 'AHC-OOD-1', 'OOD AHC 1', 'AHC', 'A', 'ood'),
-  createPersonnel('p-ahc-ood-2', 'AHC-OOD-2', 'OOD AHC 2', 'AHC', 'A', 'ood'),
-  createPersonnel('p-ahc-ood-3', 'AHC-OOD-3', 'OOD AHC 3', 'AHC', 'A', 'ood'),
-  createPersonnel('p-ahc-ood-4', 'AHC-OOD-4', 'OOD AHC 4', 'AHC', 'A', 'ood'),
-  createPersonnel('p-apc-ood-1', 'APC-OOD-1', 'OOD APC 1', 'APC', 'A', 'ood'),
-  createPersonnel('p-apc-ood-2', 'APC-OOD-2', 'OOD APC 2', 'APC', 'A', 'ood'),
-  createPersonnel('p-apc-ood-3', 'APC-OOD-3', 'OOD APC 3', 'APC', 'A', 'ood'),
-  createPersonnel('p-apc-ood-4', 'APC-OOD-4', 'OOD APC 4', 'APC', 'A', 'ood'),
+  createPersonnel('p-ahc-ood-1', 'AHC-OOD-1', 'AHC-OOD-1', 'AHC', 'A', 'ood'),
+  createPersonnel('p-ahc-ood-2', 'AHC-OOD-2', 'AHC-OOD-2', 'AHC', 'A', 'ood'),
+  createPersonnel('p-ahc-ood-3', 'AHC-OOD-3', 'AHC-OOD-3', 'AHC', 'A', 'ood'),
+  createPersonnel('p-ahc-ood-4', 'AHC-OOD-4', 'AHC-OOD-4', 'AHC', 'A', 'ood'),
+  createPersonnel('p-apc-ood-1', 'APC-OOD-1', 'APC-OOD-1', 'APC', 'A', 'ood'),
+  createPersonnel('p-apc-ood-2', 'APC-OOD-2', 'APC-OOD-2', 'APC', 'A', 'ood'),
+  createPersonnel('p-apc-ood-3', 'APC-OOD-3', 'APC-OOD-3', 'APC', 'A', 'ood'),
+  createPersonnel('p-apc-ood-4', 'APC-OOD-4', 'APC-OOD-4', 'APC', 'A', 'ood'),
 ]
 
 // Combine all Section A personnel (74 total)
@@ -450,64 +450,64 @@ const sectionAPersonnel: Personnel[] = [
 // Section B Personnel - Office Writers/Computer Operators (11 personnel: 4 ARSI, 4 AHC, 3 APC)
 const sectionBOfficeWriters: Personnel[] = [
   createPersonnel('p-arsi-ow-1', 'ARSI-SUDARSHANAKUMAR', 'SRI SUDARSHANAKUMAR', 'ARSI', 'B', 'office-writers'),
-  createPersonnel('p-arsi-ow-2', 'ARSI-OW-2', 'SRI OFFICE WRITER ARSI 2', 'ARSI', 'B', 'office-writers'),
-  createPersonnel('p-arsi-ow-3', 'ARSI-OW-3', 'SRI OFFICE WRITER ARSI 3', 'ARSI', 'B', 'office-writers'),
-  createPersonnel('p-arsi-ow-4', 'ARSI-OW-4', 'SRI OFFICE WRITER ARSI 4', 'ARSI', 'B', 'office-writers'),
-  createPersonnel('p-ahc-ow-1', 'AHC-OW-1', 'OFFICE WRITER AHC 1', 'AHC', 'B', 'office-writers'),
-  createPersonnel('p-ahc-ow-2', 'AHC-OW-2', 'OFFICE WRITER AHC 2', 'AHC', 'B', 'office-writers'),
-  createPersonnel('p-ahc-ow-3', 'AHC-OW-3', 'OFFICE WRITER AHC 3', 'AHC', 'B', 'office-writers'),
-  createPersonnel('p-ahc-ow-4', 'AHC-OW-4', 'OFFICE WRITER AHC 4', 'AHC', 'B', 'office-writers'),
-  createPersonnel('p-apc-ow-1', 'APC-OW-1', 'OFFICE WRITER APC 1', 'APC', 'B', 'office-writers'),
-  createPersonnel('p-apc-ow-2', 'APC-OW-2', 'OFFICE WRITER APC 2', 'APC', 'B', 'office-writers'),
-  createPersonnel('p-apc-ow-3', 'APC-OW-3', 'OFFICE WRITER APC 3', 'APC', 'B', 'office-writers'),
+  createPersonnel('p-arsi-ow-2', 'ARSI-OW-2', 'ARSI-OW-2', 'ARSI', 'B', 'office-writers'),
+  createPersonnel('p-arsi-ow-3', 'ARSI-OW-3', 'ARSI-OW-3', 'ARSI', 'B', 'office-writers'),
+  createPersonnel('p-arsi-ow-4', 'ARSI-OW-4', 'ARSI-OW-4', 'ARSI', 'B', 'office-writers'),
+  createPersonnel('p-ahc-ow-1', 'AHC-OW-1', 'AHC-OW-1', 'AHC', 'B', 'office-writers'),
+  createPersonnel('p-ahc-ow-2', 'AHC-OW-2', 'AHC-OW-2', 'AHC', 'B', 'office-writers'),
+  createPersonnel('p-ahc-ow-3', 'AHC-OW-3', 'AHC-OW-3', 'AHC', 'B', 'office-writers'),
+  createPersonnel('p-ahc-ow-4', 'AHC-OW-4', 'AHC-OW-4', 'AHC', 'B', 'office-writers'),
+  createPersonnel('p-apc-ow-1', 'APC-OW-1', 'APC-OW-1', 'APC', 'B', 'office-writers'),
+  createPersonnel('p-apc-ow-2', 'APC-OW-2', 'APC-OW-2', 'APC', 'B', 'office-writers'),
+  createPersonnel('p-apc-ow-3', 'APC-OW-3', 'APC-OW-3', 'APC', 'B', 'office-writers'),
 ]
 
 // Section B Personnel - Police Canteen (5 personnel: 1 RSI, 3 AHC, 1 APC)
 const sectionBPoliceCanteen: Personnel[] = [
-  createPersonnel('p-rsi-pc-1', 'RSI-PC-1', 'SRI CANTEEN RSI', 'RSI', 'B', 'police-canteen'),
-  createPersonnel('p-ahc-pc-1', 'AHC-PC-1', 'CANTEEN AHC 1', 'AHC', 'B', 'police-canteen'),
-  createPersonnel('p-ahc-pc-2', 'AHC-PC-2', 'CANTEEN AHC 2', 'AHC', 'B', 'police-canteen'),
-  createPersonnel('p-ahc-pc-3', 'AHC-PC-3', 'CANTEEN AHC 3', 'AHC', 'B', 'police-canteen'),
-  createPersonnel('p-apc-pc-1', 'APC-PC-1', 'CANTEEN APC 1', 'APC', 'B', 'police-canteen'),
+  createPersonnel('p-rsi-pc-1', 'RSI-PC-1', 'SRI PUTTARAJU N K', 'RSI', 'B', 'police-canteen'),
+  createPersonnel('p-ahc-pc-1', 'AHC-237', 'AHC-237', 'AHC', 'B', 'police-canteen'),
+  createPersonnel('p-ahc-pc-2', 'AHC-2652', 'AHC-2652', 'AHC', 'B', 'police-canteen'),
+  createPersonnel('p-ahc-pc-3', 'AHC-2734', 'AHC-2734', 'AHC', 'B', 'police-canteen'),
+  createPersonnel('p-apc-pc-1', 'APC-PC-1', 'APC-PC-1', 'APC', 'B', 'police-canteen'),
 ]
 
 // Section B Personnel - Band Team (9 personnel: 7 AHC, 2 APC)
 const sectionBBandTeam: Personnel[] = [
-  createPersonnel('p-ahc-bt-1', 'AHC-BT-1', 'BAND TEAM AHC 1', 'AHC', 'B', 'band-team'),
-  createPersonnel('p-ahc-bt-2', 'AHC-BT-2', 'BAND TEAM AHC 2', 'AHC', 'B', 'band-team'),
-  createPersonnel('p-ahc-bt-3', 'AHC-BT-3', 'BAND TEAM AHC 3', 'AHC', 'B', 'band-team'),
-  createPersonnel('p-ahc-bt-4', 'AHC-BT-4', 'BAND TEAM AHC 4', 'AHC', 'B', 'band-team'),
-  createPersonnel('p-ahc-bt-5', 'AHC-BT-5', 'BAND TEAM AHC 5', 'AHC', 'B', 'band-team'),
-  createPersonnel('p-ahc-bt-6', 'AHC-BT-6', 'BAND TEAM AHC 6', 'AHC', 'B', 'band-team'),
-  createPersonnel('p-ahc-bt-7', 'AHC-BT-7', 'BAND TEAM AHC 7', 'AHC', 'B', 'band-team'),
-  createPersonnel('p-apc-bt-1', 'APC-BT-1', 'BAND TEAM APC 1', 'APC', 'B', 'band-team'),
-  createPersonnel('p-apc-bt-2', 'APC-BT-2', 'BAND TEAM APC 2', 'APC', 'B', 'band-team'),
+  createPersonnel('p-ahc-bt-1', 'AHC-159', 'AHC-159', 'AHC', 'B', 'band-team'),
+  createPersonnel('p-ahc-bt-2', 'AHC-2597', 'AHC-2597', 'AHC', 'B', 'band-team'),
+  createPersonnel('p-ahc-bt-3', 'AHC-2599', 'AHC-2599', 'AHC', 'B', 'band-team'),
+  createPersonnel('p-ahc-bt-4', 'AHC-2598', 'AHC-2598', 'AHC', 'B', 'band-team'),
+  createPersonnel('p-ahc-bt-5', 'AHC-2660', 'AHC-2660', 'AHC', 'B', 'band-team'),
+  createPersonnel('p-ahc-bt-6', 'AHC-2704', 'AHC-2704', 'AHC', 'B', 'band-team'),
+  createPersonnel('p-ahc-bt-7', 'AHC-2718', 'AHC-2718', 'AHC', 'B', 'band-team'),
+  createPersonnel('p-apc-bt-1', 'APC-BT-1', 'APC-BT-1', 'APC', 'B', 'band-team'),
+  createPersonnel('p-apc-bt-2', 'APC-BT-2', 'APC-BT-2', 'APC', 'B', 'band-team'),
 ]
 
 
 // Section B Personnel - QRT Team (12 personnel: 1 RSI, 1 AHC, 10 APC)
 const sectionBQRTTeam: Personnel[] = [
-  createPersonnel('p-rsi-qrt-1', 'RSI-QRT-1', 'SRI QRT RSI', 'RSI', 'B', 'qrt-team'),
-  createPersonnel('p-ahc-qrt-1', 'AHC-QRT-1', 'QRT AHC 1', 'AHC', 'B', 'qrt-team'),
-  createPersonnel('p-apc-qrt-1', 'APC-QRT-1', 'QRT APC 1', 'APC', 'B', 'qrt-team'),
-  createPersonnel('p-apc-qrt-2', 'APC-QRT-2', 'QRT APC 2', 'APC', 'B', 'qrt-team'),
-  createPersonnel('p-apc-qrt-3', 'APC-QRT-3', 'QRT APC 3', 'APC', 'B', 'qrt-team'),
-  createPersonnel('p-apc-qrt-4', 'APC-QRT-4', 'QRT APC 4', 'APC', 'B', 'qrt-team'),
-  createPersonnel('p-apc-qrt-5', 'APC-QRT-5', 'QRT APC 5', 'APC', 'B', 'qrt-team'),
-  createPersonnel('p-apc-qrt-6', 'APC-QRT-6', 'QRT APC 6', 'APC', 'B', 'qrt-team'),
-  createPersonnel('p-apc-qrt-7', 'APC-QRT-7', 'QRT APC 7', 'APC', 'B', 'qrt-team'),
-  createPersonnel('p-apc-qrt-8', 'APC-QRT-8', 'QRT APC 8', 'APC', 'B', 'qrt-team'),
-  createPersonnel('p-apc-qrt-9', 'APC-QRT-9', 'QRT APC 9', 'APC', 'B', 'qrt-team'),
-  createPersonnel('p-apc-qrt-10', 'APC-QRT-10', 'QRT APC 10', 'APC', 'B', 'qrt-team'),
+  createPersonnel('p-rsi-qrt-1', 'RSI-QRT-1', 'RSI-QRT-1', 'RSI', 'B', 'qrt-team'),
+  createPersonnel('p-ahc-qrt-1', 'AHC-2544', 'AHC-2544', 'AHC', 'B', 'qrt-team'),
+  createPersonnel('p-apc-qrt-1', 'APC-QRT-1', 'APC-QRT-1', 'APC', 'B', 'qrt-team'),
+  createPersonnel('p-apc-qrt-2', 'APC-QRT-2', 'APC-QRT-2', 'APC', 'B', 'qrt-team'),
+  createPersonnel('p-apc-qrt-3', 'APC-QRT-3', 'APC-QRT-3', 'APC', 'B', 'qrt-team'),
+  createPersonnel('p-apc-qrt-4', 'APC-QRT-4', 'APC-QRT-4', 'APC', 'B', 'qrt-team'),
+  createPersonnel('p-apc-qrt-5', 'APC-QRT-5', 'APC-QRT-5', 'APC', 'B', 'qrt-team'),
+  createPersonnel('p-apc-qrt-6', 'APC-QRT-6', 'APC-QRT-6', 'APC', 'B', 'qrt-team'),
+  createPersonnel('p-apc-qrt-7', 'APC-QRT-7', 'APC-QRT-7', 'APC', 'B', 'qrt-team'),
+  createPersonnel('p-apc-qrt-8', 'APC-QRT-8', 'APC-QRT-8', 'APC', 'B', 'qrt-team'),
+  createPersonnel('p-apc-qrt-9', 'APC-QRT-9', 'APC-QRT-9', 'APC', 'B', 'qrt-team'),
+  createPersonnel('p-apc-qrt-10', 'APC-QRT-10', 'APC-QRT-10', 'APC', 'B', 'qrt-team'),
 ]
 
 // Section B Personnel - CPT Team (23 personnel: 3 AHC, 20 APC)
 const sectionBCPTTeam: Personnel[] = [
-  createPersonnel('p-ahc-cpt-1', 'AHC-CPT-1', 'CPT AHC 1', 'AHC', 'B', 'cpt-team'),
-  createPersonnel('p-ahc-cpt-2', 'AHC-CPT-2', 'CPT AHC 2', 'AHC', 'B', 'cpt-team'),
-  createPersonnel('p-ahc-cpt-3', 'AHC-CPT-3', 'CPT AHC 3', 'AHC', 'B', 'cpt-team'),
+  createPersonnel('p-ahc-cpt-1', 'AHC-2733', 'AHC-2733', 'AHC', 'B', 'cpt-team'),
+  createPersonnel('p-ahc-cpt-2', 'AHC-2751', 'AHC-2751', 'AHC', 'B', 'cpt-team'),
+  createPersonnel('p-ahc-cpt-3', 'AHC-2601', 'AHC-2601', 'AHC', 'B', 'cpt-team'),
   ...Array.from({ length: 20 }, (_, i) => 
-    createPersonnel(`p-apc-cpt-${i + 1}`, `APC-CPT-${i + 1}`, `CPT APC ${i + 1}`, 'APC', 'B', 'cpt-team')
+    createPersonnel(`p-apc-cpt-${i + 1}`, `APC-CPT-${i + 1}`, `APC-CPT-${i + 1}`, 'APC', 'B', 'cpt-team')
   ),
 ]
 
@@ -538,99 +538,99 @@ const sectionBPersonnel: Personnel[] = [
 // Requirements: 1.4, 2.9, 6.1, 6.8, 6.10
 // =============================================================================
 
-// PLATOON-I: 56 personnel (specific IDs from PDF)
+// PLATOON-I: 55 personnel (7 AHC + 48 APC from PDF)
 const platoon1AHCIds = ['127', '290', '2650', '2796', '2713', '2820', '2827']
-const platoon1APCIds = ['2539', '2689', '2739', '2751', '2758', '2762', '2771', '2774', '2780', '2783',
-  '2790', '2793', '2797', '2800', '2803', '2806', '2809', '2812', '2823', '2829',
-  '2832', '2835', '2838', '2841', '2844', '2847', '2850', '2853', '2856', '2859',
-  '2862', '2865', '2868', '2871', '2874', '2877', '2880', '2883', '2886', '2889',
-  '2892', '2895', '2898', '2901', '2904', '2907', '2910', '2913', '2916']
+const platoon1APCIds = ['2539', '2689', '2739', '2777', '2804', '2833', '2648', '2631', '011', '009',
+  '031', '049', '057', '101', '106', '113', '118', '130', '135', '140',
+  '150', '155', '162', '167', '172', '179', '182', '186', '193', '199',
+  '206', '211', '217', '222', '227', '233', '239', '244', '254', '259',
+  '264', '269', '232', '293', '320', '327', '329', '2634']
 
 const platoon1Personnel: Personnel[] = [
   ...platoon1AHCIds.map((id, i) => 
-    createPersonnel(`p-p1-ahc-${i + 1}`, `AHC-${id}`, `PLATOON-I AHC ${i + 1}`, 'AHC', 'C', 'guard-i', 'P1')
+    createPersonnel(`p-p1-ahc-${i + 1}`, `AHC-${id}`, `AHC-${id}`, 'AHC', 'C', 'guard-i', 'P1')
   ),
-  ...platoon1APCIds.slice(0, 49).map((id, i) => 
-    createPersonnel(`p-p1-apc-${i + 1}`, `APC-${id}`, `PLATOON-I APC ${i + 1}`, 'APC', 'C', 'guard-i', 'P1')
+  ...platoon1APCIds.map((id, i) => 
+    createPersonnel(`p-p1-apc-${i + 1}`, `APC-${id}`, `APC-${id}`, 'APC', 'C', 'guard-i', 'P1')
   ),
 ]
 
-// PLATOON-II: 55 personnel
+// PLATOON-II: 55 personnel (7 AHC + 48 APC from PDF)
 const platoon2AHCIds = ['71', '2522', '2646', '2709', '2769', '2686', '2779']
-const platoon2APCIds = ['2552', '2728', '2740', '2752', '2759', '2763', '2772', '2775', '2781', '2784',
-  '2791', '2794', '2798', '2801', '2804', '2807', '2810', '2813', '2824', '2830',
-  '2833', '2836', '2839', '2842', '2845', '2848', '2851', '2854', '2857', '2860',
-  '2863', '2866', '2869', '2872', '2875', '2878', '2881', '2884', '2887', '2890',
-  '2893', '2896', '2899', '2902', '2905', '2908', '2911', '2914']
+const platoon2APCIds = ['2552', '2728', '2771', '2784', '2798', '2602', '2551', '2668', '2672', '029',
+  '015', '038', '050', '058', '102', '107', '114', '119', '275', '282',
+  '141', '298', '151', '156', '163', '168', '173', '296', '187', '194',
+  '200', '207', '213', '218', '223', '228', '277', '292', '240', '245',
+  '250', '260', '265', '270', '336', '356', '357', '360']
 
 const platoon2Personnel: Personnel[] = [
   ...platoon2AHCIds.map((id, i) => 
-    createPersonnel(`p-p2-ahc-${i + 1}`, `AHC-${id}`, `PLATOON-II AHC ${i + 1}`, 'AHC', 'C', 'guard-ii', 'P2')
+    createPersonnel(`p-p2-ahc-${i + 1}`, `AHC-${id}`, `AHC-${id}`, 'AHC', 'C', 'guard-ii', 'P2')
   ),
-  ...platoon2APCIds.slice(0, 48).map((id, i) => 
-    createPersonnel(`p-p2-apc-${i + 1}`, `APC-${id}`, `PLATOON-II APC ${i + 1}`, 'APC', 'C', 'guard-ii', 'P2')
+  ...platoon2APCIds.map((id, i) => 
+    createPersonnel(`p-p2-apc-${i + 1}`, `APC-${id}`, `APC-${id}`, 'APC', 'C', 'guard-ii', 'P2')
   ),
 ]
 
-// PLATOON-III: 55 personnel
-const platoon3AHCIds = ['109', '2541', '2669', '2701', '2782', '2735', '2785']
-const platoon3APCIds = ['2717', '2761', '2741', '2753', '2760', '2764', '2773', '2776', '2786', '2789',
-  '2792', '2795', '2799', '2802', '2805', '2808', '2811', '2814', '2825', '2831',
-  '2834', '2837', '2840', '2843', '2846', '2849', '2852', '2855', '2858', '2861',
-  '2864', '2867', '2870', '2873', '2876', '2879', '2882', '2885', '2888', '2891',
-  '2894', '2897', '2900', '2903', '2906', '2909', '2912', '2915']
+// PLATOON-III: 55 personnel (6 AHC + 49 APC from PDF)
+const platoon3AHCIds = ['109', '2541', '2669', '2701', '2782', '2735']
+const platoon3APCIds = ['2717', '2761', '2785', '2786', '2811', '2523', '2507', '039', '2562', '021',
+  '042', '051', '289', '108', '115', '120', '125', '132', '137', '152',
+  '157', '164', '169', '188', '195', '196', '201', '208', '214', '219',
+  '229', '235', '241', '246', '251', '266', '272', '278', '283', '291',
+  '300', '314', '297', '2548', '362', '372', '374', '377', '525']
 
 const platoon3Personnel: Personnel[] = [
   ...platoon3AHCIds.map((id, i) => 
-    createPersonnel(`p-p3-ahc-${i + 1}`, `AHC-${id}`, `PLATOON-III AHC ${i + 1}`, 'AHC', 'C', 'check-point', 'P3')
+    createPersonnel(`p-p3-ahc-${i + 1}`, `AHC-${id}`, `AHC-${id}`, 'AHC', 'C', 'check-point', 'P3')
   ),
-  ...platoon3APCIds.slice(0, 48).map((id, i) => 
-    createPersonnel(`p-p3-apc-${i + 1}`, `APC-${id}`, `PLATOON-III APC ${i + 1}`, 'APC', 'C', 'check-point', 'P3')
+  ...platoon3APCIds.map((id, i) => 
+    createPersonnel(`p-p3-apc-${i + 1}`, `APC-${id}`, `APC-${id}`, 'APC', 'C', 'check-point', 'P3')
   ),
 ]
 
 
-// PLATOON-IV: 56 personnel
+// PLATOON-IV: 56 personnel (7 AHC + 49 APC from PDF)
 const platoon4AHCIds = ['189', '2554', '2684', '2742', '060', '2730', '2818']
-const platoon4APCIds = ['2661', '2743', '2754', '2765', '2777', '2787', '2796', '2799', '2802', '2805',
-  '2808', '2811', '2814', '2817', '2820', '2823', '2826', '2829', '2832', '2835',
-  '2838', '2841', '2844', '2847', '2850', '2853', '2856', '2859', '2862', '2865',
-  '2868', '2871', '2874', '2877', '2880', '2883', '2886', '2889', '2892', '2895',
-  '2898', '2901', '2904', '2907', '2910', '2913', '2916', '2919', '2922']
+const platoon4APCIds = ['2661', '2745', '2795', '2807', '2825', '2635', '002', '005', '024', '046',
+  '054', '469', '104', '299', '116', '110', '121', '128', '133', '143',
+  '148', '309', '243', '184', '191', '281', '007', '215', '220', '225',
+  '231', '236', '242', '247', '252', '257', '170', '273', '279', '284',
+  '294', '126', '280', '384', '388', '392', '396', '464', '037']
 
 const platoon4Personnel: Personnel[] = [
   ...platoon4AHCIds.map((id, i) => 
-    createPersonnel(`p-p4-ahc-${i + 1}`, `AHC-${id}`, `PLATOON-IV AHC ${i + 1}`, 'AHC', 'C', 'prison-vip-escort', 'P4')
+    createPersonnel(`p-p4-ahc-${i + 1}`, `AHC-${id}`, `AHC-${id}`, 'AHC', 'C', 'prison-vip-escort', 'P4')
   ),
-  ...platoon4APCIds.slice(0, 49).map((id, i) => 
-    createPersonnel(`p-p4-apc-${i + 1}`, `APC-${id}`, `PLATOON-IV APC ${i + 1}`, 'APC', 'C', 'prison-vip-escort', 'P4')
+  ...platoon4APCIds.map((id, i) => 
+    createPersonnel(`p-p4-apc-${i + 1}`, `APC-${id}`, `APC-${id}`, 'APC', 'C', 'prison-vip-escort', 'P4')
   ),
 ]
 
-// PLATOON-V: 56 personnel
+// PLATOON-V: 56 personnel (7 AHC + 49 APC from PDF)
 const platoon5AHCIds = ['204', '2605', '2683', '2754', '2787', '2819', '2505']
-const platoon5APCIds = ['2656', '2744', '2755', '2766', '2778', '2788', '2797', '2800', '2803', '2806',
-  '2809', '2812', '2815', '2818', '2821', '2824', '2827', '2830', '2833', '2836',
-  '2839', '2842', '2845', '2848', '2851', '2854', '2857', '2860', '2863', '2866',
-  '2869', '2872', '2875', '2878', '2881', '2884', '2887', '2890', '2893', '2896',
-  '2899', '2902', '2905', '2908', '2911', '2914', '2917', '2920', '2923']
+const platoon5APCIds = ['2656', '2747', '2780', '2794', '2812', '2821', '2610', '2589', '2628', '006',
+  '028', '047', '055', '557', '105', '112', '117', '122', '129', '134',
+  '139', '144', '154', '161', '166', '171', '177', '185', '192', '197',
+  '205', '210', '216', '221', '226', '318', '238', '308', '248', '253',
+  '258', '263', '268', '274', '420', '424', '429', '435', '468']
 
 const platoon5Personnel: Personnel[] = [
   ...platoon5AHCIds.map((id, i) => 
-    createPersonnel(`p-p5-ahc-${i + 1}`, `AHC-${id}`, `PLATOON-V AHC ${i + 1}`, 'AHC', 'C', 'striking-force', 'P5')
+    createPersonnel(`p-p5-ahc-${i + 1}`, `AHC-${id}`, `AHC-${id}`, 'AHC', 'C', 'striking-force', 'P5')
   ),
-  ...platoon5APCIds.slice(0, 49).map((id, i) => 
-    createPersonnel(`p-p5-apc-${i + 1}`, `APC-${id}`, `PLATOON-V APC ${i + 1}`, 'APC', 'C', 'striking-force', 'P5')
+  ...platoon5APCIds.map((id, i) => 
+    createPersonnel(`p-p5-apc-${i + 1}`, `APC-${id}`, `APC-${id}`, 'APC', 'C', 'striking-force', 'P5')
   ),
 ]
 
 // Combine all Section C personnel (277 total: 34 AHC + 243 APC)
 const sectionCPersonnel: Personnel[] = [
-  ...platoon1Personnel,  // 56
-  ...platoon2Personnel,  // 55
-  ...platoon3Personnel,  // 55
-  ...platoon4Personnel,  // 56
-  ...platoon5Personnel,  // 55 (adjusted to reach 277 total)
+  ...platoon1Personnel,  // 55 (7 AHC + 48 APC)
+  ...platoon2Personnel,  // 55 (7 AHC + 48 APC)
+  ...platoon3Personnel,  // 55 (6 AHC + 49 APC)
+  ...platoon4Personnel,  // 56 (7 AHC + 49 APC)
+  ...platoon5Personnel,  // 56 (7 AHC + 49 APC)
 ]
 
 

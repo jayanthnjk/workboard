@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { mockLLMService } from '@/services/mockLLMService'
+import { groqService } from '@/services/groqService'
 import { voiceAssistant } from '@/services/voiceAssistant'
 import type { ChatMessage } from '@/types'
 
@@ -50,13 +50,32 @@ export function ChatbotPanel({ isOpen, onClose }: ChatbotPanelProps) {
     setIsLoading(true)
 
     try {
-      const response = await mockLLMService.getResponse(input.trim())
+      const response = await groqService.getResponse(input.trim())
+      // Build display text: if there's data, format it nicely
+      let displayText = response.text || 'No response'
+      if (response.actionResult?.data && Array.isArray(response.actionResult.data) && response.actionResult.data.length > 0) {
+        const items = response.actionResult.data as Record<string, unknown>[]
+        displayText = items.map((item, i) => {
+          const parts: string[] = []
+          if (item.name) parts.push(`${item.name}`)
+          if (item.designation) parts.push(`${item.designation}`)
+          if (item.badgeNumber) parts.push(`#${item.badgeNumber}`)
+          if (item.status) parts.push(`${item.status}`)
+          if (item.dutyName) parts.push(`Duty: ${item.dutyName}`)
+          if (item.phone) parts.push(`📞 ${item.phone}`)
+          if (item.section) parts.push(`Section ${item.section}`)
+          return `${i + 1}. ${parts.join(' · ')}`
+        }).join('\n')
+        displayText = `Found ${items.length} result${items.length > 1 ? 's' : ''}:\n\n${displayText}`
+      } else if (response.actionResult?.data && Array.isArray(response.actionResult.data) && response.actionResult.data.length === 0) {
+        displayText = 'No records found for your query.'
+      }
       const assistantMessage: ChatMessage = {
         id: `assistant-${Date.now()}`,
         role: 'assistant',
-        content: response.text,
+        content: displayText,
         timestamp: new Date().toISOString(),
-        action: response.action,
+        action: response.action ? { type: response.action, data: {} } : undefined,
       }
       setMessages(prev => [...prev, assistantMessage])
     } catch {

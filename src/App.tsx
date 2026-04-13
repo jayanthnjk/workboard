@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/context/ThemeContext'
 import { NotificationProvider } from '@/context/NotificationContext'
 import { LanguageProvider } from '@/context/LanguageContext'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
+import InactivityPrompt from '@/components/auth/InactivityPrompt'
 import { AppShell } from '@/components/layout/AppShell'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 import { ErrorBoundary } from '@/components/common/ErrorBoundary'
@@ -14,18 +15,19 @@ const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const HomePage = lazy(() => import('@/pages/HomePage'))
 const EmployeesPage = lazy(() => import('@/pages/EmployeesPage'))
 const DepartmentsPage = lazy(() => import('@/pages/DepartmentsPage'))
+const SectionsPage = lazy(() => import('@/pages/SectionsPage'))
 const LocationsPage = lazy(() => import('@/pages/LocationsPage'))
 const ShiftTypesPage = lazy(() => import('@/pages/ShiftTypesPage'))
 const ShiftPatternsPage = lazy(() => import('@/pages/ShiftPatternsPage'))
 const RotationRulesPage = lazy(() => import('@/pages/RotationRulesPage'))
 const LeaveRequestsPage = lazy(() => import('@/pages/LeaveRequestsPage'))
-const ReportsPage = lazy(() => import('@/pages/ReportsPage'))
 const AuditPage = lazy(() => import('@/pages/AuditPage'))
 const DocumentUploadPage = lazy(() => import('@/pages/DocumentUploadPage'))
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
 const MessagingConfigPage = lazy(() => import('@/pages/MessagingConfigPage'))
 const MessageTemplateEditPage = lazy(() => import('@/pages/MessageTemplateEditPage'))
 const PersonnelFormPage = lazy(() => import('@/pages/PersonnelFormPage'))
+const PersonnelDetailPage = lazy(() => import('@/pages/PersonnelDetailPage'))
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'))
 const HelpPage = lazy(() => import('@/pages/HelpPage'))
 const NewAssignmentPage = lazy(() => import('@/pages/NewAssignmentPage'))
@@ -40,6 +42,7 @@ function App() {
       <ThemeProvider>
         <LanguageProvider>
           <AuthProvider>
+            <InactivityPrompt />
             <NotificationProvider>
               <Suspense fallback={<LoadingSpinner fullScreen />}>
                 <Routes>
@@ -79,7 +82,7 @@ function App() {
                     path="employees/:id"
                     element={
                       <ProtectedRoute allowedRoles={['admin', 'supervisor']}>
-                        <PersonnelFormPage />
+                        <PersonnelDetailPage />
                       </ProtectedRoute>
                     }
                   />
@@ -88,6 +91,14 @@ function App() {
                     element={
                       <ProtectedRoute allowedRoles={['admin']}>
                         <DepartmentsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="sections"
+                    element={
+                      <ProtectedRoute allowedRoles={['admin']}>
+                        <SectionsPage />
                       </ProtectedRoute>
                     }
                   />
@@ -156,14 +167,6 @@ function App() {
                     }
                   />
                   <Route path="leave-requests" element={<LeaveRequestsPage />} />
-                  <Route
-                    path="reports"
-                    element={
-                      <ProtectedRoute allowedRoles={['admin', 'supervisor']}>
-                        <ReportsPage />
-                      </ProtectedRoute>
-                    }
-                  />
                   <Route
                     path="audit"
                     element={

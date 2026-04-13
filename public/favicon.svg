@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#000080"/>
+      <stop offset="100%" stop-color="#00003c"/>
+    </linearGradient>
+  </defs>
+  <!-- Shield shape -->
+  <path d="M32 2 L58 14 L58 30 Q58 50 32 62 Q6 50 6 30 L6 14 Z" fill="url(#bg)" stroke="#c5a44e" stroke-width="2"/>
+  <!-- Inner border -->
+  <path d="M32 6 L54 16 L54 30 Q54 47 32 58 Q10 47 10 30 L10 16 Z" fill="none" stroke="#c5a44e" stroke-width="0.8" opacity="0.5"/>
+  <!-- Ashoka Chakra circle -->
+  <circle cx="32" cy="28" r="10" fill="none" stroke="#c5a44e" stroke-width="1.5"/>
+  <circle cx="32" cy="28" r="2" fill="#c5a44e"/>
+  <!-- Chakra spokes (12) -->
+  <g stroke="#c5a44e" stroke-width="0.8">
+    <line x1="32" y1="18" x2="32" y2="38"/>
+    <line x1="22" y1="28" x2="42" y2="28"/>
+    <line x1="24.9" y1="20.9" x2="39.1" y2="35.1"/>
+    <line x1="39.1" y1="20.9" x2="24.9" y2="35.1"/>
+    <line x1="27.2" y1="19.3" x2="36.8" y2="36.7"/>
+    <line x1="36.8" y1="19.3" x2="27.2" y2="36.7"/>
+    <line x1="22.3" y1="23.2" x2="41.7" y2="32.8"/>
+    <line x1="41.7" y1="23.2" x2="22.3" y2="32.8"/>
+    <line x1="22.3" y1="32.8" x2="41.7" y2="23.2"/>
+    <line x1="19.3" y1="27.2" x2="44.7" y2="28.8"/>
+    <line x1="19.3" y1="28.8" x2="44.7" y2="27.2"/>
+  </g>
+  <!-- KSP text -->
+  <text x="32" y="48" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" font-weight="bold" fill="#c5a44e" letter-spacing="2">KSP</text>
+</svg>
